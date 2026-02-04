@@ -1,64 +1,562 @@
+"use client";
+
 import Image from "next/image";
+import { useRef } from "react";
+import {
+  motion,
+  useMotionValue,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+import NavIcon from "../components/NavIcon";
+
+const heroHeadline = ["Where", "Desire", "Meets", "Elegance"];
+const heroSubheadline =
+  "Exclusive. Sophisticated. Unforgettable. Experience companionship redefined.";
+
+const lifestyleShowcase = [
+  "/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg",
+  "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
+  "/images/Frau%20sitzt%20auf%20Mann.png",
+  "/images/K%C3%BCssendesPaarStartbild.jpeg",
+];
+
+const prestigeSlider = [
+  "/images/hot1.webp",
+  "/images/hot2.webp",
+  "/images/hot3.webp",
+  "/images/hot4.webp",
+  "/images/hot5.webp",
+  "/images/hot6.jpeg",
+  "/images/hot7.jpg",
+  "/images/hot8.webp",
+  "/images/hot9.webp",
+  "/images/hot10.webp",
+  "/images/hot11.webp",
+  "/images/hot12.webp",
+  "/images/hot13.webp",
+  "/images/hot14.jpeg",
+  "/images/hot15.jpeg",
+  "/images/hot17.jpg",
+  "/images/hot18.jpg",
+  "/images/hot19.jpg",
+  "/images/hot20.jpg",
+];
+
+const galleryImages = [
+  "/images/high-class-berlin1.png",
+  "/images/Frauen%20in%20Limousine.jpeg",
+  "/images/Frau%20im%20schwarzen%20Kleid.jpg",
+  "/images/Frau%20im%20Auto%20.jpg",
+  "/images/Frau%20auf%20Sessel.jpg",
+  "/images/Frau%20in%20Body.jpg",
+  "/images/Frau%20in%20Dessous.jpg",
+  "/images/hot17.jpg",
+  "/images/hot18.jpg",
+];
+
+const infiniteVisualsRows = [
+  [
+    "/images/hot1.webp",
+    "/images/hot2.webp",
+    "/images/hot3.webp",
+    "/images/hot4.webp",
+    "/images/hot5.webp",
+    "/images/hot6.jpeg",
+    "/images/hot7.jpg",
+    "/images/hot8.webp",
+    "/images/hot9.webp",
+    "/images/hot10.webp",
+  ],
+  [
+    "/images/hot11.webp",
+    "/images/hot12.webp",
+    "/images/hot13.webp",
+    "/images/hot14.jpeg",
+    "/images/hot15.jpeg",
+    "/images/hot17.jpg",
+    "/images/hot18.jpg",
+    "/images/hot19.jpg",
+    "/images/hot20.jpg",
+    "/images/high-class-berlin1.png",
+  ],
+  [
+    "/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg",
+    "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
+    "/images/Frau%20sitzt%20auf%20Mann.png",
+    "/images/Frauen%20in%20Limousine.jpeg",
+    "/images/Frau%20im%20schwarzen%20Kleid.jpg",
+    "/images/Frau%20im%20Auto%20.jpg",
+    "/images/Frau%20auf%20Sessel.jpg",
+    "/images/Frau%20in%20Body.jpg",
+    "/images/Frau%20in%20Dessous.jpg",
+    "/images/Paar.jpeg",
+  ],
+];
+
+const allShowcaseImages = Array.from(
+  new Set([...prestigeSlider, ...galleryImages, ...lifestyleShowcase])
+);
 
 export default function Home() {
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const lifestyleRef = useRef<HTMLDivElement | null>(null);
+  const ctaRef = useRef<HTMLDivElement | null>(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useSpring(mouseX, { stiffness: 120, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 120, damping: 20 });
+  const driftX = useTransform(smoothX, [-0.5, 0.5], ["-10px", "10px"]);
+  const driftY = useTransform(smoothY, [-0.5, 0.5], ["-6px", "6px"]);
+
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroScale = useTransform(heroProgress, [0, 1], [1, 0.96]);
+  const heroFade = useTransform(heroProgress, [0, 1], [1, 0]);
+
+  const { scrollYProgress: lifestyleProgress } = useScroll({
+    target: lifestyleRef,
+    offset: ["start end", "end start"],
+  });
+  const lifestyleY = useTransform(lifestyleProgress, [0, 1], [60, -40]);
+
+  const { scrollYProgress: ctaProgress } = useScroll({
+    target: ctaRef,
+    offset: ["start end", "end start"],
+  });
+  const ctaY = useTransform(ctaProgress, [0, 1], [50, -30]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
+      <div className="pointer-events-none absolute -top-28 left-1/2 h-80 w-[720px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,179,92,0.35),_rgba(245,179,92,0)_65%)] blur-2xl" />
+      <div className="pointer-events-none absolute -left-40 top-32 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(212,106,122,0.22),_rgba(212,106,122,0)_70%)] blur-2xl" />
+      <div className="pointer-events-none absolute right-0 top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
+
+      <main className="relative z-10">
+        <section
+          ref={heroRef}
+          onMouseMove={(event) => {
+            const { left, top, width, height } =
+              event.currentTarget.getBoundingClientRect();
+            const x = (event.clientX - left) / width - 0.5;
+            const y = (event.clientY - top) / height - 0.5;
+            mouseX.set(x);
+            mouseY.set(y);
+          }}
+          className="relative h-screen overflow-hidden"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 1.06 }}
+            animate={{ opacity: 1, scale: 1.12 }}
+            transition={{ duration: 18, ease: "easeOut" }}
+            className="absolute inset-0"
           >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              src="/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg"
+              alt="Barcelona nightlife"
+              fill
+              priority
+              className="object-cover object-center"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </motion.div>
+
+          <Navbar />
+
+          <motion.div
+            style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
+            className="relative z-10 mx-auto -mt-28 flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-8"
           >
-            Documentation
-          </a>
-        </div>
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center gap-4 text-base uppercase tracking-[0.45em] text-[#f5d68c]"
+            >
+              <span className="h-px w-10 bg-[#f5d68c]/70" />
+              Elite Companionship
+            </motion.p>
+            <motion.h1
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: {
+                  transition: { staggerChildren: 0.08, delayChildren: 0.15 },
+                },
+              }}
+              className="mt-6 max-w-3xl text-6xl font-semibold leading-[1.05] text-white sm:text-7xl lg:text-8xl"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {heroHeadline.map((word) => (
+                <motion.span
+                  key={word}
+                  className="mr-3 inline-block"
+                  variants={{
+                    hidden: { opacity: 0, y: 22, rotateX: 35 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      rotateX: 0,
+                      transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] },
+                    },
+                  }}
+                >
+                  {word === "Desire" ? (
+                    <span className="relative inline-flex items-center">
+                      <span className="bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] bg-clip-text text-transparent">
+                        {word}
+                      </span>
+                      <span className="absolute -bottom-2 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a]" />
+                      <span className="absolute -right-6 top-0 h-3 w-3 rounded-full bg-[#f090a1]" />
+                    </span>
+                  ) : (
+                    word
+                  )}
+                </motion.span>
+              ))}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-5 max-w-xl text-xl text-white/70 sm:text-2xl"
+            >
+              {heroSubheadline}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 flex flex-wrap gap-4"
+            >
+              <button className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition">
+                <span className="relative z-10">Discover More →</span>
+                <span className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
+                  <span className="absolute inset-0 scale-0 rounded-full bg-white/30 blur-xl transition duration-700 group-hover:scale-150" />
+                </span>
+              </button>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        <section
+          ref={lifestyleRef}
+          className="relative z-10 mx-auto grid min-h-screen w-full max-w-7xl gap-16 px-6 py-20 lg:grid-cols-[0.95fr_1.05fr]"
+        >
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, amount: 0.4 }}
+            className="flex flex-col justify-center"
+          >
+            <p className="text-sm uppercase tracking-[0.5em] text-[#f5d68c]">
+              Experience & Lifestyle
+            </p>
+            <h2 className="mt-6 text-5xl font-semibold leading-tight sm:text-6xl">
+              A curated world of late-night elegance.
+            </h2>
+            <p className="mt-5 text-xl text-white/70 sm:text-2xl">
+              Private arrivals, luxury stays, and discreet introductions crafted
+              with confidence and impeccable detail.
+            </p>
+            <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[0.35em] text-white/60">
+              <span className="h-px w-12 bg-white/25" />
+              Limited Availability
+            </div>
+          </motion.div>
+          <motion.div
+            style={{ y: lifestyleY }}
+            className="grid gap-6 md:grid-cols-2"
+          >
+            {lifestyleShowcase.slice(0, 4).map((src, index) => (
+              <motion.div
+                key={src}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                viewport={{ once: true, amount: 0.3 }}
+                whileHover={{ y: -6 }}
+                className="group relative h-[320px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] md:h-[340px]"
+              >
+                <Image src={src} alt="Lifestyle moment" fill className="object-cover" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.55)_100%)] transition group-hover:opacity-90" />
+                <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </section>
+
+        <section className="relative z-10 flex min-h-screen flex-col justify-center bg-[#0c0d10] py-16">
+          <div className="mx-auto w-full max-w-6xl px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true, amount: 0.4 }}
+              className="max-w-2xl"
+            >
+              <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                Signature Moments
+              </p>
+              <h2 className="mt-4 text-5xl font-semibold sm:text-6xl">
+                Luxury visuals, in motion.
+              </h2>
+              <p className="mt-4 text-base text-white/60 sm:text-lg">
+                A private collection of evening imagery, curated for a refined
+                gaze.
+              </p>
+            </motion.div>
+          </div>
+          <div className="mt-12 overflow-hidden">
+            <motion.div
+              className="flex gap-8 px-6"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ duration: 32, repeat: Infinity, ease: "linear" }}
+            >
+              {[...prestigeSlider, ...prestigeSlider].map((src, index) => (
+                <motion.div
+                  key={`${src}-${index}`}
+                  whileHover={{ y: -6 }}
+                  className="group relative h-[440px] w-[320px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216]"
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
+                  <Image src={src} alt="Premium showcase" fill className="object-cover" />
+                  <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
+                  <span className="pointer-events-none absolute bottom-6 left-6 text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/80">
+                    Private Edition
+                  </span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        <section className="relative z-10 bg-[#0b0c10] py-24">
+          <div className="mx-auto w-full max-w-6xl px-6">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div className="max-w-2xl">
+                <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+                  Infinite Visuals
+                </p>
+                <h2 className="mt-5 text-4xl font-semibold sm:text-5xl">
+                  A luxury image installation in motion.
+                </h2>
+              </div>
+              <span className="text-xs uppercase tracking-[0.3em] text-white/50">
+                Curated flow
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-12 space-y-6 overflow-hidden">
+            {[
+              { direction: 1, duration: 42 },
+              { direction: -1, duration: 48 },
+              { direction: 1, duration: 54 },
+            ].map((row, rowIndex) => (
+              <motion.div
+                key={`row-${rowIndex}`}
+                className="flex gap-6 px-6"
+                animate={{
+                  x: row.direction === 1 ? ["0%", "-50%"] : ["-50%", "0%"],
+                }}
+                transition={{
+                  duration: row.duration,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              >
+                {[
+                  ...infiniteVisualsRows[rowIndex],
+                  ...infiniteVisualsRows[rowIndex],
+                ].map((src, index) => (
+                  <motion.div
+                    key={`${src}-${rowIndex}-${index}`}
+                    whileHover={{ scale: 1.03 }}
+                    className="group relative h-[260px] w-[380px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition"
+                  >
+                    <Image
+                      src={src}
+                      alt="Luxury gallery"
+                      fill
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-70 transition group-hover:opacity-90" />
+                    <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_30%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
+                    </div>
+                    <div className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 rotate-6 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)] opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100" />
+                  </motion.div>
+                ))}
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section className="relative z-10 bg-[#0c0d10] py-20">
+          <div className="mx-auto w-full max-w-5xl px-6 text-center">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true, amount: 0.4 }}
+              className="text-sm uppercase tracking-[0.4em] text-[#f5d68c]"
+            >
+              Trust & Discretion
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true, amount: 0.4 }}
+              className="mt-5 text-3xl font-semibold sm:text-4xl"
+            >
+              Privacy-led service, held to the highest standards.
+            </motion.h2>
+            <div className="mt-10 grid gap-6 md:grid-cols-4">
+              {[
+                "Confidential service",
+                "Discreet communication",
+                "Professional standards",
+                "Verified companions",
+              ].map((item) => (
+                <motion.div
+                  key={item}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70"
+                >
+                  <span className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#141519] text-[#f5d68c] shadow-[0_8px_18px_rgba(245,179,92,0.15)]">
+                    <NavIcon path="M12 3l7 4v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4Z" />
+                  </span>
+                  <p>{item}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section ref={ctaRef} className="relative z-10">
+          <div className="relative overflow-hidden">
+            <motion.div style={{ y: ctaY }} className="absolute inset-0">
+              <Image
+                src="/images/Frauen%20in%20Limousine.jpeg"
+                alt="Evening elegance"
+                fill
+                className="object-cover object-center"
+              />
+            </motion.div>
+            <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(5,6,8,0.88)_20%,rgba(10,11,13,0.7)_60%,rgba(10,11,13,0.92)_95%)]" />
+            <div className="relative mx-auto flex min-h-[65vh] w-full max-w-5xl flex-col items-center justify-center px-6 py-24 text-center">
+              <motion.h2
+                initial={{ opacity: 0, y: 26 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.4 }}
+                className="text-3xl font-semibold sm:text-4xl lg:text-5xl"
+              >
+                Ready to explore Barcelona in confidence and style?
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.4 }}
+                className="mt-4 max-w-xl text-sm text-white/70 sm:text-base"
+              >
+                Discover an elite circle of companions for private, curated
+                experiences.
+              </motion.p>
+              <motion.button
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.4 }}
+                className="mt-8 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110"
+              >
+                View Profiles
+              </motion.button>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative z-10 py-24">
+          <div className="mx-auto w-full max-w-6xl px-6">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div className="max-w-2xl">
+                <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+                  Visual Showcase
+                </p>
+                <h2 className="mt-5 text-4xl font-semibold sm:text-5xl">
+                  A cinematic glimpse into the lifestyle.
+                </h2>
+              </div>
+              <span className="text-xs uppercase tracking-[0.3em] text-white/50">
+                Curated frames
+              </span>
+            </div>
+          </div>
+          <div className="mx-auto mt-12 grid w-full max-w-6xl gap-6 px-6 md:grid-cols-2 lg:grid-cols-3">
+            {galleryImages.map((src, index) => (
+              <motion.div
+                key={src}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.08,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                viewport={{ once: true, amount: 0.35 }}
+                className={`group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/5 ${
+                  index % 3 === 0
+                    ? "h-[420px]"
+                    : index % 3 === 1
+                      ? "h-[360px]"
+                      : "h-[460px]"
+                }`}
+                whileHover={{ y: -6 }}
+              >
+                <Image
+                  src={src}
+                  alt="Lifestyle gallery"
+                  fill
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-60 transition group-hover:opacity-80" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_50%)] opacity-0 transition duration-700 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 rotate-6 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)] opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100" />
+                <span className="pointer-events-none absolute bottom-6 left-6 text-xs uppercase tracking-[0.35em] text-white/70">
+                  Private moments
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          viewport={{ once: true, amount: 0.4 }}
+        >
+          <Footer />
+        </motion.div>
       </main>
     </div>
   );
