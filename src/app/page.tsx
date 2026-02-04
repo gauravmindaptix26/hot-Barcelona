@@ -25,13 +25,14 @@ const lifestyleShowcase = [
 ];
 
 const prestigeSlider = [
-  "/images/hot1.webp",
-  "/images/hot2.webp",
-  "/images/hot3.webp",
-  "/images/hot4.webp",
-  "/images/hot5.webp",
-  "/images/hot6.jpeg",
-  "/images/hot7.jpg",
+
+   "/images/high-class-berlin1.png",
+  "/images/Frauen%20in%20Limousine.jpeg",
+  "/images/Frau%20im%20schwarzen%20Kleid.jpg",
+  "/images/Frau%20im%20Auto%20.jpg",
+  "/images/Frau%20auf%20Sessel.jpg",
+  "/images/Frau%20in%20Body.jpg",
+  "/images/Frau%20in%20Dessous.jpg",
   "/images/hot8.webp",
   "/images/hot9.webp",
   "/images/hot10.webp",
@@ -48,25 +49,25 @@ const prestigeSlider = [
 
 const galleryImages = [
   "/images/high-class-berlin1.png",
+   "/images/hot1.webp",
   "/images/Frauen%20in%20Limousine.jpeg",
+  "/images/hot2.webp",
   "/images/Frau%20im%20schwarzen%20Kleid.jpg",
   "/images/Frau%20im%20Auto%20.jpg",
   "/images/Frau%20auf%20Sessel.jpg",
+   "/images/hot7.jpg",
   "/images/Frau%20in%20Body.jpg",
-  "/images/Frau%20in%20Dessous.jpg",
-  "/images/hot17.jpg",
-  "/images/hot18.jpg",
 ];
 
 const infiniteVisualsRows = [
   [
-    "/images/hot1.webp",
-    "/images/hot2.webp",
-    "/images/hot3.webp",
-    "/images/hot4.webp",
-    "/images/hot5.webp",
-    "/images/hot6.jpeg",
-    "/images/hot7.jpg",
+   "/images/Frau%20im%20schwarzen%20Kleid.jpg",
+  "/images/Frau%20im%20Auto%20.jpg",
+  "/images/Frau%20auf%20Sessel.jpg",
+  "/images/Frau%20in%20Body.jpg",
+  "/images/Frau%20in%20Dessous.jpg",
+  "/images/hot8.webp",
+  "/images/hot9.webp",
     "/images/hot8.webp",
     "/images/hot9.webp",
     "/images/hot10.webp",

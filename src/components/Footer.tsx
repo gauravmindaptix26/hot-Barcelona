@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 bg-[#F5D68C] pb-6 pt-4 text-black">
+    <footer className="relative z-10 bg-[#F5D68C] pb-6 pt-4 text-black font-semibold">
       <div className="mx-auto w-full max-w-[92rem] px-6">
         <div className="grid gap-8 lg:grid-cols-[1fr_1fr_1fr_1fr]">
           <div>
@@ -18,14 +18,14 @@ export default function Footer() {
                   className="h-full w-full object-contain"
                 />
               </div>
-              <p className="mt-4 text-lg uppercase tracking-[0.4em] text-black">
+              <p className="mt-4 text-xl uppercase tracking-[0.4em] text-black">
                 Hot Barcelona
               </p>
-              <p className="mt-2 max-w-sm text-lg text-black">
+              <p className="mt-2 max-w-sm text-xl text-black">
                 Discreet, premium companionship curated with refined elegance.
               </p>
             </div>
-            <p className="mt-4 text-base uppercase tracking-[0.3em] text-black">
+            <p className="mt-4 text-lg uppercase tracking-[0.3em] text-black">
               Available in Barcelona & select cities
             </p>
             <div className="mt-4 flex items-center gap-3">
@@ -66,10 +66,10 @@ export default function Footer() {
           </div>
 
           <div className="mt-4">
-            <p className="text-base uppercase tracking-[0.4em] text-black">
+            <p className="text-lg uppercase tracking-[0.4em] text-black">
               Navigation
             </p>
-            <ul className="mt-5 space-y-3 text-lg text-black">
+            <ul className="mt-5 space-y-3 text-xl text-black">
               {[
                 "Home",
                 "About Us",
@@ -92,10 +92,10 @@ export default function Footer() {
           </div>
 
           <div className="mt-4">
-            <p className="text-base uppercase tracking-[0.4em] text-black">
+            <p className="text-lg uppercase tracking-[0.4em] text-black">
               Experiences
             </p>
-            <ul className="mt-5 space-y-3 text-lg text-black">
+            <ul className="mt-5 space-y-3 text-xl text-black">
               {[
                 "Elite Companionship",
                 "Private Meetings",
@@ -117,10 +117,10 @@ export default function Footer() {
           </div>
 
           <div className="mt-4">
-            <p className="text-base uppercase tracking-[0.4em] text-black">
+            <p className="text-lg uppercase tracking-[0.4em] text-black">
               Trust & Legal
             </p>
-            <ul className="mt-5 space-y-3 text-lg text-black">
+            <ul className="mt-5 space-y-3 text-xl text-black">
               {[
                 "Privacy Policy",
                 "Terms & Conditions",
@@ -140,7 +140,7 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-base text-black">
+            <p className="mt-6 text-lg text-black">
               Your privacy and discretion are always respected.
             </p>
           </div>
@@ -148,17 +148,17 @@ export default function Footer() {
 
         <div className="my-10 h-px w-full bg-[linear-gradient(90deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_50%,rgba(0,0,0,0)_100%)]" />
 
-        <div className="flex flex-wrap items-center justify-between gap-6 text-base text-black">
+        <div className="flex flex-wrap items-center justify-between gap-6 text-lg text-black">
           <div className="flex items-center gap-3">
-            <button className="rounded-full border border-black/15 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
+            <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
               DE
             </button>
-            <button className="rounded-full border border-black/15 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
+            <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
               EN
             </button>
           </div>
           <p>Â© 2026 Hot Barcelona. All rights reserved.</p>
-          <button className="rounded-full border border-black/15 px-4 py-2 text-xs uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
+          <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
             Back to top
           </button>
         </div>
