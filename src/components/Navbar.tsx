@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import NavIcon from "./NavIcon";
+
+const navItems = [
+  { label: "Girls", href: "/girls" },
+  { label: "Trans" },
+  { label: "Contact", href: "/contact" },
+];
 
 export default function Navbar() {
   return (
@@ -21,15 +28,26 @@ export default function Navbar() {
         </div>
 
         <div className="hidden items-center gap-12 rounded-full border border-white/15 bg-black/40 px-14 py-3 text-lg font-semibold text-white shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur lg:flex">
-          {["Girls", "Trans", "Contact"].map((label) => (
-            <button
-              key={label}
-              className="group relative text-white/80 transition hover:text-white"
-            >
-              {label}
-              <span className="absolute -bottom-2 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#f5b35c] via-[#d46a7a] to-[#f5d68c] transition group-hover:scale-x-100" />
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const itemClass =
+              "group relative text-white/80 transition hover:text-white";
+
+            if (item.href) {
+              return (
+                <Link key={item.label} href={item.href} className={itemClass}>
+                  {item.label}
+                  <span className="absolute -bottom-2 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#f5b35c] via-[#d46a7a] to-[#f5d68c] transition group-hover:scale-x-100" />
+                </Link>
+              );
+            }
+
+            return (
+              <button key={item.label} type="button" className={itemClass}>
+                {item.label}
+                <span className="absolute -bottom-2 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#f5b35c] via-[#d46a7a] to-[#f5d68c] transition group-hover:scale-x-100" />
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-3">
