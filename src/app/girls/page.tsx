@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
@@ -621,17 +621,17 @@ const profiles = [
 
 const filters = ["Age 20-30", "Barcelona", "4.7+ Rating", "Verified", "Tonight"];
 
-const gridVariants = {
+const gridVariants: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } },
 };
 
-const cardVariants = {
+const cardVariants: Variants = {
   hidden: { opacity: 0, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
