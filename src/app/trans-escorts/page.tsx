@@ -1,6 +1,9 @@
 import TransClient from "./trans-client";
 import { getDb } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function TransPage() {
   const db = await getDb();
   const items = await db

@@ -1,6 +1,9 @@
 import GirlsClient from "./girls-client";
 import { getDb } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type ApiGirl = {
   _id: string;
   name?: string;
