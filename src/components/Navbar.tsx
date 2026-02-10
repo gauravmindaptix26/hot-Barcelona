@@ -34,7 +34,7 @@ export default function Navbar() {
         <div className="flex items-center">
           <div className="relative h-[150px] w-[150px]">
             <Image
-              src="/images/HOT-BARCELONA-FINAL-Black.jpg"
+              src="/images/HOT-BARCELONA-FINAL-Black.jpg.jpeg"
               alt="Hot Barcelona"
               width={150}
               height={150}

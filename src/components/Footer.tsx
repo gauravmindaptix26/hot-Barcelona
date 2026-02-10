@@ -11,7 +11,7 @@ export default function Footer() {
             <div className="flex flex-col items-start">
               <div className="relative h-[170px] w-[200px]">
                 <Image
-                  src="/images/HOT-BARCELONA-FINAL-Black.jpg"
+                  src="/images/HOT-BARCELONA-FINAL-Black.jpg.jpeg"
                   alt="Hot Barcelona"
                   width={200}
                   height={170}
