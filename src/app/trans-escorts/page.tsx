@@ -1,19 +1,10 @@
-import GirlsClient from "./girls-client";
+import TransClient from "./trans-client";
 import { getDb } from "@/lib/db";
 
-type ApiGirl = {
-  _id: string;
-  name?: string;
-  age?: number | null;
-  location?: string;
-  images?: string[];
-  createdAt?: Date;
-};
-
-export default async function GirlsPage() {
+export default async function TransPage() {
   const db = await getDb();
   const items = await db
-    .collection("girls")
+    .collection("trans")
     .find({})
     .sort({ createdAt: -1 })
     .limit(50)
@@ -58,5 +49,5 @@ export default async function GirlsPage() {
     };
   });
 
-  return <GirlsClient initialProfiles={initialProfiles} />;
+  return <TransClient initialProfiles={initialProfiles} />;
 }

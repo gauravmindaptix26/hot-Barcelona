@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import SessionProvider from "../components/SessionProvider";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space",
@@ -32,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
