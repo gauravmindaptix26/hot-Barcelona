@@ -1,7 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { ObjectId } from "mongodb";
+import { authOptions } from "@/lib/auth";
+import { getDb } from "@/lib/db";
 import RegistroSubmit from "./registro-submit";
 import GenderToggle from "./gender-toggle";
+import LocationMapField from "./location-map-field";
 
 const steps = [
   {
@@ -39,13 +45,13 @@ const steps = [
     number: "5",
     title: "Service location",
     note: "Provide the address where you offer services.",
-    fields: ["Address", "Map confirmation"],
+    fields: ["Address"],
   },
   {
     number: "6",
     title: "Ad type and payment",
     note: "Choose subscription, payment method, and optional banner.",
-    fields: ["Subscription", "Payment method", "Featured banner"],
+    fields: ["Payment method"],
   },
 ];
 
@@ -257,7 +263,41 @@ const scheduleOptions = [
   "22:00",
 ];
 
-export default function RegistroEscortsPage() {
+export default async function RegistroEscortsPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+  let initialGender: "girl" | "trans" = "girl";
+  let initialName = "";
+  let initialAge: number | null = null;
+  let initialLocation = "";
+  let initialImages: string[] = [];
+
+  if (session?.user?.id) {
+    const db = await getDb();
+    const userId = new ObjectId(session.user.id);
+    const [girlsAd, transAd] = await Promise.all([
+      db.collection("girls").findOne({ userId, isDeleted: { $ne: true } }),
+      db.collection("trans").findOne({ userId, isDeleted: { $ne: true } }),
+    ]);
+
+    const ad = girlsAd ?? transAd;
+    if (ad) {
+      initialGender =
+        ad.gender === "trans" || ad.gender === "girl"
+          ? ad.gender
+          : girlsAd
+            ? "girl"
+            : "trans";
+      initialName = typeof ad.name === "string" ? ad.name : "";
+      initialAge = typeof ad.age === "number" ? ad.age : null;
+      initialLocation = typeof ad.location === "string" ? ad.location : "";
+      initialImages = Array.isArray(ad.images)
+        ? ad.images.filter((item: unknown) => typeof item === "string")
+        : [];
+    }
+  }
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
       <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,179,92,0.35),_rgba(245,179,92,0)_65%)] blur-3xl" />
@@ -329,11 +369,12 @@ export default function RegistroEscortsPage() {
                 <h2 className="text-2xl font-semibold sm:text-3xl">
                   Step 1 — Start your profile
                 </h2>
-                <GenderToggle />
+                <GenderToggle initialGender={initialGender} />
                 <div className="grid gap-3">
                   <input
                     name="stageName"
                     placeholder="Name you use to publish"
+                    defaultValue={initialName}
                     className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
@@ -359,6 +400,7 @@ export default function RegistroEscortsPage() {
                     min={18}
                     max={80}
                     placeholder="Your age"
+                    defaultValue={initialAge ?? ""}
                     className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                 </div>
@@ -380,8 +422,16 @@ export default function RegistroEscortsPage() {
             <div className="grid gap-6">
               {steps.slice(1).map((step) => (
               <div key={step.number} className="contents">
-                <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
-                  <div className="flex flex-wrap items-start gap-6">
+                <div
+                  className={`rounded-[28px] border border-white/10 bg-white/5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] ${
+                    step.number === "5" ? "p-2 sm:p-3" : "p-6 sm:p-8"
+                  }`}
+                >
+                  <div
+                    className={`flex flex-wrap items-start ${
+                      step.number === "5" ? "gap-2" : "gap-6"
+                    }`}
+                  >
                     <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 text-lg font-semibold">
                       {step.number}
                     </div>
@@ -655,12 +705,11 @@ export default function RegistroEscortsPage() {
 
                         if (step.number === "5" && field === "Address") {
                           return (
-                            <input
-                              key={field}
-                              name="address"
-                              placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                            />
+                            <div key={field} className="md:col-span-2">
+                              <LocationMapField
+                                initialValue={initialLocation}
+                              />
+                            </div>
                           );
                         }
 
@@ -770,9 +819,6 @@ export default function RegistroEscortsPage() {
                                 </option>
                               ))}
                             </select>
-                            <button className="h-12 rounded-xl border border-[#2ee35f] bg-[#2ee35f] px-3 text-xs font-semibold uppercase tracking-[0.2em] text-black transition hover:brightness-110">
-                              Copy
-                            </button>
                           </div>
                         ))}
                       </div>
@@ -784,7 +830,7 @@ export default function RegistroEscortsPage() {
             </div>
           </section>
 
-          <RegistroSubmit />
+          <RegistroSubmit initialImages={initialImages} />
         </form>
       </main>
     </div>

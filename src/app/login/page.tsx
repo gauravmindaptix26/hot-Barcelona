@@ -27,6 +27,7 @@ export default function LoginPage() {
 
           <form
             className="mt-8 grid gap-4"
+            autoComplete="off"
             onSubmit={async (event) => {
               event.preventDefault();
               setError("");
@@ -38,7 +39,7 @@ export default function LoginPage() {
                 email,
                 password,
                 redirect: true,
-                callbackUrl: "/profile/me",
+                callbackUrl: "/post-login",
               });
               if (result?.error) {
                 setError("Invalid email or password");
@@ -50,6 +51,7 @@ export default function LoginPage() {
               name="email"
               type="email"
               placeholder="Email"
+              autoComplete="off"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />
@@ -57,6 +59,7 @@ export default function LoginPage() {
               name="password"
               type="password"
               placeholder="Password"
+              autoComplete="new-password"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />

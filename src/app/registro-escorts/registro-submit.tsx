@@ -7,8 +7,19 @@ type UploadItem = {
   url: string;
 };
 
-export default function RegistroSubmit() {
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
+type Props = {
+  initialImages?: string[];
+};
+
+export default function RegistroSubmit({ initialImages = [] }: Props) {
+  const minImages = 4;
+  const maxImages = 20;
+  const [uploads, setUploads] = useState<UploadItem[]>(
+    initialImages.map((url, index) => ({
+      id: `initial-${index}`,
+      url,
+    }))
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -16,6 +27,7 @@ export default function RegistroSubmit() {
   const [saveOk, setSaveOk] = useState(false);
   const [savedTarget, setSavedTarget] = useState<"girls" | "trans">("girls");
   const [accepted, setAccepted] = useState(true);
+  const [securityAnswer, setSecurityAnswer] = useState("");
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
@@ -26,7 +38,7 @@ export default function RegistroSubmit() {
 
   const uploadFiles = async (files: FileList | null) => {
     if (!files?.length) return;
-    const remaining = 4 - uploads.length;
+    const remaining = maxImages - uploads.length;
     const fileList = Array.from(files).slice(0, remaining);
     if (!fileList.length) return;
 
@@ -66,6 +78,12 @@ export default function RegistroSubmit() {
     setSaveError("");
     setSaveOk(false);
     setMissingLabels([]);
+
+    const normalizedAnswer = securityAnswer.replace(/\s+/g, "").toLowerCase();
+    if (normalizedAnswer !== "25") {
+      setSaveError("Security answer is incorrect. Please try again.");
+      return;
+    }
 
     if (!accepted) {
       setSaveError("Please accept the terms to continue.");
@@ -189,8 +207,12 @@ export default function RegistroSubmit() {
     const location = String(formData.get("address") ?? "").trim();
     const age = Number(ageValue);
 
-    if (images.length < 1) {
-      setSaveError("Please upload at least 1 image.");
+    if (images.length < minImages) {
+      setSaveError(`Please upload at least ${minImages} images.`);
+      return;
+    }
+    if (images.length > maxImages) {
+      setSaveError(`Please upload no more than ${maxImages} images.`);
       return;
     }
 
@@ -215,6 +237,7 @@ export default function RegistroSubmit() {
         return;
       }
 
+      await response.json().catch(() => null);
       const target = gender === "trans" ? "trans" : "girls";
       setSavedTarget(target);
       setSaveOk(true);
@@ -258,6 +281,8 @@ export default function RegistroSubmit() {
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <input
             placeholder="What is 5 times 5?"
+            value={securityAnswer}
+            onChange={(event) => setSecurityAnswer(event.target.value)}
             className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
           />
           <div className="grid grid-cols-2 gap-3">
@@ -291,7 +316,7 @@ export default function RegistroSubmit() {
             <div>
               <p className="text-sm font-semibold">Upload photos</p>
               <p className="mt-1 text-xs text-white/60">
-                Minimum 1, maximum 4 images. Stored locally.
+                Minimum 4, maximum 20 images. Stored in Cloudinary.
               </p>
             </div>
             <label className="cursor-pointer rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-[0.35em] text-white/70 transition hover:text-white">
@@ -302,7 +327,7 @@ export default function RegistroSubmit() {
                 multiple
                 className="hidden"
                 onChange={(event) => uploadFiles(event.target.files)}
-                disabled={isUploading || uploads.length >= 4}
+                disabled={isUploading || uploads.length >= maxImages}
               />
             </label>
           </div>

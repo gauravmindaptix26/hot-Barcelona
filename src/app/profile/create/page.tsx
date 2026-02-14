@@ -11,7 +11,7 @@ export default async function ProfileCreatePage() {
     redirect("/login");
   }
 
-  if (session.user.gender !== "female") {
+  if (session.user.gender !== "female" && !session.user.isAdmin) {
     redirect("/unauthorized");
   }
 

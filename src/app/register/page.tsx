@@ -24,6 +24,7 @@ export default function RegisterPage() {
 
           <form
             className="mt-8 grid gap-4"
+            autoComplete="off"
             onSubmit={async (event) => {
               event.preventDefault();
               setError("");
@@ -53,7 +54,7 @@ export default function RegisterPage() {
                 email: payload.email,
                 password: payload.password,
                 redirect: true,
-                callbackUrl: "/profile/me",
+                callbackUrl: "/post-login",
               });
               setIsSubmitting(false);
             }}
@@ -61,6 +62,7 @@ export default function RegisterPage() {
             <input
               name="name"
               placeholder="Full name"
+              autoComplete="off"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />
@@ -68,6 +70,7 @@ export default function RegisterPage() {
               name="email"
               type="email"
               placeholder="Email"
+              autoComplete="off"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />
@@ -75,6 +78,7 @@ export default function RegisterPage() {
               name="password"
               type="password"
               placeholder="Password (min 8 chars)"
+              autoComplete="new-password"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
               minLength={8}

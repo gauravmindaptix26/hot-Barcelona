@@ -7,7 +7,7 @@ import { rateLimit } from "@/lib/rate-limit";
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { files: 4, fileSize: 5 * 1024 * 1024 },
+  limits: { files: 20, fileSize: 5 * 1024 * 1024 },
 });
 
 export const config = {
@@ -26,7 +26,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  upload.array("images", 4)(req, res, async (err) => {
+  upload.array("images", 20)(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: "Upload failed" });
     }
@@ -45,8 +45,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     try {
+      const cloudinaryFolder = "hot-barcelona/ads";
       const timestamp = Math.floor(Date.now() / 1000);
-      const signatureBase = `timestamp=${timestamp}${apiSecret}`;
+      const signatureBase = `folder=${cloudinaryFolder}&timestamp=${timestamp}${apiSecret}`;
       const signature = crypto.createHash("sha1").update(signatureBase).digest("hex");
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -61,6 +62,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         formData.append("api_key", apiKey);
         formData.append("timestamp", String(timestamp));
         formData.append("signature", signature);
+        formData.append("folder", cloudinaryFolder);
 
         const response = await fetch(uploadUrl, {
           method: "POST",

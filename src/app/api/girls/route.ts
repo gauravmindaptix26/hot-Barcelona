@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import { authOptions } from "@/lib/auth";
 
 type GirlPayload = {
   name?: string;
@@ -14,7 +17,7 @@ export async function GET() {
   const db = await getDb();
   const items = await db
     .collection("girls")
-    .find({})
+    .find({ isDeleted: { $ne: true } })
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();
@@ -40,6 +43,14 @@ export async function POST(req: Request) {
     );
   }
 
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "Please login to save your ad." },
+      { status: 401 }
+    );
+  }
+
   let payload: GirlPayload;
   try {
     payload = (await req.json()) as GirlPayload;
@@ -61,23 +72,54 @@ export async function POST(req: Request) {
     );
   }
 
-  if (images.length < 1) {
+  if (images.length < 4) {
     return NextResponse.json(
-      { error: "At least one image is required." },
+      { error: "At least 4 images are required." },
+      { status: 400 }
+    );
+  }
+  if (images.length > 20) {
+    return NextResponse.json(
+      { error: "No more than 20 images are allowed." },
       { status: 400 }
     );
   }
 
   const db = await getDb();
   const now = new Date();
+  const userId = new ObjectId(session.user.id);
+  const existing = await db.collection("girls").findOne({
+    userId,
+    isDeleted: { $ne: true },
+  });
+
+  if (existing) {
+    await db.collection("girls").updateOne(
+      { _id: existing._id },
+      {
+        $set: {
+          name,
+          age,
+          location,
+          images,
+          gender: payload.gender ?? "girl",
+          updatedAt: now,
+        },
+      }
+    );
+    return NextResponse.json({ ok: true, id: existing._id.toString(), updated: true });
+  }
+
   const result = await db.collection("girls").insertOne({
     name,
     age,
     location,
     images,
     gender: payload.gender ?? "girl",
+    userId,
+    userEmail: session.user.email ?? null,
     createdAt: now,
   });
 
-  return NextResponse.json({ ok: true, id: result.insertedId.toString() });
+  return NextResponse.json({ ok: true, id: result.insertedId.toString(), updated: false });
 }

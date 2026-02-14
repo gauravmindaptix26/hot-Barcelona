@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 
-export default function GenderToggle() {
-  const [gender, setGender] = useState<"girl" | "trans">("girl");
+type Props = {
+  initialGender?: "girl" | "trans";
+};
+
+export default function GenderToggle({ initialGender = "girl" }: Props) {
+  const [gender, setGender] = useState<"girl" | "trans">(initialGender);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/40 p-5">

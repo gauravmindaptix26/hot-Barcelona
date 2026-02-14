@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getDb } from "./db";
+import { isAdminEmail } from "./admin";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -53,6 +54,8 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         const rawGender = (user as { gender?: string }).gender;
         token.gender = rawGender === "female" || rawGender === "male" ? rawGender : null;
+        const rawEmail = (user as { email?: string | null }).email ?? null;
+        token.isAdmin = isAdminEmail(rawEmail);
       }
       return token;
     },
@@ -60,6 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.gender = token.gender as "female" | "male" | undefined;
+        session.user.isAdmin = Boolean(token.isAdmin);
       }
       return session;
     },

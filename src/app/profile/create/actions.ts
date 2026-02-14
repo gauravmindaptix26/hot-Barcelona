@@ -33,7 +33,7 @@ export async function createOrUpdateProfile(
     return { ok: false, error: "Unauthorized" };
   }
 
-  if (session.user.gender !== "female") {
+  if (session.user.gender !== "female" && !session.user.isAdmin) {
     return { ok: false, error: "Forbidden" };
   }
 

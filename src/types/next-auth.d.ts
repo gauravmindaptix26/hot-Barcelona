@@ -5,6 +5,7 @@ declare module "next-auth" {
     user: {
       id: string;
       gender?: "female" | "male";
+      isAdmin?: boolean;
       name?: string | null;
       email?: string | null;
       image?: string | null;
@@ -16,5 +17,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     gender?: "female" | "male" | null;
+    isAdmin?: boolean;
   }
 }

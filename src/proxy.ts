@@ -4,7 +4,7 @@ import { getToken } from "next-auth/jwt";
 
 const protectedPaths = ["/profile"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!protectedPaths.some((path) => pathname.startsWith(path))) {
@@ -22,7 +22,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname.startsWith("/profile/create") && token.gender !== "female") {
+  if (
+    pathname.startsWith("/profile/create") &&
+    token.gender !== "female" &&
+    !token.isAdmin
+  ) {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
 
