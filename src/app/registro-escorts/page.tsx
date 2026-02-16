@@ -595,7 +595,7 @@ export default async function RegistroEscortsPage() {
           <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
             <ProfileLoader />
           </section>
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <section className="mx-auto w-full max-w-6xl px-4 pb-8 sm:px-6 sm:pb-10">
           <div className="rounded-[28px] border border-white/10 bg-[#0c0d10] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-10">
             <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_1fr]">
               <div className="space-y-6">
@@ -649,6 +649,27 @@ export default async function RegistroEscortsPage() {
                 />
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
+          <div className="rounded-[26px] border border-[#f5d68c]/40 bg-gradient-to-br from-[#f5d68c]/25 via-[#f5b35c]/10 to-[#0c0d10] p-5 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
+            <div className="mx-auto inline-flex items-center gap-3 rounded-full border border-[#f5d68c]/40 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#f5d68c]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-sm">
+                !
+              </span>
+              Important
+            </div>
+            <p className="mt-4 text-sm font-semibold text-white/90 sm:text-base">
+              We do not accept texts copied from other websites.
+            </p>
+            <p className="mt-2 text-sm text-white/70">
+              Major search engines like Google penalize websites with non-original content.
+            </p>
+            <p className="mt-2 text-sm text-white/70">
+              If we find the content is not unique, we reserve the right to modify it
+              without prior notice.
+            </p>
           </div>
         </section>
 
