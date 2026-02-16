@@ -8,6 +8,9 @@ import RegistroSubmit from "./registro-submit";
 import GenderToggle from "./gender-toggle";
 import LocationMapField from "./location-map-field";
 import ProfileLoader from "./profile-loader";
+import ServicesMultiSelect from "./services-multi-select";
+import DescriptionHelper from "./description-helper";
+import SubscriptionSelector from "./subscription-selector";
 
 const steps = [
   {
@@ -51,38 +54,202 @@ const steps = [
     number: "6",
     title: "Ad type and payment",
     note: "Choose subscription, payment method, and optional banner.",
-    fields: ["Payment method"],
+    fields: ["Subscription", "Payment method"],
   },
 ];
 
 const nationalityOptions = [
-  "Cuban",
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Andorra",
+  "Angola",
+  "Antigua and Barbuda",
+  "Argentina",
+  "Armenia",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahamas",
+  "Bahrain",
+  "Bangladesh",
+  "Barbados",
+  "Belarus",
+  "Belgium",
+  "Belize",
+  "Benin",
+  "Bhutan",
+  "Bolivia",
+  "Bosnia and Herzegovina",
+  "Botswana",
+  "Brazil",
+  "Brunei Darussalam",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Cabo Verde",
+  "Central African Republic",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Comoros",
+  "Congo (Republic of the)",
+  "Costa Rica",
+  "Cote d'Ivoire",
+  "Croatia",
+  "Cuba",
+  "Cyprus",
+  "Czechia",
+  "Democratic People's Republic of Korea",
+  "Democratic Republic of the Congo",
+  "Denmark",
+  "Djibouti",
+  "Dominica",
   "Dominican Republic",
-  "Ecuadorian",
-  "Spanish",
-  "European",
-  "French",
-  "Greek",
-  "Hungarian",
-  "Italian",
-  "Jamaicans",
-  "Latina",
-  "Moroccan",
-  "Mexican",
-  "Moldova",
-  "Paraguayan",
-  "Portuguese",
-  "Puerto Rico",
-  "Czech Republic",
-  "Romanian",
-  "Russian",
-  "South American",
-  "Thai",
-  "Turkish",
-  "Ukrainian",
-  "Uruguayan",
-  "Valencian",
-  "Venezuelan",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Equatorial Guinea",
+  "Eritrea",
+  "Estonia",
+  "Eswatini",
+  "Ethiopia",
+  "Fiji",
+  "Finland",
+  "France",
+  "Gabon",
+  "Gambia",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Grenada",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bissau",
+  "Guyana",
+  "Haiti",
+  "Honduras",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Jamaica",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kiribati",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Laos",
+  "Latvia",
+  "Lebanon",
+  "Lesotho",
+  "Liberia",
+  "Libya",
+  "Liechtenstein",
+  "Lithuania",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Maldives",
+  "Mali",
+  "Malta",
+  "Marshall Islands",
+  "Mauritania",
+  "Mauritius",
+  "Mexico",
+  "Micronesia (Federated States of)",
+  "Monaco",
+  "Mongolia",
+  "Montenegro",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "North Macedonia",
+  "Norway",
+  "Oman",
+  "Pakistan",
+  "Palau",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Russia",
+  "Rwanda",
+  "Saint Kitts and Nevis",
+  "Saint Lucia",
+  "Saint Vincent and the Grenadines",
+  "Samoa",
+  "San Marino",
+  "Sao Tome and Principe",
+  "Saudi Arabia",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leone",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "Solomon Islands",
+  "Somalia",
+  "South Africa",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Suriname",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad and Tobago",
+  "Tunisia",
+  "Turkey",
+  "Turkmenistan",
+  "Tuvalu",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe",
 ];
 
 const serviceOptions = [
@@ -138,14 +305,75 @@ const attentionOptions = [
 ];
 
 const languageOptions = [
-  "Spanish",
   "English",
+  "Spanish",
   "French",
   "Portuguese",
-  "Russian",
   "German",
   "Italian",
+  "Russian",
+  "Arabic",
+  "Hindi",
+  "Bengali",
+  "Urdu",
+  "Punjabi",
+  "Javanese",
+  "Korean",
+  "Japanese",
+  "Vietnamese",
+  "Turkish",
+  "Thai",
+  "Polish",
+  "Dutch",
+  "Greek",
+  "Czech",
+  "Slovak",
+  "Hungarian",
   "Romanian",
+  "Bulgarian",
+  "Serbian",
+  "Croatian",
+  "Ukrainian",
+  "Swedish",
+  "Norwegian",
+  "Danish",
+  "Finnish",
+  "Hebrew",
+  "Persian",
+  "Malay",
+  "Indonesian",
+  "Filipino",
+  "Swahili",
+  "Yoruba",
+  "Igbo",
+  "Hausa",
+  "Zulu",
+  "Afrikaans",
+  "Amharic",
+  "Somali",
+  "Tamil",
+  "Telugu",
+  "Marathi",
+  "Gujarati",
+  "Kannada",
+  "Malayalam",
+  "Sinhala",
+  "Nepali",
+  "Burmese",
+  "Khmer",
+  "Lao",
+  "Mongolian",
+  "Kazakh",
+  "Uzbek",
+  "Azerbaijani",
+  "Georgian",
+  "Armenian",
+  "Lithuanian",
+  "Latvian",
+  "Estonian",
+  "Icelandic",
+  "Irish",
+  "Welsh",
 ];
 
 const specialFilterOptions = [
@@ -154,6 +382,11 @@ const specialFilterOptions = [
   "To meet without commitment",
   "Sexcam",
   "Video call",
+];
+
+const paymentMethodOptions = [
+  "Payment in cash (we will pass by to collect)",
+  "Payment by ATM or bank transfer",
 ];
 
 const rate20Options = [
@@ -375,24 +608,24 @@ export default async function RegistroEscortsPage() {
                     name="stageName"
                     placeholder="Name you use to publish"
                     defaultValue={initialName}
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="email"
                     type="email"
                     placeholder="Your email (not public)"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="password"
                     type="password"
                     placeholder="Password"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="phone"
                     placeholder="Phone number for your ad"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="age"
@@ -401,9 +634,10 @@ export default async function RegistroEscortsPage() {
                     max={80}
                     placeholder="Your age"
                     defaultValue={initialAge ?? ""}
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                 </div>
+                <DescriptionHelper />
               </div>
 
               <div className="relative min-h-[220px] overflow-hidden rounded-[26px] border border-white/10 sm:min-h-[360px]">
@@ -448,7 +682,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate20"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 20 min
@@ -468,7 +702,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate30"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 30 min
@@ -488,7 +722,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate45"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 45 min
@@ -508,7 +742,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate60"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 60 min
@@ -524,41 +758,36 @@ export default async function RegistroEscortsPage() {
 
                         if (step.number === "2" && field === "Nationality") {
                           return (
-                            <select
-                              key={field}
-                              name="nationality"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Your nationality
-                              </option>
-                              {nationalityOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
+                            <div key={field} className="space-y-2">
+                              <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                Nationality
+                              </div>
+                              <select
+                                name="nationality"
+                                defaultValue=""
+                                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              >
+                                <option value="">
+                                  Your nationality
                                 </option>
-                              ))}
-                            </select>
+                                {nationalityOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           );
                         }
 
                         if (step.number === "2" && field === "Services offered") {
                           return (
-                            <select
+                            <ServicesMultiSelect
                               key={field}
                               name="servicesOffered"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Your Services
-                              </option>
-                              {serviceOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                              options={serviceOptions}
+                              label="Selected services"
+                            />
                           );
                         }
 
@@ -567,81 +796,45 @@ export default async function RegistroEscortsPage() {
                           field === "Physical attributes"
                         ) {
                           return (
-                            <select
+                            <ServicesMultiSelect
                               key={field}
                               name="physicalAttributes"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Your Attributes
-                              </option>
-                              {attributeOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                              options={attributeOptions}
+                              label="Selected attributes"
+                            />
                           );
                         }
 
                         if (step.number === "2" && field === "Attention level") {
                           return (
-                            <select
+                            <ServicesMultiSelect
                               key={field}
                               name="attentionLevel"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Your attention
-                              </option>
-                              {attentionOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                              options={attentionOptions}
+                              label="Selected attention"
+                            />
                           );
                         }
 
                         if (step.number === "2" && field === "Languages") {
                           return (
-                            <select
+                            <ServicesMultiSelect
                               key={field}
                               name="languages"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Your Languages
-                              </option>
-                              {languageOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                              options={languageOptions}
+                              label="Selected languages"
+                            />
                           );
                         }
 
                         if (step.number === "2" && field === "Special Filters") {
                           return (
-                            <select
+                            <ServicesMultiSelect
                               key={field}
                               name="specialFilters"
-                              defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              <option value="" disabled>
-                                Special Filters
-                              </option>
-                              {specialFilterOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
+                              options={specialFilterOptions}
+                              label="Selected filters"
+                            />
                           );
                         }
 
@@ -651,7 +844,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="stageName"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -663,7 +856,7 @@ export default async function RegistroEscortsPage() {
                               name="email"
                               type="email"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -675,7 +868,7 @@ export default async function RegistroEscortsPage() {
                               name="password"
                               type="password"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -686,7 +879,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="phone"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -700,7 +893,7 @@ export default async function RegistroEscortsPage() {
                               min={18}
                               max={80}
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -721,30 +914,44 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="mapConfirmation"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
 
                         if (step.number === "6" && field === "Subscription") {
                           return (
-                            <input
+                            <SubscriptionSelector
                               key={field}
-                              name="subscription"
-                              placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              planName="subscriptionPlan"
+                              durationName="subscriptionDuration"
                             />
                           );
                         }
 
                         if (step.number === "6" && field === "Payment method") {
                           return (
-                            <input
-                              key={field}
-                              name="paymentMethod"
-                              placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                            />
+                            <div key={field} className="space-y-2">
+                              <div className="mt-8 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                Payment type
+                              </div>
+                              <div className="grid gap-2">
+                                {paymentMethodOptions.map((option) => (
+                                  <label
+                                    key={option}
+                                    className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 transition hover:border-[#f5d68c]/40"
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="paymentMethod"
+                                      value={option}
+                                      className="h-4 w-4 accent-[#f5b35c]"
+                                    />
+                                    <span>{option}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
                           );
                         }
 
@@ -754,7 +961,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="featuredBanner"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -763,7 +970,7 @@ export default async function RegistroEscortsPage() {
                           <input
                             key={field}
                             placeholder={field}
-                            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                           />
                         );
                       })}
@@ -796,7 +1003,7 @@ export default async function RegistroEscortsPage() {
                             <select
                               defaultValue="Rest"
                               name={`schedule-${day}-start`}
-                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               {scheduleOptions.map((option) => (
                                 <option
@@ -810,7 +1017,7 @@ export default async function RegistroEscortsPage() {
                             <select
                               defaultValue="Rest"
                               name={`schedule-${day}-end`}
-                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               {scheduleOptions.map((option) => (
                                 <option

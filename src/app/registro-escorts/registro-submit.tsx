@@ -184,10 +184,30 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "rate45",
       "rate60",
       "address",
+      "subscriptionPlan",
+      "subscriptionDuration",
+      "paymentMethod",
     ];
 
     const missing: string[] = [];
     for (const field of requiredFields) {
+      if (
+        field === "servicesOffered" ||
+        field === "languages" ||
+        field === "physicalAttributes" ||
+        field === "attentionLevel" ||
+        field === "specialFilters"
+      ) {
+        const values = formData
+          .getAll(field)
+          .map((item) => String(item).trim())
+          .filter(Boolean);
+        if (values.length === 0) {
+          missing.push(field);
+          markError(field);
+        }
+        continue;
+      }
       const value = String(formData.get(field) ?? "").trim();
       if (!value) {
         missing.push(field);
