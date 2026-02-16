@@ -26,6 +26,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   const [saveError, setSaveError] = useState("");
   const [saveOk, setSaveOk] = useState(false);
   const [savedTarget, setSavedTarget] = useState<"girls" | "trans">("girls");
+  const [securityAnswer, setSecurityAnswer] = useState("");
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
@@ -76,6 +77,12 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     setSaveError("");
     setSaveOk(false);
     setMissingLabels([]);
+
+    const normalizedAnswer = securityAnswer.replace(/\s+/g, "").toLowerCase();
+    if (normalizedAnswer !== "90") {
+      setSaveError("Security answer is incorrect. Please try again.");
+      return;
+    }
 
     const form = document.getElementById(
       "registro-escorts-form"
@@ -261,8 +268,46 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           Save your ad and upload photos
         </h2>
         <p className="mt-3 text-sm text-white/60">
-          Submit your listing and upload photos.
+          Answer the security question to continue.
         </p>
+
+        <div className="mt-8 rounded-[26px] border border-white/10 bg-gradient-to-br from-white/5 via-black/40 to-black/70 p-6 text-left shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/60 text-sm font-semibold text-[#f5d68c]">
+                Q
+              </span>
+              <div>
+                <p className="text-sm font-semibold tracking-wide">
+                  Security Check
+                </p>
+                <p className="text-xs text-white/60">
+                  Please answer to confirm you are human.
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border border-white/10 bg-black/50 px-4 py-2 text-[10px] uppercase tracking-[0.35em] text-white/60">
+              Quick Math
+            </span>
+          </div>
+
+          <div className="mt-5">
+            <label className="text-xs uppercase tracking-[0.35em] text-white/60">
+              100 minus 10 = ?
+            </label>
+            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-black/70 px-4 py-3 focus-within:border-[#f5d68c]/60">
+              <span className="text-xs uppercase tracking-[0.3em] text-white/40">
+                Answer
+              </span>
+              <input
+                placeholder="Type your answer"
+                value={securityAnswer}
+                onChange={(event) => setSecurityAnswer(event.target.value)}
+                className="w-full bg-transparent text-sm text-white/90 placeholder:text-white/30 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-black/40 p-5 text-left">
           <div className="flex flex-wrap items-center justify-between gap-4">
