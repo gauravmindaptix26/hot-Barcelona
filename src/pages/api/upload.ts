@@ -7,7 +7,7 @@ import { rateLimit } from "@/lib/rate-limit";
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { files: 20, fileSize: 5 * 1024 * 1024 },
+  limits: { files: 20, fileSize: 10 * 1024 * 1024 },
 });
 
 export const config = {
@@ -28,6 +28,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   upload.array("images", 20)(req, res, async (err) => {
     if (err) {
+      if ((err as { code?: string }).code === "LIMIT_FILE_SIZE") {
+        return res
+          .status(413)
+          .json({ error: "File too large. Max 10MB per image." });
+      }
+      if ((err as { code?: string }).code === "LIMIT_FILE_COUNT") {
+        return res
+          .status(413)
+          .json({ error: "Too many files. Max 20 images." });
+      }
       return res.status(400).json({ error: "Upload failed" });
     }
 
@@ -69,11 +79,16 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
           body: formData,
         });
 
+        const data = (await response.json()) as {
+          secure_url?: string;
+          error?: { message?: string };
+        };
         if (!response.ok) {
-          return res.status(400).json({ error: "Upload failed" });
+          return res.status(400).json({
+            error: data.error?.message ?? "Upload failed",
+          });
         }
 
-        const data = (await response.json()) as { secure_url?: string };
         if (data.secure_url) {
           urls.push(data.secure_url);
         }

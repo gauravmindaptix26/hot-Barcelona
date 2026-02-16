@@ -74,12 +74,23 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
         body: formData,
       });
 
+      const raw = await response.text();
+      let parsed: { urls?: string[]; error?: string } | null = null;
+      try {
+        parsed = raw ? (JSON.parse(raw) as { urls?: string[]; error?: string }) : null;
+      } catch {
+        parsed = null;
+      }
+
       if (!response.ok) {
-        setUploadError("Upload failed. Try again.");
+        setUploadError(
+          parsed?.error ??
+            (raw ? `Upload failed: ${raw}` : `Upload failed (${response.status})`)
+        );
         return;
       }
 
-      const data = (await response.json()) as { urls?: string[] };
+      const data = parsed ?? {};
       if (data.urls?.length) {
         const urls = data.urls;
         setUploads((prev) => [
@@ -89,6 +100,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
             url,
           })),
         ]);
+      } else {
+        setUploadError("Upload failed. No URLs returned.");
       }
     } finally {
       setIsUploading(false);
