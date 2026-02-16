@@ -88,13 +88,13 @@ export default function ProfileLoader() {
   };
 
   return (
-    <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-white/5 via-black/40 to-black/70 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.4)]">
+    <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-white/5 via-black/40 to-black/70 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.4)] sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
             Profile Access
           </p>
-          <h3 className="mt-3 text-2xl font-semibold">
+          <h3 className="mt-2 text-xl font-semibold sm:mt-3 sm:text-2xl">
             Load your existing profile
           </h3>
           <p className="mt-2 text-sm text-white/60">
@@ -105,13 +105,13 @@ export default function ProfileLoader() {
           type="button"
           onClick={handleLoad}
           disabled={loading}
-          className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:opacity-60"
+          className="w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:opacity-60 sm:w-auto sm:text-xs sm:tracking-[0.35em]"
         >
           {loading ? "Loading..." : "Load Profile"}
         </button>
       </div>
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-5 grid gap-4 sm:mt-6 sm:grid-cols-2">
         <input
           type="email"
           placeholder="Email"

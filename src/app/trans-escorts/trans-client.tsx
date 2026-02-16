@@ -97,24 +97,24 @@ export default function TransClient({
       <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
 
       <main className="relative z-10">
-        <section className="relative overflow-hidden pb-12 pt-6">
+        <section className="relative overflow-hidden pb-10 pt-4 sm:pb-12 sm:pt-6">
           <Navbar />
-          <div className="mx-auto mt-6 w-full max-w-6xl px-6">
+          <div className="mx-auto mt-4 w-full max-w-6xl px-4 sm:mt-6 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             >
-              <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
                 Elite Discovery
               </p>
               <h1
-                className="mt-4 text-4xl font-semibold sm:text-5xl lg:text-6xl"
+                className="mt-3 text-3xl font-semibold sm:mt-4 sm:text-5xl lg:text-6xl"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 Trans Collection
               </h1>
-              <p className="mt-4 max-w-2xl text-base text-white/70 sm:text-lg">
+              <p className="mt-3 max-w-2xl text-sm text-white/70 sm:mt-4 sm:text-lg">
                 A curated selection of refined companions. Explore profiles,
                 compare ratings, and reserve a private introduction.
               </p>
@@ -124,33 +124,33 @@ export default function TransClient({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-8 flex flex-wrap items-center gap-3 rounded-3xl border border-white/10 bg-white/5 px-6 py-4 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur"
+              className="mt-6 flex items-center gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur sm:mt-8 sm:flex-wrap sm:gap-3 sm:px-6 sm:py-4"
             >
-              <button className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80 transition hover:text-white">
+              <button className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]">
                 Filters
                 <NavIcon path="M4 6h16M7 12h10M10 18h4" />
               </button>
               {filters.map((filter) => (
                 <span
                   key={filter}
-                  className="rounded-full border border-white/10 bg-black/30 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/60"
+                  className="whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs sm:tracking-[0.3em]"
                 >
                   {filter}
                 </span>
               ))}
-              <span className="ml-auto text-xs uppercase tracking-[0.3em] text-white/50">
+              <span className="ml-2 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-xs sm:tracking-[0.3em]">
                 {displayProfiles.length} profiles
               </span>
             </motion.div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-6 pb-20">
+        <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
           <motion.div
             variants={gridVariants}
             initial="hidden"
             animate="show"
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
+            className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
             {displayProfiles.map((profile) => (
               <motion.div
@@ -218,18 +218,18 @@ export default function TransClient({
             ))}
           </motion.div>
 
-          <div className="mt-16 flex flex-col items-center gap-6">
-            <div className="flex items-center gap-4 text-xs uppercase tracking-[0.3em] text-white/50">
+          <div className="mt-12 flex flex-col items-center gap-5 sm:mt-16 sm:gap-6">
+            <div className="flex items-center gap-3 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:gap-4 sm:text-xs sm:tracking-[0.3em]">
               <span className="h-px w-12 bg-white/20" />
               Infinite discovery
               <span className="h-px w-12 bg-white/20" />
             </div>
-            <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110">
+            <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
               Load More
             </button>
             <Link
               href="/"
-              className="text-xs uppercase tracking-[0.35em] text-white/50 transition hover:text-white"
+              className="text-[10px] uppercase tracking-[0.3em] text-white/50 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
             >
               Back to home
             </Link>

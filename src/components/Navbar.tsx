@@ -15,6 +15,7 @@ const navItems = [
 export default function Navbar() {
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -30,10 +31,10 @@ export default function Navbar() {
 
   return (
     <header className="relative z-20">
-      <nav className="mx-auto -mt-4 flex w-full max-w-[88rem] items-center justify-between px-6 py-4">
+      <nav className="mx-auto -mt-4 flex w-full max-w-[88rem] items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center">
           <Link href="/" aria-label="Go to home">
-            <div className="relative h-[180px] w-[180px]">
+            <div className="relative h-[130px] w-[130px] sm:h-[170px] sm:w-[170px] lg:h-[220px] lg:w-[220px]">
               <Image
                 src="/images/HOT-BARCELONA-FINAL-Black.jpg__1_-removebg-preview.png"
                 alt="Hot Barcelona"
@@ -69,8 +70,8 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-3 md:flex">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/registro-escorts"
               className="rounded-full border border-white/15 bg-black/45 px-7 py-3 text-sm font-semibold uppercase tracking-[0.32em] text-white/90 shadow-[0_16px_36px_rgba(0,0,0,0.5)] transition hover:bg-black/70"
@@ -79,9 +80,17 @@ export default function Navbar() {
             </Link>
           </div>
 
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden"
+            aria-label="Search"
+          >
+            <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
+          </button>
+
           <div
             ref={accountRef}
-            className="relative flex items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-2 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur"
+            className="relative hidden items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-2 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur lg:flex"
           >
             <button className="rounded-full p-2 transition hover:bg-black/60">
               <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
@@ -152,11 +161,93 @@ export default function Navbar() {
             )}
           </div>
 
-          <button className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden"
+            aria-label="Open menu"
+          >
             <NavIcon path="M4 7h16M4 12h16M4 17h16" />
           </button>
         </div>
       </nav>
+
+      {isMenuOpen && (
+        <div className="mx-auto w-full max-w-[88rem] px-4 pb-4 sm:px-6 lg:hidden">
+          <div className="rounded-[24px] border border-white/10 bg-[#0b0c10]/95 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.5)] backdrop-blur">
+            <div className="grid gap-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <Link
+                href="/registro-escorts"
+                className="rounded-2xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.35)] transition"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Advertise
+              </Link>
+              {session?.user ? (
+                <>
+                  {session.user.isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Admin
+                    </Link>
+                  )}
+                  <Link
+                    href="/my-ad"
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Ad
+                  </Link>
+                  <Link
+                    href="/profile/me"
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Profile
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="grid gap-2">
+                  <Link
+                    href="/login"
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="rounded-2xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-black"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -302,34 +302,34 @@ export default async function RegistroEscortsPage() {
       <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
 
       <main className="relative z-10">
-        <section className="mx-auto grid w-full max-w-6xl gap-10 px-6 pb-14 pt-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-10 pt-10 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6">
-            <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
               Registration Studio
             </p>
             <h1
-              className="text-4xl font-semibold sm:text-5xl lg:text-6xl"
+              className="text-3xl font-semibold sm:text-5xl lg:text-6xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               Advertise in just 6 steps
             </h1>
-            <p className="text-base text-white/70 sm:text-lg">
+            <p className="text-sm text-white/70 sm:text-lg">
               Create a premium profile, manage your ad, and reach your audience
               with a modern, secure workflow.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <Link
                 href="/"
-                className="rounded-full border border-white/15 bg-black/40 px-6 py-3 text-xs uppercase tracking-[0.35em] text-white/80 transition hover:text-white"
+                className="rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
               >
                 Go to main page
               </Link>
-              <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110">
+              <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
                 Start Registration
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4 sm:gap-4">
               {[
                 { label: "On/Off", icon: "⚡" },
                 { label: "Modify", icon: "✏️" },
@@ -338,7 +338,7 @@ export default async function RegistroEscortsPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-xs uppercase tracking-[0.3em] text-white/70"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[10px] uppercase tracking-[0.25em] text-white/70 sm:p-4 sm:text-xs sm:tracking-[0.3em]"
                 >
                   <div className="mb-3 text-2xl">{item.icon}</div>
                   {item.label}
@@ -347,7 +347,7 @@ export default async function RegistroEscortsPage() {
             </div>
           </div>
 
-          <div className="relative min-h-[360px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
+          <div className="relative min-h-[240px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.4)] sm:min-h-[360px]">
             <Image
               src="/images/Frau in Body.jpg"
               alt="Registration"
@@ -359,14 +359,14 @@ export default async function RegistroEscortsPage() {
         </section>
 
         <form id="registro-escorts-form">
-          <section className="mx-auto w-full max-w-6xl px-6 pb-16">
+          <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
             <ProfileLoader />
           </section>
-        <section className="mx-auto w-full max-w-6xl px-6 pb-20">
-          <div className="rounded-[28px] border border-white/10 bg-[#0c0d10] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-10">
-            <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">
+        <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+          <div className="rounded-[28px] border border-white/10 bg-[#0c0d10] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-10">
+            <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_1fr]">
               <div className="space-y-6">
-                <h2 className="text-2xl font-semibold sm:text-3xl">
+                <h2 className="text-xl font-semibold sm:text-3xl">
                   Step 1 — Start your profile
                 </h2>
                 <GenderToggle initialGender={initialGender} />
@@ -406,7 +406,7 @@ export default async function RegistroEscortsPage() {
                 </div>
               </div>
 
-              <div className="relative overflow-hidden rounded-[26px] border border-white/10">
+              <div className="relative min-h-[220px] overflow-hidden rounded-[26px] border border-white/10 sm:min-h-[360px]">
                 <Image
                   src="/images/hot10.webp"
                   alt="Registration preview"
@@ -436,7 +436,9 @@ export default async function RegistroEscortsPage() {
                       {step.number}
                     </div>
                     <div className="flex-1 space-y-3">
-                      <h3 className="text-xl font-semibold">{step.title}</h3>
+                      <h3 className="text-lg font-semibold sm:text-xl">
+                        {step.title}
+                      </h3>
                       <p className="text-sm text-white/60">{step.note}</p>
                       <div className="grid gap-3 md:grid-cols-2">
                         {step.fields.map((field) => {
@@ -776,7 +778,7 @@ export default async function RegistroEscortsPage() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white">
                           4
                         </div>
-                        <h3 className="text-xl font-semibold">
+                        <h3 className="text-lg font-semibold sm:text-xl">
                           Weekly schedule
                         </h3>
                       </div>

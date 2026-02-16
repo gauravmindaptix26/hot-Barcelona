@@ -36,18 +36,18 @@ export default async function ProfileViewPage({
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-5xl px-6 py-16">
-        <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+      <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+        <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
           Profile
         </p>
         <h1
-          className="mt-3 text-3xl font-semibold sm:text-4xl"
+          className="mt-3 text-2xl font-semibold sm:text-4xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
           {profile.fullName}
         </h1>
-        <div className="mt-10 grid gap-8 rounded-3xl border border-white/10 bg-black/40 p-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-4 text-sm text-white/70">
+        <div className="mt-8 grid gap-6 rounded-3xl border border-white/10 bg-black/40 p-4 sm:mt-10 sm:gap-8 sm:p-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-3 text-sm text-white/70 sm:space-y-4">
             <p>Age: {profile.age}</p>
             <p>Location: {profile.location}</p>
             <p>
@@ -60,7 +60,7 @@ export default async function ProfileViewPage({
             {images.map((image) => (
               <div
                 key={image._id.toString()}
-                className="h-40 overflow-hidden rounded-2xl border border-white/10"
+                className="h-32 overflow-hidden rounded-2xl border border-white/10 sm:h-40"
               >
                 <img src={image.url} alt="Profile" className="h-full w-full object-cover" />
               </div>

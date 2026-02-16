@@ -110,15 +110,15 @@ export default function ProfileCreateForm({
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-5xl px-6 py-16">
+      <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
         <form id="upload-form" className="hidden" />
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
               Profile Studio
             </p>
             <h1
-              className="mt-3 text-3xl font-semibold sm:text-4xl"
+              className="mt-3 text-2xl font-semibold sm:text-4xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {initialProfile ? "Edit your profile" : "Create your profile"}
@@ -129,14 +129,14 @@ export default function ProfileCreateForm({
           </div>
           <Link
             href="/profile/me"
-            className="rounded-full border border-white/20 px-6 py-2 text-xs uppercase tracking-[0.35em] text-white/70 transition hover:text-white"
+            className="rounded-full border border-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:px-6 sm:text-xs sm:tracking-[0.35em]"
           >
             My Profile
           </Link>
         </div>
 
-        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6">
-          <div className="flex items-center justify-between text-xs uppercase tracking-[0.35em] text-white/60">
+        <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-4 sm:mt-10 sm:p-6">
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs sm:tracking-[0.35em]">
             <span className={step === 1 ? "text-[#f5d68c]" : ""}>Step 1: Info</span>
             <span className={step === 2 ? "text-[#f5d68c]" : ""}>Step 2: Images</span>
           </div>
@@ -148,11 +148,11 @@ export default function ProfileCreateForm({
           </div>
         </div>
 
-        <form action={formAction} className="mt-10 space-y-8">
+        <form action={formAction} className="mt-8 space-y-6 sm:mt-10 sm:space-y-8">
           <input type="hidden" name="images" value={JSON.stringify(images)} />
 
           <section
-            className={`grid gap-6 rounded-3xl border border-white/10 bg-black/40 p-6 md:grid-cols-2 ${
+            className={`grid gap-6 rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6 md:grid-cols-2 ${
               step === 1 ? "block" : "hidden"
             }`}
           >
@@ -230,7 +230,7 @@ export default function ProfileCreateForm({
           </section>
 
           {step === 2 && (
-            <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
+            <section className="rounded-3xl border border-white/10 bg-black/40 p-4 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-semibold">Upload Images</h2>
@@ -240,7 +240,7 @@ export default function ProfileCreateForm({
                 </div>
                 <label
                   form="upload-form"
-                  className="cursor-pointer rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-[0.35em] text-white/70 transition hover:text-white"
+                  className="cursor-pointer rounded-full border border-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:px-5 sm:text-xs sm:tracking-[0.35em]"
                 >
                   Select Images
                   <input
@@ -262,11 +262,11 @@ export default function ProfileCreateForm({
                 </p>
               )}
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 grid gap-4 sm:mt-6 sm:grid-cols-2 lg:grid-cols-4">
                 {uploads.map((item) => (
                   <div
                     key={item.id}
-                    className="relative h-48 overflow-hidden rounded-2xl border border-white/10 bg-black/50"
+                    className="relative h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/50 sm:h-48"
                   >
                     <img
                       src={item.url}
@@ -276,14 +276,14 @@ export default function ProfileCreateForm({
                     <button
                       type="button"
                       onClick={() => removeUpload(item.id)}
-                      className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
+                      className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-[10px] uppercase tracking-[0.28em] text-white/70 transition hover:text-white sm:text-xs sm:tracking-[0.3em]"
                     >
                       Remove
                     </button>
                   </div>
                 ))}
                 {uploads.length === 0 && (
-                  <div className="rounded-2xl border border-dashed border-white/20 bg-black/30 p-8 text-sm text-white/60">
+                  <div className="rounded-2xl border border-dashed border-white/20 bg-black/30 p-6 text-sm text-white/60 sm:p-8">
                     No images uploaded yet.
                   </div>
                 )}
@@ -317,7 +317,7 @@ export default function ProfileCreateForm({
                 <button
                   type="button"
                   onClick={onBack}
-                  className="rounded-full border border-white/20 px-6 py-2 text-xs uppercase tracking-[0.35em] text-white/70 transition hover:text-white"
+                  className="rounded-full border border-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:px-6 sm:text-xs sm:tracking-[0.35em]"
                 >
                   Back
                 </button>
@@ -326,7 +326,7 @@ export default function ProfileCreateForm({
                 <button
                   type="button"
                   onClick={onNext}
-                  className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition hover:brightness-110"
+                  className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:px-6 sm:text-xs sm:tracking-[0.35em]"
                 >
                   Continue
                 </button>
@@ -335,7 +335,7 @@ export default function ProfileCreateForm({
                 <button
                   type="submit"
                   disabled={!canSubmit}
-                  className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:px-6 sm:text-xs sm:tracking-[0.35em]"
                 >
                   {isPending ? "Saving..." : "Save Profile"}
                 </button>

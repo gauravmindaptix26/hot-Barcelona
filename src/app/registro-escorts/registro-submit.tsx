@@ -298,19 +298,19 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   };
 
   return (
-    <section className="mx-auto w-full max-w-5xl px-6 pb-28">
-      <div className="rounded-[30px] border border-white/10 bg-[#0c0d10] p-8 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+    <section className="mx-auto w-full max-w-5xl px-4 pb-20 sm:px-6 sm:pb-28">
+      <div className="rounded-[30px] border border-white/10 bg-[#0c0d10] p-5 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
         <p className="text-xs uppercase tracking-[0.4em] text-[#f5d68c]">
           Final Step
         </p>
-        <h2 className="mt-4 text-3xl font-semibold sm:text-4xl">
+        <h2 className="mt-3 text-2xl font-semibold sm:mt-4 sm:text-4xl">
           Save your ad and upload photos
         </h2>
-        <p className="mt-3 text-sm text-white/60">
+        <p className="mt-2 text-sm text-white/60 sm:mt-3">
           Answer the security question to continue.
         </p>
 
-        <div className="mt-8 rounded-[26px] border border-white/10 bg-gradient-to-br from-white/5 via-black/40 to-black/70 p-6 text-left shadow-[0_18px_40px_rgba(0,0,0,0.35)]">
+        <div className="mt-6 rounded-[26px] border border-white/10 bg-gradient-to-br from-white/5 via-black/40 to-black/70 p-4 text-left shadow-[0_18px_40px_rgba(0,0,0,0.35)] sm:mt-8 sm:p-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/60 text-sm font-semibold text-[#f5d68c]">
@@ -325,17 +325,17 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
                 </p>
               </div>
             </div>
-            <span className="rounded-full border border-white/10 bg-black/50 px-4 py-2 text-[10px] uppercase tracking-[0.35em] text-white/60">
+            <span className="rounded-full border border-white/10 bg-black/50 px-3 py-2 text-[10px] uppercase tracking-[0.3em] text-white/60 sm:px-4 sm:tracking-[0.35em]">
               Quick Math
             </span>
           </div>
 
-          <div className="mt-5">
-            <label className="text-xs uppercase tracking-[0.35em] text-white/60">
+          <div className="mt-4 sm:mt-5">
+            <label className="text-[10px] uppercase tracking-[0.3em] text-white/60 sm:text-xs sm:tracking-[0.35em]">
               100 minus 10 = ?
             </label>
             <div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-black/70 px-4 py-3 focus-within:border-[#f5d68c]/60">
-              <span className="text-xs uppercase tracking-[0.3em] text-white/40">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 sm:text-xs sm:tracking-[0.3em]">
                 Answer
               </span>
               <input
@@ -348,7 +348,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-black/40 p-5 text-left">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4 text-left sm:mt-8 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold">Upload photos</p>
@@ -356,7 +356,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
                 Minimum 4, maximum 20 images. Stored in Cloudinary.
               </p>
             </div>
-            <label className="cursor-pointer rounded-full border border-white/20 px-5 py-2 text-xs uppercase tracking-[0.35em] text-white/70 transition hover:text-white">
+            <label className="cursor-pointer rounded-full border border-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:px-5 sm:text-xs sm:tracking-[0.35em]">
               Select Images
               <input
                 type="file"
@@ -372,7 +372,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
             <p className="mt-3 text-sm text-red-300">{uploadError}</p>
           )}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2 lg:grid-cols-4">
             {uploads.map((item) => (
               <div
                 key={item.id}
@@ -417,7 +417,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           type="button"
           onClick={handleSave}
           disabled={isSaving}
-          className="mt-8 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
         >
           {isSaving ? "Saving..." : "Save ad & upload photos"}
         </button>

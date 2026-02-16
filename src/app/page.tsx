@@ -170,13 +170,13 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-16 flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-8 sm:-mt-24 lg:-mt-28"
+            className="relative z-10 mx-auto -mt-4 flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-14 sm:pt-16 lg:pt-20"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center gap-4 text-base uppercase tracking-[0.45em] text-[#f5d68c]"
+              className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-[#f5d68c] sm:gap-4 sm:text-base sm:tracking-[0.45em]"
             >
               <span className="h-px w-10 bg-[#f5d68c]/70" />
               Elite Companionship
@@ -190,7 +190,7 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-6 max-w-3xl text-4xl font-semibold leading-[1.1] text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.15] text-white sm:text-6xl lg:text-7xl xl:text-8xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
@@ -225,7 +225,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-5 max-w-xl text-base text-white/70 sm:text-xl lg:text-2xl"
+              className="mt-4 max-w-xl text-sm text-white/70 sm:mt-5 sm:text-xl lg:text-2xl"
             >
               {heroSubheadline}
             </motion.p>
@@ -233,9 +233,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-8 flex flex-wrap gap-4 sm:mt-10"
+              className="mt-6 flex flex-wrap gap-4 sm:mt-10"
             >
-              <button className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition">
+              <button className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
                 <span className="relative z-10">Discover More →</span>
                 <span className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
                   <span className="absolute inset-0 scale-0 rounded-full bg-white/30 blur-xl transition duration-700 group-hover:scale-150" />
@@ -256,17 +256,17 @@ export default function Home() {
             viewport={{ once: true, amount: 0.4 }}
             className="flex flex-col justify-center"
           >
-            <p className="text-sm uppercase tracking-[0.5em] text-[#f5d68c]">
+            <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:text-sm sm:tracking-[0.5em]">
               Experience & Lifestyle
             </p>
-            <h2 className="mt-6 text-3xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
+            <h2 className="mt-4 text-3xl font-semibold leading-tight sm:mt-6 sm:text-5xl lg:text-6xl">
               A curated world of late-night elegance.
             </h2>
-            <p className="mt-5 text-base text-white/70 sm:text-xl lg:text-2xl">
+            <p className="mt-4 text-base text-white/70 sm:mt-5 sm:text-xl lg:text-2xl">
               Private arrivals, luxury stays, and discreet introductions crafted
               with confidence and impeccable detail.
             </p>
-            <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[0.35em] text-white/60">
+            <div className="mt-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-white/60 sm:mt-10 sm:text-xs sm:tracking-[0.35em]">
               <span className="h-px w-12 bg-white/25" />
               Limited Availability
             </div>
@@ -308,13 +308,13 @@ export default function Home() {
               viewport={{ once: true, amount: 0.4 }}
               className="max-w-2xl"
             >
-              <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+              <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:tracking-[0.45em]">
                 Signature Moments
               </p>
-              <h2 className="mt-4 text-3xl font-semibold sm:text-5xl lg:text-6xl">
+              <h2 className="mt-4 text-2xl font-semibold sm:text-5xl lg:text-6xl">
                 Luxury visuals, in motion.
               </h2>
-              <p className="mt-4 text-sm text-white/60 sm:text-base lg:text-lg">
+              <p className="mt-3 text-sm text-white/60 sm:mt-4 sm:text-base lg:text-lg">
                 A private collection of evening imagery, curated for a refined
                 gaze.
               </p>
@@ -349,14 +349,14 @@ export default function Home() {
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-2xl">
-                <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+                <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:tracking-[0.5em]">
                   Infinite Visuals
                 </p>
-                <h2 className="mt-5 text-3xl font-semibold sm:text-4xl lg:text-5xl">
+                <h2 className="mt-4 text-3xl font-semibold sm:mt-5 sm:text-4xl lg:text-5xl">
                   A luxury image installation in motion.
                 </h2>
               </div>
-              <span className="text-xs uppercase tracking-[0.3em] text-white/50">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/50 sm:text-xs">
                 Curated flow
               </span>
             </div>
@@ -414,7 +414,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               viewport={{ once: true, amount: 0.4 }}
-              className="text-sm uppercase tracking-[0.4em] text-[#f5d68c]"
+              className="text-xs uppercase tracking-[0.3em] text-[#f5d68c] sm:text-sm sm:tracking-[0.4em]"
             >
               Trust & Discretion
             </motion.p>
@@ -423,7 +423,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               viewport={{ once: true, amount: 0.4 }}
-              className="mt-5 text-2xl font-semibold sm:text-3xl lg:text-4xl"
+              className="mt-4 text-xl font-semibold sm:mt-5 sm:text-3xl lg:text-4xl"
             >
               Privacy-led service, held to the highest standards.
             </motion.h2>
@@ -488,7 +488,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="mt-8 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:px-10"
+                className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.3em]"
               >
                 View Profiles
               </motion.button>
@@ -500,14 +500,14 @@ export default function Home() {
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-2xl">
-                <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+                <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:tracking-[0.5em]">
                   Visual Showcase
                 </p>
-                <h2 className="mt-5 text-3xl font-semibold sm:text-4xl lg:text-5xl">
+                <h2 className="mt-4 text-3xl font-semibold sm:mt-5 sm:text-4xl lg:text-5xl">
                   A cinematic glimpse into the lifestyle.
                 </h2>
               </div>
-              <span className="text-xs uppercase tracking-[0.3em] text-white/50">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-white/50 sm:text-xs">
                 Curated frames
               </span>
             </div>
