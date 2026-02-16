@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
-import { authOptions } from "@/lib/auth";
 
 type GirlPayload = {
   name?: string;
@@ -43,14 +41,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Please login to save your ad." },
-      { status: 401 }
-    );
-  }
-
   let payload: GirlPayload;
   try {
     payload = (await req.json()) as GirlPayload;
@@ -87,37 +77,14 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const now = new Date();
-  const userId = new ObjectId(session.user.id);
-  const existing = await db.collection("girls").findOne({
-    userId,
-    isDeleted: { $ne: true },
-  });
-
-  if (existing) {
-    await db.collection("girls").updateOne(
-      { _id: existing._id },
-      {
-        $set: {
-          name,
-          age,
-          location,
-          images,
-          gender: payload.gender ?? "girl",
-          updatedAt: now,
-        },
-      }
-    );
-    return NextResponse.json({ ok: true, id: existing._id.toString(), updated: true });
-  }
-
   const result = await db.collection("girls").insertOne({
     name,
     age,
     location,
     images,
     gender: payload.gender ?? "girl",
-    userId,
-    userEmail: session.user.email ?? null,
+    userId: null,
+    userEmail: null,
     createdAt: now,
   });
 

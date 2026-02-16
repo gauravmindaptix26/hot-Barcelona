@@ -26,8 +26,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   const [saveError, setSaveError] = useState("");
   const [saveOk, setSaveOk] = useState(false);
   const [savedTarget, setSavedTarget] = useState<"girls" | "trans">("girls");
-  const [accepted, setAccepted] = useState(true);
-  const [securityAnswer, setSecurityAnswer] = useState("");
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
@@ -78,17 +76,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     setSaveError("");
     setSaveOk(false);
     setMissingLabels([]);
-
-    const normalizedAnswer = securityAnswer.replace(/\s+/g, "").toLowerCase();
-    if (normalizedAnswer !== "25") {
-      setSaveError("Security answer is incorrect. Please try again.");
-      return;
-    }
-
-    if (!accepted) {
-      setSaveError("Please accept the terms to continue.");
-      return;
-    }
 
     const form = document.getElementById(
       "registro-escorts-form"
@@ -274,42 +261,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           Save your ad and upload photos
         </h2>
         <p className="mt-3 text-sm text-white/60">
-          Answer the security question, accept the terms, and submit your
-          listing.
+          Submit your listing and upload photos.
         </p>
-
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          <input
-            placeholder="What is 5 times 5?"
-            value={securityAnswer}
-            onChange={(event) => setSecurityAnswer(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setAccepted(false)}
-              className={`rounded-2xl border border-white/10 py-3 text-xs uppercase tracking-[0.3em] transition ${
-                accepted
-                  ? "bg-white/5 text-white/70"
-                  : "border-white/40 bg-white/10 text-white"
-              }`}
-            >
-              I do not accept
-            </button>
-            <button
-              type="button"
-              onClick={() => setAccepted(true)}
-              className={`rounded-2xl border border-[#d46a7a] py-3 text-xs uppercase tracking-[0.3em] transition ${
-                accepted
-                  ? "bg-[#d46a7a]/20 text-white"
-                  : "bg-white/5 text-white/70"
-              }`}
-            >
-              I accept
-            </button>
-          </div>
-        </div>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-black/40 p-5 text-left">
           <div className="flex flex-wrap items-center justify-between gap-4">

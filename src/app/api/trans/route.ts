@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
-import { authOptions } from "@/lib/auth";
 
 type TransPayload = {
   name?: string;
@@ -43,14 +41,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Please login to save your ad." },
-      { status: 401 }
-    );
-  }
-
   let payload: TransPayload;
   try {
     payload = (await req.json()) as TransPayload;
@@ -87,37 +77,14 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const now = new Date();
-  const userId = new ObjectId(session.user.id);
-  const existing = await db.collection("trans").findOne({
-    userId,
-    isDeleted: { $ne: true },
-  });
-
-  if (existing) {
-    await db.collection("trans").updateOne(
-      { _id: existing._id },
-      {
-        $set: {
-          name,
-          age,
-          location,
-          images,
-          gender: payload.gender ?? "trans",
-          updatedAt: now,
-        },
-      }
-    );
-    return NextResponse.json({ ok: true, id: existing._id.toString(), updated: true });
-  }
-
   const result = await db.collection("trans").insertOne({
     name,
     age,
     location,
     images,
     gender: payload.gender ?? "trans",
-    userId,
-    userEmail: session.user.email ?? null,
+    userId: null,
+    userEmail: null,
     createdAt: now,
   });
 

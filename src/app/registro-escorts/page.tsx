@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
@@ -265,9 +264,6 @@ const scheduleOptions = [
 
 export default async function RegistroEscortsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
   let initialGender: "girl" | "trans" = "girl";
   let initialName = "";
   let initialAge: number | null = null;

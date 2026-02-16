@@ -13,7 +13,7 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
         <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
           <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
-            Secure Login
+            Profile Access
           </p>
           <h1
             className="mt-4 text-3xl font-semibold sm:text-4xl"
@@ -22,7 +22,7 @@ export default function LoginPage() {
             Welcome back
           </h1>
           <p className="mt-2 text-sm text-white/60">
-            Login is required to access profiles.
+            Girls and trans can create and edit their profiles here.
           </p>
 
           <form
