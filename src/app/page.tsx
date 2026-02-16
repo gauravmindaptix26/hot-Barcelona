@@ -149,7 +149,7 @@ export default function Home() {
             mouseX.set(x);
             mouseY.set(y);
           }}
-          className="relative h-screen overflow-hidden"
+          className="relative min-h-[100svh] overflow-hidden"
         >
           <motion.div
             initial={{ opacity: 0, scale: 1.06 }}
@@ -170,7 +170,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-28 flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-8"
+            className="relative z-10 mx-auto -mt-16 flex h-full w-full max-w-6xl flex-col justify-center px-6 pt-8 sm:-mt-24 lg:-mt-28"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -190,7 +190,7 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-6 max-w-3xl text-6xl font-semibold leading-[1.05] text-white sm:text-7xl lg:text-8xl"
+              className="mt-6 max-w-3xl text-4xl font-semibold leading-[1.1] text-white sm:text-6xl lg:text-7xl xl:text-8xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
@@ -225,7 +225,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-5 max-w-xl text-xl text-white/70 sm:text-2xl"
+              className="mt-5 max-w-xl text-base text-white/70 sm:text-xl lg:text-2xl"
             >
               {heroSubheadline}
             </motion.p>
@@ -233,7 +233,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 flex flex-wrap gap-4"
+              className="mt-8 flex flex-wrap gap-4 sm:mt-10"
             >
               <button className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition">
                 <span className="relative z-10">Discover More →</span>
@@ -247,7 +247,7 @@ export default function Home() {
 
         <section
           ref={lifestyleRef}
-          className="relative z-10 mx-auto grid min-h-screen w-full max-w-7xl gap-16 px-6 py-20 lg:grid-cols-[0.95fr_1.05fr]"
+          className="relative z-10 mx-auto grid w-full max-w-7xl gap-12 px-6 py-16 lg:min-h-screen lg:grid-cols-[0.95fr_1.05fr]"
         >
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -259,10 +259,10 @@ export default function Home() {
             <p className="text-sm uppercase tracking-[0.5em] text-[#f5d68c]">
               Experience & Lifestyle
             </p>
-            <h2 className="mt-6 text-5xl font-semibold leading-tight sm:text-6xl">
+            <h2 className="mt-6 text-3xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
               A curated world of late-night elegance.
             </h2>
-            <p className="mt-5 text-xl text-white/70 sm:text-2xl">
+            <p className="mt-5 text-base text-white/70 sm:text-xl lg:text-2xl">
               Private arrivals, luxury stays, and discreet introductions crafted
               with confidence and impeccable detail.
             </p>
@@ -273,7 +273,7 @@ export default function Home() {
           </motion.div>
           <motion.div
             style={{ y: lifestyleY }}
-            className="grid gap-6 md:grid-cols-2"
+            className="grid gap-6 sm:grid-cols-2"
           >
             {lifestyleShowcase.slice(0, 4).map((src, index) => (
               <motion.div
@@ -287,7 +287,7 @@ export default function Home() {
                 }}
                 viewport={{ once: true, amount: 0.3 }}
                 whileHover={{ y: -6 }}
-                className="group relative h-[320px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] md:h-[340px]"
+                className="group relative h-[240px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:h-[280px] md:h-[320px] lg:h-[340px]"
               >
                 <Image src={src} alt="Lifestyle moment" fill className="object-cover" />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.55)_100%)] transition group-hover:opacity-90" />
@@ -299,7 +299,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section className="relative z-10 flex min-h-screen flex-col justify-center bg-[#0c0d10] py-16">
+        <section className="relative z-10 flex flex-col justify-center bg-[#0c0d10] py-16 lg:min-h-screen">
           <div className="mx-auto w-full max-w-6xl px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -311,10 +311,10 @@ export default function Home() {
               <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
                 Signature Moments
               </p>
-              <h2 className="mt-4 text-5xl font-semibold sm:text-6xl">
+              <h2 className="mt-4 text-3xl font-semibold sm:text-5xl lg:text-6xl">
                 Luxury visuals, in motion.
               </h2>
-              <p className="mt-4 text-base text-white/60 sm:text-lg">
+              <p className="mt-4 text-sm text-white/60 sm:text-base lg:text-lg">
                 A private collection of evening imagery, curated for a refined
                 gaze.
               </p>
@@ -330,8 +330,8 @@ export default function Home() {
                 <motion.div
                   key={`${src}-${index}`}
                   whileHover={{ y: -6 }}
-                  className="group relative h-[440px] w-[320px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216]"
-                >
+                className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]"
+              >
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
                   <Image src={src} alt="Premium showcase" fill className="object-cover" />
                   <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
@@ -352,7 +352,7 @@ export default function Home() {
                 <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
                   Infinite Visuals
                 </p>
-                <h2 className="mt-5 text-4xl font-semibold sm:text-5xl">
+                <h2 className="mt-5 text-3xl font-semibold sm:text-4xl lg:text-5xl">
                   A luxury image installation in motion.
                 </h2>
               </div>
@@ -387,8 +387,8 @@ export default function Home() {
                   <motion.div
                     key={`${src}-${rowIndex}-${index}`}
                     whileHover={{ scale: 1.03 }}
-                    className="group relative h-[260px] w-[380px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition"
-                  >
+                className="group relative h-[200px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition sm:h-[230px] sm:w-[300px] lg:h-[260px] lg:w-[380px]"
+              >
                     <Image
                       src={src}
                       alt="Luxury gallery"
@@ -407,7 +407,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 bg-[#0c0d10] py-20">
+        <section className="relative z-10 bg-[#0c0d10] py-16 sm:py-20">
           <div className="mx-auto w-full max-w-5xl px-6 text-center">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -423,11 +423,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               viewport={{ once: true, amount: 0.4 }}
-              className="mt-5 text-3xl font-semibold sm:text-4xl"
+              className="mt-5 text-2xl font-semibold sm:text-3xl lg:text-4xl"
             >
               Privacy-led service, held to the highest standards.
             </motion.h2>
-            <div className="mt-10 grid gap-6 md:grid-cols-4">
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 "Confidential service",
                 "Discreet communication",
@@ -463,13 +463,13 @@ export default function Home() {
               />
             </motion.div>
             <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(5,6,8,0.88)_20%,rgba(10,11,13,0.7)_60%,rgba(10,11,13,0.92)_95%)]" />
-            <div className="relative mx-auto flex min-h-[65vh] w-full max-w-5xl flex-col items-center justify-center px-6 py-24 text-center">
+            <div className="relative mx-auto flex min-h-[55vh] w-full max-w-5xl flex-col items-center justify-center px-6 py-20 text-center sm:min-h-[60vh] sm:py-24">
               <motion.h2
                 initial={{ opacity: 0, y: 26 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="text-3xl font-semibold sm:text-4xl lg:text-5xl"
+                className="text-2xl font-semibold sm:text-3xl lg:text-5xl"
               >
                 Ready to explore Barcelona in confidence and style?
               </motion.h2>
@@ -478,7 +478,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="mt-4 max-w-xl text-sm text-white/70 sm:text-base"
+                className="mt-4 max-w-xl text-sm text-white/70 sm:text-base lg:text-lg"
               >
                 Discover an elite circle of companions for private, curated
                 experiences.
@@ -488,7 +488,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="mt-8 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-10 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110"
+                className="mt-8 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-8 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:px-10"
               >
                 View Profiles
               </motion.button>
@@ -496,14 +496,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 py-24">
+        <section className="relative z-10 py-20 sm:py-24">
           <div className="mx-auto w-full max-w-6xl px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="max-w-2xl">
                 <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
                   Visual Showcase
                 </p>
-                <h2 className="mt-5 text-4xl font-semibold sm:text-5xl">
+                <h2 className="mt-5 text-3xl font-semibold sm:text-4xl lg:text-5xl">
                   A cinematic glimpse into the lifestyle.
                 </h2>
               </div>
@@ -512,7 +512,7 @@ export default function Home() {
               </span>
             </div>
           </div>
-          <div className="mx-auto mt-12 grid w-full max-w-6xl gap-6 px-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto mt-10 grid w-full max-w-6xl gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">
             {galleryImages.map((src, index) => (
               <motion.div
                 key={src}
@@ -526,10 +526,10 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.35 }}
                 className={`group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/5 ${
                   index % 3 === 0
-                    ? "h-[420px]"
+                    ? "h-[260px] sm:h-[320px] lg:h-[420px]"
                     : index % 3 === 1
-                      ? "h-[360px]"
-                      : "h-[460px]"
+                      ? "h-[230px] sm:h-[300px] lg:h-[360px]"
+                      : "h-[280px] sm:h-[340px] lg:h-[460px]"
                 }`}
                 whileHover={{ y: -6 }}
               >
