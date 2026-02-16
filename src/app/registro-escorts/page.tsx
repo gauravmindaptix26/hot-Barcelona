@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import RegistroSubmit from "./registro-submit";
 import GenderToggle from "./gender-toggle";
 import LocationMapField from "./location-map-field";
+import ProfileLoader from "./profile-loader";
 
 const steps = [
   {
@@ -358,6 +359,9 @@ export default async function RegistroEscortsPage() {
         </section>
 
         <form id="registro-escorts-form">
+          <section className="mx-auto w-full max-w-6xl px-6 pb-16">
+            <ProfileLoader />
+          </section>
         <section className="mx-auto w-full max-w-6xl px-6 pb-20">
           <div className="rounded-[28px] border border-white/10 bg-[#0c0d10] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-10">
             <div className="grid gap-10 lg:grid-cols-[1fr_1fr]">

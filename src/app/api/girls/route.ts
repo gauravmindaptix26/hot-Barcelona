@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import bcrypt from "bcryptjs";
 
 type GirlPayload = {
   name?: string;
@@ -9,6 +10,8 @@ type GirlPayload = {
   location?: string;
   images?: string[];
   gender?: string;
+  email?: string;
+  password?: string;
 };
 
 export async function GET() {
@@ -49,6 +52,8 @@ export async function POST(req: Request) {
   }
 
   const name = (payload.name ?? "").trim();
+  const email = (payload.email ?? "").trim().toLowerCase();
+  const password = (payload.password ?? "").trim();
   const location = (payload.location ?? "").trim();
   const age = Number(payload.age);
   const images = Array.isArray(payload.images)
@@ -58,6 +63,12 @@ export async function POST(req: Request) {
   if (!name || !location || !Number.isFinite(age)) {
     return NextResponse.json(
       { error: "Name, age, and location are required." },
+      { status: 400 }
+    );
+  }
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: "Email and password are required." },
       { status: 400 }
     );
   }
@@ -77,12 +88,53 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const now = new Date();
+  const existing = await db.collection("girls").findOne({
+    email,
+    isDeleted: { $ne: true },
+  });
+
+  if (existing) {
+    const existingHash =
+      typeof existing.passwordHash === "string" ? existing.passwordHash : "";
+    const ok = existingHash
+      ? await bcrypt.compare(password, existingHash)
+      : false;
+    if (!ok) {
+      return NextResponse.json(
+        { error: "Email or password is incorrect." },
+        { status: 401 }
+      );
+    }
+
+    await db.collection("girls").updateOne(
+      { _id: existing._id },
+      {
+        $set: {
+          name,
+          age,
+          location,
+          images,
+          gender: payload.gender ?? "girl",
+          updatedAt: now,
+        },
+      }
+    );
+    return NextResponse.json({
+      ok: true,
+      id: existing._id.toString(),
+      updated: true,
+    });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
   const result = await db.collection("girls").insertOne({
     name,
     age,
     location,
     images,
     gender: payload.gender ?? "girl",
+    email,
+    passwordHash,
     userId: null,
     userEmail: null,
     createdAt: now,

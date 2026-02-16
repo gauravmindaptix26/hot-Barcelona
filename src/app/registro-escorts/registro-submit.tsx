@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type UploadItem = {
   id: string;
@@ -30,6 +30,28 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
+
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const raw = localStorage.getItem("loadedAdProfile");
+        if (!raw) return;
+        const data = JSON.parse(raw) as { images?: string[] };
+        if (Array.isArray(data.images)) {
+          setUploads(
+            data.images.map((url, index) => ({
+              id: `loaded-${index}`,
+              url,
+            }))
+          );
+        }
+      } catch {
+        // ignore storage errors
+      }
+    };
+    window.addEventListener("profile:loaded", handler);
+    return () => window.removeEventListener("profile:loaded", handler);
+  }, []);
 
   const removeUpload = (id: string) => {
     setUploads((prev) => prev.filter((item) => item.id !== id));
@@ -197,6 +219,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
 
     const gender = String(formData.get("gender") ?? "").trim();
     const name = String(formData.get("stageName") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "").trim();
     const ageValue = String(formData.get("age") ?? "").trim();
     const location = String(formData.get("address") ?? "").trim();
     const age = Number(ageValue);
@@ -222,6 +246,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           location,
           images,
           gender,
+          email,
+          password,
         }),
       });
 

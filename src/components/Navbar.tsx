@@ -73,7 +73,7 @@ export default function Navbar() {
           <div className="hidden items-center gap-3 md:flex">
             <Link
               href="/registro-escorts"
-              className="rounded-full border border-white/15 bg-black/45 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] transition hover:bg-black/70"
+              className="rounded-full border border-white/15 bg-black/45 px-7 py-3 text-sm font-semibold uppercase tracking-[0.32em] text-white/90 shadow-[0_16px_36px_rgba(0,0,0,0.5)] transition hover:bg-black/70"
             >
               Advertise
             </Link>
