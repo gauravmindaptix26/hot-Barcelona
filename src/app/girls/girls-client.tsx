@@ -8,7 +8,24 @@ import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 
-const filters = ["Age 20-30", "Barcelona", "4.7+ Rating", "Verified", "Tonight"];
+const filters = ["Age 20-60", "Barcelona", "4.7+ Rating", "Verified", "Tonight"];
+
+const filterMatches = (profile: Profile, filter: string) => {
+  switch (filter) {
+    case "Age 20-60":
+      return Number.isFinite(profile.age) && profile.age >= 20 && profile.age <= 60;
+    case "Barcelona":
+      return profile.location.toLowerCase().includes("barcelona");
+    case "4.7+ Rating":
+      return profile.rating >= 4.7;
+    case "Verified":
+      return profile.tag.toLowerCase().includes("verified");
+    case "Tonight":
+      return profile.availability.days.toLowerCase().includes("today");
+    default:
+      return true;
+  }
+};
 
 type Profile = {
   id: string;
@@ -65,12 +82,16 @@ export default function GirlsClient({
   initialProfiles: Profile[];
 }) {
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
 
-  const displayProfiles = useMemo(() => liveProfiles, [liveProfiles]);
+  const displayProfiles = useMemo(() => {
+    if (!activeFilter) return liveProfiles;
+    return liveProfiles.filter((profile) => filterMatches(profile, activeFilter));
+  }, [activeFilter, liveProfiles]);
 
   const selectedProfile = useMemo(
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
@@ -130,18 +151,30 @@ export default function GirlsClient({
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="mt-6 flex items-center gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur sm:mt-8 sm:flex-wrap sm:gap-3 sm:px-6 sm:py-4"
             >
-              <button className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]">
+              <button
+                type="button"
+                onClick={() => setActiveFilter(null)}
+                className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
+              >
                 Filters
                 <NavIcon path="M4 6h16M7 12h10M10 18h4" />
               </button>
-              {filters.map((filter) => (
-                <span
+              {filters.map((filter) => {
+                const isActive = activeFilter === filter;
+                return (
+                <button
                   key={filter}
-                  className="whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs sm:tracking-[0.3em]"
+                  type="button"
+                  onClick={() => setActiveFilter(isActive ? null : filter)}
+                  className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
+                    isActive
+                      ? "border-[#f5d68c]/60 bg-[#f5d68c]/10 text-[#f5d68c]"
+                      : "border-white/10 bg-black/30 text-white/60 hover:text-white"
+                  }`}
                 >
                   {filter}
-                </span>
-              ))}
+                </button>
+              )})}
               <span className="ml-2 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-xs sm:tracking-[0.3em]">
                 {displayProfiles.length} profiles
               </span>

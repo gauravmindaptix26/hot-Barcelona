@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Playfair_Display, Space_Grotesk } from "next/font/google";
+import {
+  Cinzel,
+  JetBrains_Mono,
+  Playfair_Display,
+  Space_Grotesk,
+} from "next/font/google";
 import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
 
@@ -10,6 +15,11 @@ const spaceGrotesk = Space_Grotesk({
 
 const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
+  subsets: ["latin"],
+});
+
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
 });
 
@@ -31,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} ${jetBrainsMono.variable} antialiased`}
       >
         <SessionProvider>{children}</SessionProvider>
       </body>

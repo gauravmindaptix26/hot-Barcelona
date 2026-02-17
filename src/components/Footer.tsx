@@ -30,7 +30,7 @@ export default function Footer() {
   return (
     <footer className="relative z-10 bg-[#151018] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
-      <div className="relative mx-auto w-full max-w-6xl px-6 pt-24 pb-14 sm:pt-28 sm:pb-16">
+      <div className="relative mx-auto w-full max-w-[88rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_0.9fr_1fr]">
           <div>
             <div className="flex items-center gap-3">

@@ -32,6 +32,10 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+.font-cinzel {
+  font-family: var(--font-cinzel);
+}
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;

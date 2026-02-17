@@ -34,12 +34,12 @@ export default function Navbar() {
       <nav className="mx-auto -mt-4 flex w-full max-w-[88rem] items-center justify-between px-4 py-4 sm:px-6">
         <div className="flex items-center">
           <Link href="/" aria-label="Go to home">
-            <div className="relative h-[130px] w-[130px] sm:h-[170px] sm:w-[170px] lg:h-[220px] lg:w-[220px]">
+            <div className="relative h-[170px] w-[170px] sm:h-[220px] sm:w-[220px] lg:h-[280px] lg:w-[280px]">
               <Image
                 src="/images/HOT-BARCELONA-FINAL-Black.jpg__1_-removebg-preview.png"
                 alt="Hot Barcelona"
-                width={180}
-                height={180}
+                width={240}
+                height={240}
                 priority
                 className="h-full w-full object-contain"
               />
