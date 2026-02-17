@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   motion,
   useMotionValue,
@@ -17,11 +18,13 @@ const heroHeadline = ["Where", "Desire", "Meets", "Elegance"];
 const heroSubheadline =
   "Exclusive. Sophisticated. Unforgettable. Experience companionship redefined.";
 
-const lifestyleShowcase = [
-  "/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg",
-  "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
-  "/images/Frau%20sitzt%20auf%20Mann.png",
-  "/images/K%C3%BCssendesPaarStartbild.jpeg",
+const premiumVipImages = [
+  "/images/hot1.webp",
+  "/images/hot2.webp",
+  "/images/hot3.webp",
+  "/images/hot4.webp",
+  "/images/hot5.webp",
+  "/images/hot6.jpeg",
 ];
 
 const prestigeSlider = [
@@ -47,6 +50,14 @@ const prestigeSlider = [
   "/images/hot20.jpg",
 ];
 
+type LatestProfile = {
+  id: string;
+  name: string;
+  age: number | null;
+  location: string;
+  image: string | null;
+};
+
 const galleryImages = [
   "/images/high-class-berlin1.png",
    "/images/hot1.webp",
@@ -59,6 +70,13 @@ const galleryImages = [
   "/images/Frau%20in%20Body.jpg",
 ];
 
+const fallbackProfiles: LatestProfile[] = galleryImages.slice(0, 9).map((src, index) => ({
+  id: `fallback-${index}`,
+  name: "New profile",
+  age: null,
+  location: "Barcelona",
+  image: src,
+}));
 const infiniteVisualsRows = [
   [
    "/images/Frau%20im%20schwarzen%20Kleid.jpg",
@@ -98,14 +116,15 @@ const infiniteVisualsRows = [
   ],
 ];
 
-const allShowcaseImages = Array.from(
-  new Set([...prestigeSlider, ...galleryImages, ...lifestyleShowcase])
-);
-
 export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
-  const lifestyleRef = useRef<HTMLDivElement | null>(null);
   const ctaRef = useRef<HTMLDivElement | null>(null);
+  const [latestProfiles, setLatestProfiles] =
+    useState<LatestProfile[]>(fallbackProfiles);
+  const latestProfilesSafe = useMemo(
+    () => latestProfiles.slice(0, 9),
+    [latestProfiles]
+  );
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const smoothX = useSpring(mouseX, { stiffness: 120, damping: 20 });
@@ -120,17 +139,38 @@ export default function Home() {
   const heroScale = useTransform(heroProgress, [0, 1], [1, 0.96]);
   const heroFade = useTransform(heroProgress, [0, 1], [1, 0]);
 
-  const { scrollYProgress: lifestyleProgress } = useScroll({
-    target: lifestyleRef,
-    offset: ["start end", "end start"],
-  });
-  const lifestyleY = useTransform(lifestyleProgress, [0, 1], [60, -40]);
-
   const { scrollYProgress: ctaProgress } = useScroll({
     target: ctaRef,
     offset: ["start end", "end start"],
   });
   const ctaY = useTransform(ctaProgress, [0, 1], [50, -30]);
+
+  useEffect(() => {
+    let active = true;
+    const loadLatestProfiles = async () => {
+      try {
+        const response = await fetch("/api/latest-profiles");
+        if (!response.ok) return;
+        const data = (await response.json()) as LatestProfile[];
+        if (active && Array.isArray(data) && data.length > 0) {
+          const merged = [...data];
+          if (merged.length < 9) {
+            const fillers = fallbackProfiles.filter(
+              (item) => !merged.some((profile) => profile.id === item.id)
+            );
+            merged.push(...fillers);
+          }
+          setLatestProfiles(merged.slice(0, 9));
+        }
+      } catch {
+        // Keep fallback profiles on error.
+      }
+    };
+    loadLatestProfiles();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
@@ -245,58 +285,173 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section
-          ref={lifestyleRef}
-          className="relative z-10 mx-auto grid w-full max-w-7xl gap-12 px-6 py-16 lg:min-h-screen lg:grid-cols-[0.95fr_1.05fr]"
-        >
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ once: true, amount: 0.4 }}
-            className="flex flex-col justify-center"
-          >
-            <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:text-sm sm:tracking-[0.5em]">
-              Experience & Lifestyle
-            </p>
-            <h2 className="mt-4 text-3xl font-semibold leading-tight sm:mt-6 sm:text-5xl lg:text-6xl">
-              A curated world of late-night elegance.
-            </h2>
-            <p className="mt-4 text-base text-white/70 sm:mt-5 sm:text-xl lg:text-2xl">
-              Private arrivals, luxury stays, and discreet introductions crafted
-              with confidence and impeccable detail.
-            </p>
-            <div className="mt-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-white/60 sm:mt-10 sm:text-xs sm:tracking-[0.35em]">
-              <span className="h-px w-12 bg-white/25" />
-              Limited Availability
+        <section className="relative z-10 mx-auto w-full max-w-7xl px-6 py-16 lg:min-h-screen">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-[0.35em] text-[#f5d68c] sm:text-sm sm:tracking-[0.5em]">
+                Top Premium VIP
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold leading-tight sm:mt-6 sm:text-5xl lg:text-6xl">
+                Six exclusive arrivals, curated for the elite.
+              </h2>
+              <p className="mt-4 text-base text-white/70 sm:mt-5 sm:text-xl lg:text-2xl">
+                The most requested profiles, highlighted with a luminous, VIP
+                focus.
+              </p>
             </div>
-          </motion.div>
-          <motion.div
-            style={{ y: lifestyleY }}
-            className="grid gap-6 sm:grid-cols-2"
-          >
-            {lifestyleShowcase.slice(0, 4).map((src, index) => (
+            <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 sm:text-xs sm:tracking-[0.35em]">
+              Limited Release
+            </span>
+          </div>
+
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {premiumVipImages.map((src, index) => (
               <motion.div
                 key={src}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: 0.8,
-                  delay: index * 0.12,
+                  duration: 0.7,
+                  delay: index * 0.1,
                   ease: [0.16, 1, 0.3, 1],
                 }}
                 viewport={{ once: true, amount: 0.3 }}
                 whileHover={{ y: -6 }}
-                className="group relative h-[240px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:h-[280px] md:h-[320px] lg:h-[340px]"
+                className="group relative h-[260px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:h-[300px] lg:h-[340px]"
               >
-                <Image src={src} alt="Lifestyle moment" fill className="object-cover" />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.55)_100%)] transition group-hover:opacity-90" />
-                <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
+                <div className="absolute left-4 top-4 z-10 rounded-full border border-white/20 bg-black/70 px-4 py-1 text-[10px] uppercase tracking-[0.35em] text-[#f5d68c]">
+                  Top Premium VIP
                 </div>
+                <Image
+                  src={src}
+                  alt={`Top Premium VIP ${index + 1}`}
+                  fill
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-80 transition group-hover:opacity-90" />
               </motion.div>
             ))}
-          </motion.div>
+          </div>
+
+          <div className="mt-10 rounded-[32px] border border-white/10 bg-[linear-gradient(110deg,rgba(245,214,140,0.22)_0%,rgba(245,179,92,0.08)_45%,rgba(212,106,122,0.2)_100%)] p-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.4em] text-[#f5d68c]">
+                  Top Premium
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold sm:text-3xl">
+                  The newest banner for elite access.
+                </h3>
+                <p className="mt-2 text-sm text-white/70">
+                  Showcase the most desired profiles with a luminous, curated
+                  spotlight.
+                </p>
+              </div>
+              <span className="rounded-full border border-white/20 bg-black/60 px-5 py-2 text-xs uppercase tracking-[0.35em] text-white">
+                Top Premium
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-10">
+            <h3 className="text-2xl font-semibold sm:text-3xl">Top Premium</h3>
+            <p className="mt-2 text-sm text-white/70">
+              A refined lineup for guests who want the most exclusive arrivals,
+              sessions, and introductions.
+            </p>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                {
+                  title: "Discreet VIP Screening",
+                  copy: "Profiles are hand-curated to uphold premium standards.",
+                },
+                {
+                  title: "Luxury Availability",
+                  copy: "Priority access windows with top-rated companions.",
+                },
+                {
+                  title: "Signature Experience",
+                  copy: "A tailored journey from arrival to private suite.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-[28px] border border-white/10 bg-white/5 p-6"
+                >
+                  <h4 className="text-lg font-semibold">{item.title}</h4>
+                  <p className="mt-2 text-sm text-white/70">{item.copy}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="relative z-10 bg-[#1b1b1b] py-8">
+          <div className="mx-auto w-full max-w-6xl px-6">
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                { label: "With video", accent: "bg-red-500/80", icon: "play" },
+                { label: "Show your face", accent: "bg-white/80", icon: "face" },
+                { label: "Video call", accent: "bg-[#b27cff]", icon: "call" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#232323] px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                >
+                  <span
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.accent} text-white shadow-[0_8px_18px_rgba(0,0,0,0.35)]`}
+                  >
+                    {item.icon === "play" && (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M10 8l6 4-6 4V8z" fill="currentColor" />
+                      </svg>
+                    )}
+                    {item.icon === "face" && (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M9 10h.01M15 10h.01" />
+                        <path d="M8.5 14.2c.9-1 2.1-1.6 3.5-1.6s2.6.6 3.5 1.6" />
+                      </svg>
+                    )}
+                    {item.icon === "call" && (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-6 w-6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <rect x="3.5" y="7" width="12" height="10" rx="2" />
+                        <path d="M17 9l4-2v10l-4-2" />
+                      </svg>
+                    )}
+                  </span>
+                  <span
+                    className="text-lg font-semibold text-white"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="relative z-10 flex flex-col justify-center bg-[#0c0d10] py-16 lg:min-h-screen">
@@ -504,8 +659,11 @@ export default function Home() {
                   Visual Showcase
                 </p>
                 <h2 className="mt-4 text-3xl font-semibold sm:mt-5 sm:text-4xl lg:text-5xl">
-                  A cinematic glimpse into the lifestyle.
+                  New comers latest additions
                 </h2>
+                <p className="mt-3 text-sm text-white/60 sm:mt-4 sm:text-base lg:text-lg">
+                  A cinematic glimpse into the lifestyle.
+                </p>
               </div>
               <span className="text-[10px] uppercase tracking-[0.3em] text-white/50 sm:text-xs">
                 Curated frames
@@ -513,40 +671,66 @@ export default function Home() {
             </div>
           </div>
           <div className="mx-auto mt-10 grid w-full max-w-6xl gap-6 px-6 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryImages.map((src, index) => (
-              <motion.div
-                key={src}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: index * 0.08,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                viewport={{ once: true, amount: 0.35 }}
-                className={`group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/5 ${
-                  index % 3 === 0
-                    ? "h-[260px] sm:h-[320px] lg:h-[420px]"
-                    : index % 3 === 1
-                      ? "h-[230px] sm:h-[300px] lg:h-[360px]"
-                      : "h-[280px] sm:h-[340px] lg:h-[460px]"
-                }`}
-                whileHover={{ y: -6 }}
-              >
-                <Image
-                  src={src}
-                  alt="Lifestyle gallery"
-                  fill
-                  className="object-cover transition duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-60 transition group-hover:opacity-80" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_50%)] opacity-0 transition duration-700 group-hover:opacity-100" />
-                <div className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 rotate-6 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)] opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100" />
-                <span className="pointer-events-none absolute bottom-6 left-6 text-xs uppercase tracking-[0.35em] text-white/70">
-                  Private moments
-                </span>
-              </motion.div>
-            ))}
+            {latestProfilesSafe.map((profile, index) => {
+              const isFallback = profile.id.startsWith("fallback-");
+              const card = (
+                <motion.div
+                  key={profile.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: index * 0.08,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  viewport={{ once: true, amount: 0.35 }}
+                  className={`group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/5 ${
+                    index % 3 === 0
+                      ? "h-[260px] sm:h-[320px] lg:h-[420px]"
+                      : index % 3 === 1
+                        ? "h-[230px] sm:h-[300px] lg:h-[360px]"
+                        : "h-[280px] sm:h-[340px] lg:h-[460px]"
+                  }`}
+                  whileHover={{ y: -6 }}
+                >
+                  <Image
+                    src={profile.image ?? "/images/hot1.webp"}
+                    alt={profile.name}
+                    fill
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-60 transition group-hover:opacity-80" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_50%)] opacity-0 transition duration-700 group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 rotate-6 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)] opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute bottom-6 left-6">
+                    <p className="text-xs uppercase tracking-[0.35em] text-white/70">
+                      New profile
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-white">
+                      {profile.name}
+                      {profile.age ? `, ${profile.age}` : ""}
+                    </p>
+                    {profile.location && (
+                      <p className="text-xs text-white/70">{profile.location}</p>
+                    )}
+                  </div>
+                </motion.div>
+              );
+
+              if (isFallback) {
+                return (
+                  <div key={profile.id} className="cursor-default">
+                    {card}
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={profile.id} href={`/profile/view/${profile.id}`}>
+                  {card}
+                </Link>
+              );
+            })}
           </div>
         </section>
 

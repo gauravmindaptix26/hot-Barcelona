@@ -10,13 +10,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-4 sm:px-6">
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-8">
-          <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
+          <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
             Profile Access
           </p>
           <h1
-            className="mt-3 text-2xl font-semibold sm:mt-4 sm:text-4xl"
+            className="mt-4 text-3xl font-semibold sm:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Welcome back
@@ -26,7 +26,7 @@ export default function LoginPage() {
           </p>
 
           <form
-            className="mt-6 grid gap-4 sm:mt-8"
+            className="mt-8 grid gap-4"
             autoComplete="off"
             onSubmit={async (event) => {
               event.preventDefault();
@@ -67,7 +67,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:opacity-60 sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
+              className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:opacity-60"
             >
               {isSubmitting ? "Logging in..." : "Login"}
             </button>
@@ -80,6 +80,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
       </div>
     </div>
   );

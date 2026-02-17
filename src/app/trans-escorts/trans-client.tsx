@@ -57,6 +57,8 @@ const cardVariants: Variants = {
   },
 };
 
+const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—");
+
 export default function TransClient({
   initialProfiles,
 }: {
@@ -191,7 +193,7 @@ export default function TransClient({
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-lg font-semibold">
-                          {profile.name}, {profile.age}
+                          {profile.name}, {formatAge(profile.age)}
                         </p>
                         <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/60">
                           <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
@@ -301,7 +303,7 @@ export default function TransClient({
                       className="mt-4 text-4xl font-semibold sm:text-5xl"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
-                      {selectedProfile.name}, {selectedProfile.age}
+                      {selectedProfile.name}, {formatAge(selectedProfile.age)}
                     </h2>
                     <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
                       <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />

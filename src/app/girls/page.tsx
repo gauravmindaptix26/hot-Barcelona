@@ -29,7 +29,7 @@ export default async function GirlsPage() {
     return {
       id: `db-${item._id.toString()}`,
       name: item.name ?? "New",
-      age: item.age ?? 0,
+      age: Number.isFinite(Number(item.age)) ? Number(item.age) : 0,
       location: item.location ?? "Barcelona",
       rating: 4.7,
       reviews: 0,

@@ -660,15 +660,14 @@ export default async function RegistroEscortsPage() {
               </span>
               Important
             </div>
-            <p className="mt-4 text-sm font-semibold text-white/90 sm:text-base">
-              We do not accept texts copied from other websites.
+            <p className="mt-4 text-base font-semibold text-white/90 sm:text-lg">
+              Only original content is allowed.
             </p>
-            <p className="mt-2 text-sm text-white/70">
-              Major search engines like Google penalize websites with non-original content.
+            <p className="mt-2 text-base text-white/70 sm:text-lg">
+              Duplicate or reused text may reduce profile visibility and damage credibility.
             </p>
-            <p className="mt-2 text-sm text-white/70">
-              If we find the content is not unique, we reserve the right to modify it
-              without prior notice.
+            <p className="mt-2 text-base text-white/70 sm:text-lg">
+              We reserve the right to edit or remove any content that does not meet originality standards. Protect your profile — use unique content only.
             </p>
           </div>
         </section>

@@ -2,165 +2,147 @@
 
 import Image from "next/image";
 
+const newsItems = [
+  {
+    title: "A new wave of elite profiles arrives this week.",
+    date: "Feb 12, 2026",
+    image: "/images/Frau%20in%20Body.jpg",
+  },
+  {
+    title: "Private lounge experiences now booking for February.",
+    date: "Feb 05, 2026",
+    image: "/images/Frau%20im%20schwarzen%20Kleid.jpg",
+  },
+];
+
+const infoLinks = ["About", "Products", "Blog", "Contact", "Help & Support"];
+
+const instagramImages = [
+  "/images/Frauen%20in%20Limousine.jpeg",
+  "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
+  "/images/Frau%20im%20Auto%20.jpg",
+  "/images/Frau%20auf%20Sessel.jpg",
+  "/images/Frau%20in%20Dessous.jpg",
+  "/images/Frau%20in%20Body.jpg",
+];
+
 export default function Footer() {
   return (
-    <footer className="relative z-10 bg-[#F5D68C] pb-6 pt-4 text-black font-semibold">
-      <div className="mx-auto w-full max-w-[92rem] px-6">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1fr_1fr_1fr]">
+    <footer className="relative z-10 bg-[#151018] text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
+      <div className="relative mx-auto w-full max-w-6xl px-6 pt-24 pb-14 sm:pt-28 sm:pb-16">
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_0.9fr_1fr]">
           <div>
-            <div className="flex flex-col items-start">
-              <div className="relative h-[170px] w-[200px]">
-                <Image
-                  src="/images/HOT-BARCELONA-FINAL-Black.jpg__1_-removebg-preview.png"
-                  alt="Hot Barcelona"
-                  width={200}
-                  height={170}
-                  className="h-full w-full object-contain"
-                />
-              </div>
-              <p className="mt-4 text-xl uppercase tracking-[0.4em] text-black">
-                Hot Barcelona
-              </p>
-              <p className="mt-2 max-w-sm text-xl text-black">
-                Discreet, premium companionship curated with refined elegance.
-              </p>
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <circle cx="12" cy="12" r="8" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </span>
+              <h3 className="text-2xl font-semibold">About</h3>
             </div>
-            <p className="mt-4 text-lg uppercase tracking-[0.3em] text-black">
-              Available in Barcelona & select cities
+            <p className="mt-6 text-lg text-white/70">
+              203 Passeig de Gracia, Barcelona
+              <br />
+              Catalonia, Spain
             </p>
-            <div className="mt-4 flex items-center gap-3">
-              {[
-                {
-                  label: "Email",
-                  path: "M4 6h16v12H4zM4 6l8 6 8-6",
-                },
-                {
-                  label: "WhatsApp",
-                  path: "M12 4a8 8 0 0 0-7.2 11.6L4 20l4.6-0.8A8 8 0 1 0 12 4Z",
-                },
-                {
-                  label: "Phone",
-                  path: "M6 3h4l1 5-3 2a10 10 0 0 0 6 6l2-3 5 1v4a2 2 0 0 1-2 2A15 15 0 0 1 3 7a2 2 0 0 1 3-4Z",
-                },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href="#"
-                  className="group flex h-10 w-10 items-center justify-center rounded-full border border-black/15 bg-black/5 text-black transition hover:border-black/40 hover:shadow-[0_0_18px_rgba(0,0,0,0.2)]"
-                  aria-label={item.label}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d={item.path} />
-                  </svg>
-                </a>
-              ))}
+            <div className="mt-5 space-y-2 text-lg text-white/70">
+              <p>+34 620 112 889</p>
+              <p>info@hotbarcelona.com</p>
+            </div>
+            <div className="mt-7 flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">
+              <input
+                type="email"
+                placeholder="Enter email address"
+                className="w-full bg-transparent text-lg text-white/80 placeholder:text-white/40 focus:outline-none"
+              />
+              <button
+                type="button"
+                aria-label="Subscribe"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] text-black"
+              >
+                <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 12h16" />
+                  <path d="M14 6l6 6-6 6" />
+                </svg>
+              </button>
             </div>
           </div>
 
-          <div className="mt-4">
-            <p className="text-lg uppercase tracking-[0.4em] text-black">
-              Navigation
-            </p>
-            <ul className="mt-5 space-y-3 text-xl text-black">
-              {[
-                "Home",
-                "About Us",
-                "Services",
-                "Profiles",
-                "Locations",
-                "Contact",
-              ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="group inline-flex items-center gap-2 transition hover:text-black"
-                  >
-                    <span>{item}</span>
-                    <span className="h-px w-6 bg-black/0 transition group-hover:bg-black/80" />
-                  </a>
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <rect x="5" y="4" width="14" height="16" rx="2" />
+                  <path d="M8 8h8M8 12h8M8 16h5" />
+                </svg>
+              </span>
+              <h3 className="text-2xl font-semibold">Latest News</h3>
+            </div>
+            <div className="mt-6 space-y-5">
+              {newsItems.map((item) => (
+                <div key={item.title} className="flex gap-4">
+                  <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-white/10">
+                    <Image src={item.image} alt={item.title} fill className="object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-lg text-white/80">{item.title}</p>
+                    <p className="mt-2 text-xs uppercase tracking-[0.3em] text-white/40">
+                      {item.date}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <path d="M8 5h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                  <path d="M9 9h6M9 13h6" />
+                </svg>
+              </span>
+              <h3 className="text-2xl font-semibold">Information</h3>
+            </div>
+            <ul className="mt-6 space-y-3 text-lg text-white/70">
+              {infoLinks.map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
+                  {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="mt-4">
-            <p className="text-lg uppercase tracking-[0.4em] text-black">
-              Experiences
-            </p>
-            <ul className="mt-5 space-y-3 text-xl text-black">
-              {[
-                "Elite Companionship",
-                "Private Meetings",
-                "Dinner & Event Companion",
-                "Travel Companion",
-                "VIP Experience",
-              ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="group inline-flex items-center gap-2 transition hover:text-black"
-                  >
-                    <span>{item}</span>
-                    <span className="h-px w-6 bg-black/0 transition group-hover:bg-black/80" />
-                  </a>
-                </li>
+          <div>
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
+                  <rect x="4" y="4" width="16" height="16" rx="5" />
+                  <circle cx="12" cy="12" r="3.5" />
+                  <circle cx="17.5" cy="6.5" r="1" />
+                </svg>
+              </span>
+              <h3 className="text-2xl font-semibold">Instagram</h3>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-4">
+              {instagramImages.map((src) => (
+                <div key={src} className="relative aspect-square overflow-hidden rounded-2xl border border-white/10">
+                  <Image src={src} alt="Instagram preview" fill className="object-cover" />
+                </div>
               ))}
-            </ul>
-          </div>
-
-          <div className="mt-4">
-            <p className="text-lg uppercase tracking-[0.4em] text-black">
-              Trust & Legal
-            </p>
-            <ul className="mt-5 space-y-3 text-xl text-black">
-              {[
-                "Privacy Policy",
-                "Terms & Conditions",
-                "Disclaimer",
-                "Imprint",
-                "FAQs",
-                "Contact Support",
-              ].map((item) => (
-                <li key={item}>
-                  <a
-                    href="#"
-                    className="group inline-flex items-center gap-2 transition hover:text-black"
-                  >
-                    <span>{item}</span>
-                    <span className="h-px w-6 bg-black/0 transition group-hover:bg-black/80" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 text-lg text-black">
-              Your privacy and discretion are always respected.
-            </p>
+            </div>
           </div>
         </div>
 
-        <div className="my-10 h-px w-full bg-[linear-gradient(90deg,rgba(0,0,0,0)_0%,rgba(0,0,0,0.4)_50%,rgba(0,0,0,0)_100%)]" />
+        <div className="my-10 h-px w-full bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)]" />
 
-        <div className="flex flex-wrap items-center justify-between gap-6 text-lg text-black">
-          <div className="flex items-center gap-3">
-            <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
-              DE
-            </button>
-            <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
-              EN
-            </button>
-          </div>
-          <p>Â© 2026 Hot Barcelona. All rights reserved.</p>
-          <button className="rounded-full border border-black/15 px-4 py-2 text-sm uppercase tracking-[0.3em] text-black/70 transition hover:border-black/40 hover:text-black">
-            Back to top
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
+          <p>(c) 2026 Hot Barcelona. All rights reserved.</p>
+          <p>Crafted for private, curated experiences.</p>
         </div>
       </div>
     </footer>
