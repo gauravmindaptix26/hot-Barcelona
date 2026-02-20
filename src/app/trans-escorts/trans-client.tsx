@@ -99,9 +99,9 @@ export default function TransClient({
       <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
 
       <main className="relative z-10">
-        <section className="relative overflow-hidden pb-10 pt-4 sm:pb-12 sm:pt-6">
+        <section className="relative overflow-hidden pb-10 pt-0 sm:pb-12 sm:pt-0">
           <Navbar />
-          <div className="mx-auto mt-4 w-full max-w-6xl px-4 sm:mt-6 sm:px-6">
+          <div className="mx-auto -mt-10 w-full max-w-6xl px-4 sm:-mt-12 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

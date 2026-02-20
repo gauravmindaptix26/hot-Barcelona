@@ -11,6 +11,7 @@ import ProfileLoader from "./profile-loader";
 import ServicesMultiSelect from "./services-multi-select";
 import DescriptionHelper from "./description-helper";
 import SubscriptionSelector from "./subscription-selector";
+import Navbar from "../../components/Navbar";
 
 const steps = [
   {
@@ -22,7 +23,7 @@ const steps = [
       "Email (not public)",
       "Password",
       "Phone number",
-      "Your age",
+      "Your age for your ad",
     ],
   },
   {
@@ -535,7 +536,8 @@ export default async function RegistroEscortsPage() {
       <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
 
       <main className="relative z-10">
-        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-10 pt-10 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-12 lg:grid-cols-[1.05fr_0.95fr]">
+        <Navbar />
+        <section className="mx-auto -mt-12 grid w-full max-w-6xl gap-8 px-4 pb-10 pt-2 sm:-mt-16 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-3 lg:-mt-20 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6">
             <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
               Registration Studio
@@ -652,7 +654,7 @@ export default async function RegistroEscortsPage() {
                     type="number"
                     min={18}
                     max={80}
-                    placeholder="Your age"
+                    placeholder="Your age for your ad"
                     defaultValue={initialAge ?? ""}
                     className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
@@ -906,7 +908,7 @@ export default async function RegistroEscortsPage() {
                           );
                         }
 
-                        if (step.number === "1" && field === "Your age") {
+                        if (step.number === "1" && field === "Your age for your ad") {
                           return (
                             <input
                               key={field}

@@ -237,7 +237,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-16 flex h-full w-full max-w-[88rem] flex-col justify-center px-4 pt-14 sm:px-6 sm:pt-16 lg:pt-20"
+            className="relative z-10 mx-auto -mt-24 flex h-full w-full max-w-[88rem] flex-col justify-center pl-20 pr-4 pt-14 sm:pl-28 sm:pr-6 sm:pt-16 lg:pl-36 lg:pt-20"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -257,7 +257,7 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.15] text-white sm:text-6xl lg:text-7xl xl:text-8xl"
+              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.05] text-white sm:text-6xl sm:leading-[1.03] lg:text-7xl xl:text-8xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
@@ -292,7 +292,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-4 max-w-xl text-sm text-white/70 sm:mt-5 sm:text-xl lg:text-2xl"
+              className="mt-4 max-w-xl text-sm leading-[1.2] text-white/70 sm:mt-5 sm:text-xl sm:leading-[1.25] lg:text-2xl"
             >
               {heroSubheadline}
             </motion.p>
@@ -408,7 +408,7 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { label: "With video", accent: "bg-red-500/80", icon: "play" },
+                { label: "Home Attention", accent: "bg-red-500/80", icon: "play" },
                 { label: "Show your face", accent: "bg-white/80", icon: "face" },
                 { label: "Video call", accent: "bg-[#b27cff]", icon: "call" },
               ].map((item) => (

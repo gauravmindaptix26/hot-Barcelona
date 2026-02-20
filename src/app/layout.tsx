@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
+import AgeCheckMount from "../components/AgeCheckMount";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space",
@@ -43,7 +44,10 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} ${jetBrainsMono.variable} antialiased`}
       >
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          {children}
+          <AgeCheckMount />
+        </SessionProvider>
       </body>
     </html>
   );

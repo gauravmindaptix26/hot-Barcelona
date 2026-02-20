@@ -30,27 +30,31 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="relative z-20">
-      <nav className="mx-auto -mt-4 flex w-full max-w-[88rem] items-center justify-between px-4 py-4 sm:px-6">
+    <header className="relative z-20 -mt-3 sm:-mt-4 lg:-mt-5">
+      <nav className="mx-auto flex w-full max-w-[88rem] items-start justify-between px-4 py-0 sm:px-6 lg:py-1">
         <div className="flex items-center">
-          <Link href="/" aria-label="Go to home">
-            <div className="relative h-[170px] w-[170px] sm:h-[220px] sm:w-[220px] lg:h-[280px] lg:w-[280px]">
+          <Link
+            href="/"
+            aria-label="Go to home"
+            className="block -ml-1 -mt-6 sm:-mt-8 lg:-mt-10"
+          >
+            <div className="relative h-[240px] w-[240px] sm:h-[300px] sm:w-[300px] lg:h-[380px] lg:w-[380px]">
               <Image
-                src="/images/HOT-BARCELONA-FINAL-Black.jpg__1_-removebg-preview.png"
+                src="/images/2.png"
                 alt="Hot Barcelona"
                 width={240}
                 height={240}
                 priority
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain object-top"
               />
             </div>
           </Link>
         </div>
 
-        <div className="hidden items-center gap-8 rounded-full border border-white/15 bg-black/40 px-10 py-2.5 text-base font-semibold text-white shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur lg:flex">
+        <div className="hidden items-center gap-3 rounded-full border border-white/20 bg-black/45 px-4 py-2.5 text-base font-semibold text-white shadow-[0_16px_38px_rgba(0,0,0,0.4)] backdrop-blur-xl lg:mt-24 lg:flex xl:mt-28">
           {navItems.map((item) => {
             const itemClass =
-              "group relative rounded-full px-4 py-2 text-white/80 transition hover:text-white hover:bg-black/60";
+              "group relative rounded-full px-7 py-3 text-white/85 transition hover:bg-white/10 hover:text-white";
 
             if (item.href) {
               return (
@@ -70,11 +74,11 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 lg:mt-24 lg:gap-3 xl:mt-28">
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/registro-escorts"
-              className="rounded-full border border-white/15 bg-black/45 px-7 py-3 text-sm font-semibold uppercase tracking-[0.32em] text-white/90 shadow-[0_16px_36px_rgba(0,0,0,0.5)] transition hover:bg-black/70"
+              className="rounded-full border border-white/20 bg-black/45 px-8 py-3 text-base font-semibold uppercase tracking-[0.34em] text-white/95 shadow-[0_14px_34px_rgba(0,0,0,0.45)] transition hover:border-[#f5d68c]/45 hover:bg-black/65"
             >
               Advertise
             </Link>
@@ -90,15 +94,15 @@ export default function Navbar() {
 
           <div
             ref={accountRef}
-            className="relative hidden items-center gap-2 rounded-full border border-white/15 bg-black/35 px-3 py-2 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur lg:flex"
+            className="relative hidden items-center gap-3 rounded-full border border-white/20 bg-black/40 px-4 py-2.5 text-white/90 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:flex"
           >
             <button className="rounded-full p-2 transition hover:bg-black/60">
               <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
             </button>
             <div className="h-5 w-px bg-white/15" />
             <div className="flex items-center gap-2 pr-1">
-              <span className="h-7 w-7 rounded-full bg-[conic-gradient(from_110deg,_#d46a7a,_#f5d68c,_#d46a7a)] shadow-[0_0_0_2px_rgba(255,255,255,0.12)]" />
-              <span className="text-xs font-semibold tracking-widest">ES</span>
+              <span className="h-8 w-8 rounded-full bg-[conic-gradient(from_110deg,_#d46a7a,_#f5d68c,_#d46a7a)] shadow-[0_0_0_2px_rgba(255,255,255,0.12)]" />
+              <span className="text-sm font-semibold tracking-widest">ES</span>
             </div>
             <div className="h-5 w-px bg-white/15" />
             <button
