@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-const AGE_CHECK_KEY = "hb_age_verified_v1";
+const AGE_CHECK_KEY = "hb_age_verified_session_v1";
 
 export default function AgeCheckModal() {
   const [isOpen, setIsOpen] = useState(() => {
     try {
-      return window.localStorage.getItem(AGE_CHECK_KEY) !== "true";
+      return window.sessionStorage.getItem(AGE_CHECK_KEY) !== "true";
     } catch {
       return true;
     }
@@ -25,9 +25,9 @@ export default function AgeCheckModal() {
 
   const handleConfirm = () => {
     try {
-      window.localStorage.setItem(AGE_CHECK_KEY, "true");
+      window.sessionStorage.setItem(AGE_CHECK_KEY, "true");
     } catch {
-      // Ignore localStorage errors and allow entry for this session.
+      // Ignore storage errors and allow entry for this session.
     }
     setIsOpen(false);
   };
