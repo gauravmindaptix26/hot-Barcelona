@@ -39,7 +39,7 @@ export default function LoginPage() {
                 email,
                 password,
                 redirect: true,
-                callbackUrl: "/post-login",
+                callbackUrl: "/",
               });
               if (result?.error) {
                 setError("Invalid email or password");

@@ -168,59 +168,60 @@ export async function POST(req: Request) {
     );
   }
 
-  const db = await getDb();
-  const targetQuery =
-    profileType === "profiles"
-      ? { _id: new ObjectId(profileId), isComplete: true }
-      : {
-          _id: new ObjectId(profileId),
-          isDeleted: { $ne: true },
-          $or: [
-            { approvalStatus: "approved" },
-            { approvalStatus: { $exists: false } },
-          ],
-        };
-  const target = await db.collection(profileType).findOne(targetQuery);
-  if (!target) {
-    return NextResponse.json({ error: "Profile not found." }, { status: 404 });
-  }
+  try {
+    const db = await getDb();
+    const targetQuery =
+      profileType === "profiles"
+        ? { _id: new ObjectId(profileId), isComplete: true }
+        : {
+            _id: new ObjectId(profileId),
+            isDeleted: { $ne: true },
+            $or: [
+              { approvalStatus: "approved" },
+              { approvalStatus: { $exists: false } },
+            ],
+          };
+    const target = await db.collection(profileType).findOne(targetQuery);
+    if (!target) {
+      return NextResponse.json({ error: "Profile not found." }, { status: 404 });
+    }
 
-  const now = new Date();
-  const query = {
-    profileId,
-    profileType,
-    userId: session.user.id,
-    isDeleted: { $ne: true },
-  };
+    const now = new Date();
+    const userName = toSafeText(session.user.name, 80) || "User";
 
-  const existing = await db.collection("profile_reviews").findOne(query);
-  if (existing) {
     await db.collection("profile_reviews").updateOne(
-      { _id: existing._id },
+      {
+        profileId,
+        profileType,
+        userId: session.user.id,
+        isDeleted: { $ne: true },
+      },
       {
         $set: {
           rating,
           comment,
-          userName: session.user.name ?? "User",
+          userName,
           userEmail: session.user.email,
           updatedAt: now,
+          isDeleted: false,
         },
-      }
+        $setOnInsert: {
+          profileId,
+          profileType,
+          userId: session.user.id,
+          createdAt: now,
+        },
+      },
+      { upsert: true }
     );
-  } else {
-    await db.collection("profile_reviews").insertOne({
-      profileId,
-      profileType,
-      userId: session.user.id,
-      userName: session.user.name ?? "User",
-      userEmail: session.user.email,
-      rating,
-      comment,
-      createdAt: now,
-      updatedAt: now,
-    });
-  }
 
-  const summary = await buildReviewSummary(profileId, profileType, session.user.id);
-  return NextResponse.json({ ok: true, ...summary });
+    const summary = await buildReviewSummary(profileId, profileType, session.user.id);
+    return NextResponse.json({ ok: true, ...summary });
+  } catch (error) {
+    console.error("Failed to save profile review", error);
+    return NextResponse.json(
+      { error: "Failed to save review. Please try again." },
+      { status: 500 }
+    );
+  }
 }

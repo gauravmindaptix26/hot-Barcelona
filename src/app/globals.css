@@ -32,10 +32,6 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-html[data-lang-loading="1"] body {
-  visibility: hidden;
-}
-
 .font-cinzel {
   font-family: var(--font-cinzel);
 }

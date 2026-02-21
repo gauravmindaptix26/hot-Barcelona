@@ -35,7 +35,7 @@ export default function LanguageSwitcher({
       }`}
     >
       <span className="h-6 w-6 rounded-full bg-[conic-gradient(from_105deg,_#f5d68c,_#f5b35c,_#d46a7a,_#f5d68c)]" />
-      <span className="min-w-7 text-xs font-semibold tracking-[0.16em]">
+      <span className="notranslate min-w-7 text-xs font-semibold tracking-[0.16em]">
         {language.toUpperCase()}
       </span>
     </button>

@@ -24,6 +24,8 @@ export default function Navbar() {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const accountItemClass =
+    "rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm uppercase tracking-[0.22em] text-white/85 transition hover:text-white";
 
   useEffect(() => {
     const handler = (event: MouseEvent) => {
@@ -132,50 +134,50 @@ export default function Navbar() {
             </button>
 
             {isAccountOpen && (
-              <div className="absolute right-0 top-12 z-30 w-44 rounded-2xl border border-white/10 bg-[#0b0c10] p-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+              <div className="absolute right-0 top-12 z-30 w-56 rounded-2xl border border-white/10 bg-[#0b0c10] p-3 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
                 {session?.user ? (
                   <div className="grid gap-2">
                     {session.user.isAdmin && (
                       <Link
                         href="/admin"
-                        className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
+                        className={accountItemClass}
                       >
-                        Admin
+                        <span className="notranslate">Admin</span>
                       </Link>
                     )}
                     <Link
                       href="/my-ad"
-                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
+                      className={accountItemClass}
                     >
-                      My Ad
+                      <span className="notranslate">My Ad</span>
                     </Link>
                     <Link
                       href="/profile/me"
-                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
+                      className={accountItemClass}
                     >
-                      My Profile
+                      <span className="notranslate">My Profile</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => signOut({ callbackUrl: "/" })}
-                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
+                      className={accountItemClass}
                     >
-                      Logout
+                      <span className="notranslate">Logout</span>
                     </button>
                   </div>
                 ) : (
                   <div className="grid gap-2">
                     <Link
                       href="/login"
-                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:text-white"
+                      className={accountItemClass}
                     >
-                      Login
+                      <span className="notranslate">Login</span>
                     </Link>
                     <Link
                       href="/register"
-                      className="rounded-xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black"
+                      className="rounded-xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.22em] text-black"
                     >
-                      Register
+                      <span className="notranslate">Register</span>
                     </Link>
                   </div>
                 )}
