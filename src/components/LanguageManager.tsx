@@ -2,7 +2,11 @@
 
 import Script from "next/script";
 import { useEffect } from "react";
-import { readStoredLanguage, setSiteLanguage } from "@/lib/language";
+import {
+  readStoredLanguage,
+  setSiteLanguage,
+  type SiteLanguage,
+} from "@/lib/language";
 
 type GoogleTranslateElementConstructor = (new (
   options: {
@@ -94,10 +98,41 @@ const hideGoogleBanner = () => {
   document.documentElement.style.top = "0px";
 };
 
+const releaseLanguageLoading = () => {
+  document.documentElement.removeAttribute("data-lang-loading");
+};
+
+const waitForTranslationReady = (language: SiteLanguage) => {
+  if (language === "en") {
+    releaseLanguageLoading();
+    return;
+  }
+
+  let tries = 0;
+  const maxTries = 60;
+
+  const checkReady = () => {
+    const comboValue =
+      document.querySelector<HTMLSelectElement>(".goog-te-combo")?.value ?? "";
+    const translated =
+      comboValue === language || document.body.classList.contains("translated-ltr");
+
+    tries += 1;
+    if (translated || tries >= maxTries) {
+      window.clearInterval(intervalId);
+      releaseLanguageLoading();
+    }
+  };
+
+  const intervalId = window.setInterval(checkReady, 120);
+  checkReady();
+};
+
 export default function LanguageManager() {
   useEffect(() => {
     const preferredLanguage = readStoredLanguage();
     setSiteLanguage(preferredLanguage, { persist: true, reload: false });
+    waitForTranslationReady(preferredLanguage);
   }, []);
 
   useEffect(() => {
@@ -123,8 +158,10 @@ export default function LanguageManager() {
   useEffect(() => {
     window.googleTranslateElementInit = () => {
       mountGoogleTranslate();
-      setSiteLanguage(readStoredLanguage(), { persist: true, reload: false });
+      const preferredLanguage = readStoredLanguage();
+      setSiteLanguage(preferredLanguage, { persist: true, reload: false });
       hideGoogleBanner();
+      waitForTranslationReady(preferredLanguage);
     };
 
     if (window.google?.translate?.TranslateElement) {

@@ -3,6 +3,7 @@ export type SiteLanguage = "es" | "en";
 export const DEFAULT_SITE_LANGUAGE: SiteLanguage = "es";
 
 const STORAGE_KEY = "hb_site_language";
+const LANGUAGE_CHANGE_EVENT = "hb-language-change";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 const normalizeLanguage = (value: string | null | undefined): SiteLanguage =>
@@ -13,6 +14,34 @@ export const readStoredLanguage = (): SiteLanguage => {
     return DEFAULT_SITE_LANGUAGE;
   }
   return normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
+};
+
+export const getClientLanguageSnapshot = (): SiteLanguage => readStoredLanguage();
+
+export const getServerLanguageSnapshot = (): SiteLanguage => DEFAULT_SITE_LANGUAGE;
+
+export const subscribeToLanguageChange = (onStoreChange: () => void) => {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) {
+      onStoreChange();
+    }
+  };
+
+  const handleCustomChange = () => {
+    onStoreChange();
+  };
+
+  window.addEventListener("storage", handleStorage);
+  window.addEventListener(LANGUAGE_CHANGE_EVENT, handleCustomChange);
+
+  return () => {
+    window.removeEventListener("storage", handleStorage);
+    window.removeEventListener(LANGUAGE_CHANGE_EVENT, handleCustomChange);
+  };
 };
 
 const writeGoogleTranslateCookie = (language: SiteLanguage) => {
@@ -54,6 +83,7 @@ export const setSiteLanguage = (
   document.documentElement.lang = language;
   writeGoogleTranslateCookie(language);
   syncGoogleTranslateSelect(language);
+  window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
 
   if (reload) {
     window.setTimeout(() => {

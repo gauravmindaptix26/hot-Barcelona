@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import {
   Cinzel,
   JetBrains_Mono,
@@ -41,10 +42,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" data-lang-loading="1">
       <body
         className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} ${jetBrainsMono.variable} antialiased`}
       >
+        <Script id="hb-language-init" strategy="beforeInteractive">
+          {`
+            (function () {
+              try {
+                var key = "hb_site_language";
+                var stored = localStorage.getItem(key);
+                var lang = stored === "en" || stored === "es" ? stored : "es";
+                if (!stored) {
+                  localStorage.setItem(key, lang);
+                }
+                document.documentElement.lang = lang;
+                var value = "/auto/" + lang;
+                document.cookie = "googtrans=" + value + ";path=/;max-age=31536000";
+                document.cookie = "googtrans=" + value + ";path=/";
+              } catch (error) {
+                document.documentElement.lang = "es";
+                document.cookie = "googtrans=/auto/es;path=/;max-age=31536000";
+                document.cookie = "googtrans=/auto/es;path=/";
+              }
+            })();
+          `}
+        </Script>
         <SessionProvider>
           {children}
           <AgeCheckMount />

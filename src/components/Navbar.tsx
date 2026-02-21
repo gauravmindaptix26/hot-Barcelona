@@ -13,6 +13,12 @@ const navItems = [
   { label: "Contact", href: "/contact" },
 ];
 
+const getUserInitial = (name?: string | null, email?: string | null) => {
+  const raw = (name ?? "").trim() || (email ?? "").trim();
+  if (!raw) return "U";
+  return raw.charAt(0).toUpperCase();
+};
+
 export default function Navbar() {
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -95,6 +101,11 @@ export default function Navbar() {
           <div className="lg:hidden">
             <LanguageSwitcher compact />
           </div>
+          {session?.user && (
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-[10px] font-semibold tracking-[0.2em] text-[#f5d68c] lg:hidden">
+              {getUserInitial(session.user.name, session.user.email)}
+            </span>
+          )}
 
           <div
             ref={accountRef}
@@ -111,7 +122,13 @@ export default function Navbar() {
               onClick={() => setIsAccountOpen((prev) => !prev)}
               className="rounded-full p-2 transition hover:bg-black/60"
             >
-              <NavIcon path="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 8a7 7 0 0 1 14 0" />
+              {session?.user ? (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-xs font-semibold tracking-[0.2em] text-[#f5d68c]">
+                  {getUserInitial(session.user.name, session.user.email)}
+                </span>
+              ) : (
+                <NavIcon path="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 8a7 7 0 0 1 14 0" />
+              )}
             </button>
 
             {isAccountOpen && (
