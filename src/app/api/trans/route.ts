@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
+
+const publicVisibilityQuery = {
+  isDeleted: { $ne: true },
+  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+};
 
 type TransPayload = {
   name?: string;
@@ -18,7 +22,7 @@ export async function GET() {
   const db = await getDb();
   const items = await db
     .collection("trans")
-    .find({ isDeleted: { $ne: true } })
+    .find(publicVisibilityQuery)
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();
@@ -115,6 +119,10 @@ export async function POST(req: Request) {
           location,
           images,
           gender: payload.gender ?? "trans",
+          approvalStatus: "pending",
+          reviewedAt: null,
+          reviewedBy: null,
+          submittedAt: now,
           updatedAt: now,
         },
       }
@@ -123,6 +131,7 @@ export async function POST(req: Request) {
       ok: true,
       id: existing._id.toString(),
       updated: true,
+      approvalStatus: "pending",
     });
   }
 
@@ -135,10 +144,19 @@ export async function POST(req: Request) {
     gender: payload.gender ?? "trans",
     email,
     passwordHash,
+    approvalStatus: "pending",
+    reviewedAt: null,
+    reviewedBy: null,
+    submittedAt: now,
     userId: null,
     userEmail: null,
     createdAt: now,
   });
 
-  return NextResponse.json({ ok: true, id: result.insertedId.toString(), updated: false });
+  return NextResponse.json({
+    ok: true,
+    id: result.insertedId.toString(),
+    updated: false,
+    approvalStatus: "pending",
+  });
 }

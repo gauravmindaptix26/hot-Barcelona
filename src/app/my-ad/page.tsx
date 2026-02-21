@@ -5,6 +5,24 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 
+type ApprovalStatus = "pending" | "approved" | "rejected";
+
+const normalizeApprovalStatus = (value: unknown): ApprovalStatus => {
+  if (value === "pending" || value === "rejected") {
+    return value;
+  }
+  return "approved";
+};
+
+type AdDoc = {
+  _id: { toString: () => string };
+  name?: unknown;
+  age?: unknown;
+  location?: unknown;
+  images?: unknown;
+  approvalStatus?: unknown;
+};
+
 export default async function MyAdPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -19,7 +37,7 @@ export default async function MyAdPage() {
     db.collection("trans").findOne({ userId, isDeleted: { $ne: true } }),
   ]);
 
-  const mapAd = (doc: any, type: "girls" | "trans") => ({
+  const mapAd = (doc: AdDoc, type: "girls" | "trans") => ({
     _id: doc._id.toString(),
     type,
     name: typeof doc.name === "string" ? doc.name : "",
@@ -28,6 +46,7 @@ export default async function MyAdPage() {
     images: Array.isArray(doc.images)
       ? doc.images.filter((item: unknown) => typeof item === "string")
       : [],
+    approvalStatus: normalizeApprovalStatus(doc.approvalStatus),
   });
 
   const ad = girlsAd
@@ -61,7 +80,7 @@ export default async function MyAdPage() {
 
         {!ad ? (
           <div className="mt-10 rounded-3xl border border-white/10 bg-black/40 p-8 text-sm text-white/70">
-            You do not have an active ad yet. Click “Create Ad” to publish one.
+            You do not have an active ad yet. Click Create Ad to publish one.
           </div>
         ) : (
           <div className="mt-10 grid gap-8 rounded-3xl border border-white/10 bg-black/40 p-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -70,10 +89,28 @@ export default async function MyAdPage() {
                 Details
               </h2>
               <div className="mt-5 space-y-4 text-sm text-white/70">
-                <p>Name: {ad.name ?? "—"}</p>
-                <p>Age: {ad.age ?? "—"}</p>
-                <p>Location: {ad.location ?? "—"}</p>
+                <p>Name: {ad.name || "-"}</p>
+                <p>Age: {ad.age ?? "-"}</p>
+                <p>Location: {ad.location || "-"}</p>
                 <p>Type: {ad.type}</p>
+                <p>
+                  Status:{" "}
+                  {ad.approvalStatus === "pending"
+                    ? "Pending approval"
+                    : ad.approvalStatus === "rejected"
+                      ? "Rejected"
+                      : "Approved"}
+                </p>
+                {ad.approvalStatus === "pending" && (
+                  <p className="text-amber-200">
+                    Your ad is under review by admin.
+                  </p>
+                )}
+                {ad.approvalStatus === "rejected" && (
+                  <p className="text-red-300">
+                    Your ad was rejected. Update details and submit again.
+                  </p>
+                )}
               </div>
             </div>
             <div>

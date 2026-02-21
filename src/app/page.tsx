@@ -237,7 +237,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-24 flex h-full w-full max-w-[88rem] flex-col justify-center pl-20 pr-4 pt-14 sm:pl-28 sm:pr-6 sm:pt-16 lg:pl-36 lg:pt-20"
+            className="relative z-10 mx-auto -mt-16 flex h-full w-full max-w-[88rem] flex-col justify-start pb-10 pl-20 pr-4 pt-24 sm:-mt-20 sm:pb-12 sm:pl-28 sm:pr-6 sm:pt-28 lg:-mt-24 lg:pb-16 lg:pl-36 lg:pt-32"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -257,7 +257,7 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.05] text-white sm:text-6xl sm:leading-[1.03] lg:text-7xl xl:text-8xl"
+              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.05] text-white sm:text-6xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
@@ -292,7 +292,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-4 max-w-xl text-sm leading-[1.2] text-white/70 sm:mt-5 sm:text-xl sm:leading-[1.25] lg:text-2xl"
+              className="mt-4 max-w-xl text-sm leading-[1.2] text-white/70 sm:mt-5 sm:text-xl sm:leading-[1.25] lg:text-xl"
             >
               {heroSubheadline}
             </motion.p>
@@ -300,7 +300,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 flex flex-wrap gap-4 sm:mt-10"
+              className="mt-6 flex flex-wrap gap-4 sm:mt-8"
             >
               <Link href="/girls" className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
                 <span className="relative z-10">Discover More -</span>

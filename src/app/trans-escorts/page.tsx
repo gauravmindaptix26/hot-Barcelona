@@ -4,11 +4,16 @@ import { getDb } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const publicVisibilityQuery = {
+  isDeleted: { $ne: true },
+  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+};
+
 export default async function TransPage() {
   const db = await getDb();
   const items = await db
     .collection("trans")
-    .find({})
+    .find(publicVisibilityQuery)
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();

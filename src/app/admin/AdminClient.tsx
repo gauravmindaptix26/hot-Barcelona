@@ -2,12 +2,15 @@
 
 import { useMemo, useState } from "react";
 
+type ApprovalStatus = "pending" | "approved" | "rejected";
+
 type ProfileItem = {
   _id: string;
   name: string;
   age: number | null;
   location: string;
   images: string[];
+  approvalStatus: ApprovalStatus;
   createdAt: string | null;
   createdAtLabel?: string;
 };
@@ -26,17 +29,44 @@ export default function AdminClient({ girls, trans }: Props) {
     trans,
   });
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
   const activeItems = useMemo(() => {
     const term = search.trim().toLowerCase();
-    return items[activeTab].filter((item) => {
-      if (!term) return true;
-      const hay = `${item.name} ${item.location}`.toLowerCase();
-      return hay.includes(term);
-    });
+    const rank: Record<ApprovalStatus, number> = {
+      pending: 0,
+      rejected: 1,
+      approved: 2,
+    };
+    return items[activeTab]
+      .filter((item) => {
+        if (!term) return true;
+        const hay = `${item.name} ${item.location}`.toLowerCase();
+        return hay.includes(term);
+      })
+      .sort((a, b) => {
+        const rankDiff = rank[a.approvalStatus] - rank[b.approvalStatus];
+        if (rankDiff !== 0) return rankDiff;
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+      });
   }, [items, activeTab, search]);
+
+  const summary = useMemo(() => {
+    return activeItems.reduce(
+      (acc, item) => {
+        acc[item.approvalStatus] += 1;
+        return acc;
+      },
+      { pending: 0, approved: 0, rejected: 0 } as Record<
+        ApprovalStatus,
+        number
+      >
+    );
+  }, [activeItems]);
 
   const handleDelete = async (id: string) => {
     const ok = confirm("Are you sure you want to delete this profile?");
@@ -44,12 +74,9 @@ export default function AdminClient({ girls, trans }: Props) {
     setIsDeleting(id);
     setError("");
     try {
-      const response = await fetch(
-        `/api/admin/profiles/${id}?type=${activeTab}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/admin/profiles/${id}?type=${activeTab}`, {
+        method: "DELETE",
+      });
       if (!response.ok) {
         const data = (await response.json()) as { error?: string };
         setError(data.error ?? "Failed to delete profile.");
@@ -66,8 +93,60 @@ export default function AdminClient({ girls, trans }: Props) {
     }
   };
 
+  const handleApproval = async (id: string, action: "accept" | "reject") => {
+    setIsUpdatingStatus(id);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/profiles/${id}?type=${activeTab}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to update profile status.");
+        return;
+      }
+
+      const data = (await response.json()) as { approvalStatus?: ApprovalStatus };
+      const nextStatus: ApprovalStatus =
+        data.approvalStatus === "pending" ||
+        data.approvalStatus === "approved" ||
+        data.approvalStatus === "rejected"
+          ? data.approvalStatus
+          : action === "accept"
+            ? "approved"
+            : "rejected";
+
+      setItems((prev) => ({
+        ...prev,
+        [activeTab]: prev[activeTab].map((item) =>
+          item._id === id ? { ...item, approvalStatus: nextStatus } : item
+        ),
+      }));
+    } catch {
+      setError("Failed to update profile status.");
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
+
+  const statusLabel = (status: ApprovalStatus) =>
+    status === "pending"
+      ? "Pending"
+      : status === "approved"
+        ? "Approved"
+        : "Rejected";
+
+  const statusClass = (status: ApprovalStatus) =>
+    status === "pending"
+      ? "border-amber-300/30 bg-amber-500/10 text-amber-200"
+      : status === "approved"
+        ? "border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
+        : "border-rose-300/30 bg-rose-500/10 text-rose-200";
+
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pt-6 pb-24">
+    <div className="mx-auto w-full max-w-6xl px-6 pb-24 pt-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
@@ -117,6 +196,18 @@ export default function AdminClient({ girls, trans }: Props) {
         </p>
       </div>
 
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white/60">
+        <span className="rounded-full border border-amber-300/30 bg-amber-500/10 px-3 py-1 text-amber-200">
+          Pending: {summary.pending}
+        </span>
+        <span className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-emerald-200">
+          Approved: {summary.approved}
+        </span>
+        <span className="rounded-full border border-rose-300/30 bg-rose-500/10 px-3 py-1 text-rose-200">
+          Rejected: {summary.rejected}
+        </span>
+      </div>
+
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -139,34 +230,64 @@ export default function AdminClient({ girls, trans }: Props) {
               )}
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_40%,rgba(10,11,13,0.85)_100%)]" />
             </div>
+
             <div className="space-y-3 p-5">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold">{item.name}</h2>
                   <p className="text-sm text-white/60">
-                    {item.age ?? "—"} • {item.location || "Unknown location"}
+                    {item.age ?? "-"} - {item.location || "Unknown location"}
                   </p>
                 </div>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white/60">
                   {activeTab}
                 </span>
               </div>
+
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.28em] ${statusClass(
+                    item.approvalStatus
+                  )}`}
+                >
+                  {statusLabel(item.approvalStatus)}
+                </span>
+              </div>
+
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
                 <span>{item.createdAtLabel ?? "No date"}</span>
                 <span>{item.images.length} photos</span>
               </div>
+
               <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"
+                  onClick={() => handleApproval(item._id, "accept")}
+                  disabled={
+                    isUpdatingStatus === item._id || item.approvalStatus === "approved"
+                  }
+                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isUpdatingStatus === item._id ? "Saving..." : "Accept"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApproval(item._id, "reject")}
+                  disabled={
+                    isUpdatingStatus === item._id || item.approvalStatus === "rejected"
+                  }
+                  className="rounded-full border border-amber-300/30 bg-amber-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-amber-200 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isUpdatingStatus === item._id ? "Saving..." : "Reject"}
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleDelete(item._id)}
-                  disabled={isDeleting === item._id}
+                  disabled={isDeleting === item._id || isUpdatingStatus === item._id}
                   className="rounded-full border border-red-400/40 bg-red-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isDeleting === item._id ? "Deleting..." : "Delete"}
                 </button>
-                <span className="text-[11px] uppercase tracking-[0.25em] text-white/40">
-                  Permanent
-                </span>
               </div>
             </div>
           </div>

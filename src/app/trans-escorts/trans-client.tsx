@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
+import ProfileReviews from "../../components/ProfileReviews";
 
 const filters = ["Age 20-30", "Barcelona", "4.7+ Rating", "Verified", "Tonight"];
 
@@ -58,6 +59,7 @@ const cardVariants: Variants = {
 };
 
 const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—");
+const toDatabaseId = (id: string) => (id.startsWith("db-") ? id.slice(3) : id);
 
 export default function TransClient({
   initialProfiles,
@@ -331,6 +333,12 @@ export default function TransClient({
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="px-10 pt-6">
+              <ProfileReviews
+                profileId={toDatabaseId(selectedProfile.id)}
+                profileType="trans"
+              />
             </div>
             <div className="grid gap-10 px-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-10">

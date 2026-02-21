@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import NavIcon from "./NavIcon";
+import LanguageSwitcher from "./LanguageSwitcher";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 
@@ -91,6 +92,9 @@ export default function Navbar() {
           >
             <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
           </button>
+          <div className="lg:hidden">
+            <LanguageSwitcher compact />
+          </div>
 
           <div
             ref={accountRef}
@@ -100,10 +104,7 @@ export default function Navbar() {
               <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
             </button>
             <div className="h-5 w-px bg-white/15" />
-            <div className="flex items-center gap-2 pr-1">
-              <span className="h-8 w-8 rounded-full bg-[conic-gradient(from_110deg,_#d46a7a,_#f5d68c,_#d46a7a)] shadow-[0_0_0_2px_rgba(255,255,255,0.12)]" />
-              <span className="text-sm font-semibold tracking-widest">ES</span>
-            </div>
+            <LanguageSwitcher />
             <div className="h-5 w-px bg-white/15" />
             <button
               type="button"

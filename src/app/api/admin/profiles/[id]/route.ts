@@ -7,8 +7,9 @@ import { getDb } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
 
 const allowedCollections = new Set(["girls", "trans"]);
+const allowedActions = new Set(["accept", "reject"]);
 
-async function assertAdmin(req: Request) {
+async function assertAdmin() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     return null;
@@ -73,7 +74,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await assertAdmin(req);
+  const session = await assertAdmin();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -105,4 +106,63 @@ export async function DELETE(
   }
 
   return NextResponse.json({ ok: true });
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await assertAdmin();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  if (!ObjectId.isValid(id)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const type = getType(req);
+  if (!type) {
+    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+  }
+
+  let payload: { action?: string };
+  try {
+    payload = (await req.json()) as { action?: string };
+  } catch {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  const action = (payload.action ?? "").toLowerCase();
+  if (!allowedActions.has(action)) {
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  }
+
+  const approvalStatus = action === "accept" ? "approved" : "rejected";
+  const db = await getDb();
+  const _id = new ObjectId(id);
+
+  const result = await db.collection(type).findOneAndUpdate(
+    { _id },
+    {
+      $set: {
+        approvalStatus,
+        reviewedAt: new Date(),
+        reviewedBy: session.user.email,
+      },
+    },
+    { returnDocument: "after" }
+  );
+
+  if (!result) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    approvalStatus,
+    reviewedAt: result.reviewedAt ?? null,
+    reviewedBy: result.reviewedBy ?? null,
+  });
 }

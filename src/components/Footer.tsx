@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 const newsItems = [
   {
@@ -15,7 +16,13 @@ const newsItems = [
   },
 ];
 
-const infoLinks = ["About", "Products", "Blog", "Contact", "Help & Support"];
+const infoLinks = [
+  { label: "Home", href: "/" },
+  { label: "Girls", href: "/girls" },
+  { label: "Trans", href: "/trans-escorts" },
+  { label: "Contact", href: "/contact" },
+  { label: "Advertise", href: "/registro-escorts" },
+];
 
 const instagramImages = [
   "/images/Frauen%20in%20Limousine.jpeg",
@@ -27,6 +34,8 @@ const instagramImages = [
 ];
 
 export default function Footer() {
+  const visibleInfoLinks = infoLinks.slice(0, 5);
+
   return (
     <footer className="relative z-10 bg-[#151018] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
@@ -107,11 +116,13 @@ export default function Footer() {
               </span>
               <h3 className="text-2xl font-semibold">Information</h3>
             </div>
-            <ul className="mt-6 space-y-3 text-lg text-white/70">
-              {infoLinks.map((item) => (
-                <li key={item} className="flex items-center gap-2">
+            <ul className="footer-info-links mt-6 space-y-3 text-lg text-white/70">
+              {visibleInfoLinks.map((item) => (
+                <li key={item.href} className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
-                  {item}
+                  <Link href={item.href} className="transition hover:text-white">
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>

@@ -307,9 +307,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       } catch {
         // ignore storage errors
       }
-      setTimeout(() => {
-        window.location.href = target === "trans" ? "/trans-escorts" : "/girls";
-      }, 800);
     } catch {
       setSaveError("Failed to save.");
     } finally {
@@ -428,8 +425,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
         )}
         {saveOk && (
           <p className="mt-4 text-sm text-green-300">
-            Saved successfully. It will appear on the{" "}
-            {savedTarget === "trans" ? "trans" : "girls"} page.
+            Saved successfully. Your ad is now pending admin approval. It will
+            appear on the {savedTarget === "trans" ? "trans" : "girls"} page
+            after approval.
           </p>
         )}
 

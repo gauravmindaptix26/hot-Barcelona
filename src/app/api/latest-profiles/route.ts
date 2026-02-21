@@ -1,18 +1,23 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+const publicVisibilityQuery = {
+  isDeleted: { $ne: true },
+  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+};
+
 export async function GET() {
   const db = await getDb();
   const [girls, trans] = await Promise.all([
     db
       .collection("girls")
-      .find({ isDeleted: { $ne: true } })
+      .find(publicVisibilityQuery)
       .sort({ createdAt: -1 })
       .limit(25)
       .toArray(),
     db
       .collection("trans")
-      .find({ isDeleted: { $ne: true } })
+      .find(publicVisibilityQuery)
       .sort({ createdAt: -1 })
       .limit(25)
       .toArray(),

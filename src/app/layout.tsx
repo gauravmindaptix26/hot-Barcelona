@@ -8,6 +8,7 @@ import {
 import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
 import AgeCheckMount from "../components/AgeCheckMount";
+import LanguageManager from "../components/LanguageManager";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space",
@@ -40,13 +41,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} ${jetBrainsMono.variable} antialiased`}
       >
         <SessionProvider>
           {children}
           <AgeCheckMount />
+          <LanguageManager />
         </SessionProvider>
       </body>
     </html>

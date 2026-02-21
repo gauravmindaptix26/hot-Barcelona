@@ -4,20 +4,16 @@ import { getDb } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type ApiGirl = {
-  _id: string;
-  name?: string;
-  age?: number | null;
-  location?: string;
-  images?: string[];
-  createdAt?: Date;
+const publicVisibilityQuery = {
+  isDeleted: { $ne: true },
+  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
 
 export default async function GirlsPage() {
   const db = await getDb();
   const items = await db
     .collection("girls")
-    .find({})
+    .find(publicVisibilityQuery)
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();

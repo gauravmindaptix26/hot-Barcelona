@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
+import ProfileReviews from "@/components/ProfileReviews";
 
 export default async function ProfileViewPage({
   params,
@@ -66,6 +67,10 @@ export default async function ProfileViewPage({
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-8 sm:mt-10">
+          <ProfileReviews profileId={profile._id.toString()} profileType="profiles" />
         </div>
       </div>
     </div>
