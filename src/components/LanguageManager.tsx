@@ -70,6 +70,9 @@ const hideGoogleBanner = () => {
     ".VIpgJd-yAWNEb-r4nke",
     ".VIpgJd-yAWNEb-VIpgJd-fmcmS-sn54Q",
     "iframe.VIpgJd-yAWNEb-L7lbkb",
+    ".VIpgJd-ZVi9od-aZ2wEe-wOHMyf",
+    ".VIpgJd-ZVi9od-aZ2wEe-OiiCO",
+    ".VIpgJd-ZVi9od-aZ2wEe",
   ];
   selectors.forEach((selector) => {
     document.querySelectorAll<HTMLElement>(selector).forEach((node) => {

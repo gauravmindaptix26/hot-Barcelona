@@ -374,12 +374,6 @@ export default function GirlsClient({
                 </div>
               </div>
             </div>
-            <div className="px-10 pt-6">
-              <ProfileReviews
-                profileId={toDatabaseId(selectedProfile.id)}
-                profileType="girls"
-              />
-            </div>
             <div className="grid gap-10 px-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-10">
                 <section>
@@ -461,6 +455,11 @@ export default function GirlsClient({
               </div>
 
               <div className="space-y-8">
+                <ProfileReviews
+                  profileId={toDatabaseId(selectedProfile.id)}
+                  profileType="girls"
+                />
+
                 <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
                   <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
                     Personal Details

@@ -110,6 +110,15 @@ iframe.VIpgJd-yAWNEb-L7lbkb {
   pointer-events: none !important;
 }
 
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-OiiCO,
+.VIpgJd-ZVi9od-aZ2wEe {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .goog-text-highlight {
   background-color: transparent !important;
   box-shadow: none !important;

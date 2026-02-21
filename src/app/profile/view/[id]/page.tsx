@@ -69,7 +69,7 @@ export default async function ProfileViewPage({
           </div>
         </div>
 
-        <div className="mt-8 sm:mt-10">
+        <div className="mt-8 sm:mt-10 lg:ml-auto lg:max-w-[52%]">
           <ProfileReviews profileId={profile._id.toString()} profileType="profiles" />
         </div>
       </div>
