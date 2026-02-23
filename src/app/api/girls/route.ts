@@ -16,7 +16,35 @@ type GirlPayload = {
   gender?: string;
   email?: string;
   password?: string;
+  formFields?: Record<string, unknown>;
 };
+
+type PersistedFormFields = Record<string, string | string[]>;
+
+function sanitizeFormFields(input: unknown): PersistedFormFields {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  const fields: PersistedFormFields = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (key === "password") continue;
+
+    if (typeof value === "string") {
+      fields[key] = value.trim();
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      const values = value
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim());
+      fields[key] = values;
+    }
+  }
+
+  return fields;
+}
 
 export async function GET() {
   const db = await getDb();
@@ -63,6 +91,7 @@ export async function POST(req: Request) {
   const images = Array.isArray(payload.images)
     ? payload.images.filter((item) => typeof item === "string")
     : [];
+  const formFields = sanitizeFormFields(payload.formFields);
 
   if (!name || !location || !Number.isFinite(age)) {
     return NextResponse.json(
@@ -119,6 +148,7 @@ export async function POST(req: Request) {
           location,
           images,
           gender: payload.gender ?? "girl",
+          formFields,
           approvalStatus: "pending",
           reviewedAt: null,
           reviewedBy: null,
@@ -143,6 +173,7 @@ export async function POST(req: Request) {
     images,
     gender: payload.gender ?? "girl",
     email,
+    formFields,
     passwordHash,
     approvalStatus: "pending",
     reviewedAt: null,

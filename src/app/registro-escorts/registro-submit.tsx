@@ -11,6 +11,30 @@ type Props = {
   initialImages?: string[];
 };
 
+type SavedFormFields = Record<string, string | string[]>;
+
+function serializeFormFields(formData: FormData): SavedFormFields {
+  const serialized: SavedFormFields = {};
+
+  for (const [key, rawValue] of formData.entries()) {
+    if (typeof rawValue !== "string") continue;
+    if (key === "password") continue;
+
+    const value = rawValue.trim();
+    const existing = serialized[key];
+    if (existing === undefined) {
+      serialized[key] = value;
+      continue;
+    }
+
+    serialized[key] = Array.isArray(existing)
+      ? [...existing, value]
+      : [existing, value];
+  }
+
+  return serialized;
+}
+
 export default function RegistroSubmit({ initialImages = [] }: Props) {
   const minImages = 4;
   const maxImages = 20;
@@ -257,6 +281,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     const ageValue = String(formData.get("age") ?? "").trim();
     const location = String(formData.get("address") ?? "").trim();
     const age = Number(ageValue);
+    const formFields = serializeFormFields(formData);
 
     if (images.length < minImages) {
       setSaveError(`Please upload at least ${minImages} images.`);
@@ -281,6 +306,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           gender,
           email,
           password,
+          formFields,
         }),
       });
 
