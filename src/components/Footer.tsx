@@ -1,20 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-
-const newsItems = [
-  {
-    title: "A new wave of elite profiles arrives this week.",
-    date: "Feb 12, 2026",
-    image: "/images/Frau%20in%20Body.jpg",
-  },
-  {
-    title: "Private lounge experiences now booking for February.",
-    date: "Feb 05, 2026",
-    image: "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-  },
-];
+import { useRouter } from "next/navigation";
 
 const infoLinks = [
   { label: "Home", href: "/" },
@@ -34,13 +21,14 @@ const instagramImages = [
 ];
 
 export default function Footer() {
+  const router = useRouter();
   const visibleInfoLinks = infoLinks.slice(0, 5);
 
   return (
     <footer className="relative z-10 bg-[#151018] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
-      <div className="relative mx-auto w-full max-w-[88rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
-        <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr_0.9fr_1fr]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
+      <div className="relative z-10 mx-auto w-full max-w-[88rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
+        <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
@@ -52,15 +40,15 @@ export default function Footer() {
               <h3 className="text-2xl font-semibold">About</h3>
             </div>
             <p className="mt-6 text-lg text-white/70">
-              203 Passeig de Gracia, Barcelona
+              Hot-Barcelona
               <br />
               Catalonia, Spain
             </p>
             <div className="mt-5 space-y-2 text-lg text-white/70">
               <p>+34 620 112 889</p>
-              <p>info@hotbarcelona.com</p>
+              <p>support@hotbarcelona.com</p>
             </div>
-            <div className="mt-7 flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">
+            <div className="mt-7 flex w-full max-w-[28rem] items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">
               <input
                 type="email"
                 placeholder="Enter email address"
@@ -83,46 +71,28 @@ export default function Footer() {
             <div className="flex items-center gap-3">
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
                 <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <rect x="5" y="4" width="14" height="16" rx="2" />
-                  <path d="M8 8h8M8 12h8M8 16h5" />
-                </svg>
-              </span>
-              <h3 className="text-2xl font-semibold">Latest News</h3>
-            </div>
-            <div className="mt-6 space-y-5">
-              {newsItems.map((item) => (
-                <div key={item.title} className="flex gap-4">
-                  <div className="relative h-20 w-20 overflow-hidden rounded-2xl border border-white/10">
-                    <Image src={item.image} alt={item.title} fill className="object-cover" />
-                  </div>
-                  <div>
-                    <p className="text-lg text-white/80">{item.title}</p>
-                    <p className="mt-2 text-xs uppercase tracking-[0.3em] text-white/40">
-                      {item.date}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
-                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
                   <path d="M8 5h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
                   <path d="M9 9h6M9 13h6" />
                 </svg>
               </span>
               <h3 className="text-2xl font-semibold">Information</h3>
             </div>
-            <ul className="footer-info-links mt-6 space-y-3 text-lg text-white/70">
+            <ul
+              className="mt-6 space-y-3 pl-6 text-lg text-white/70 sm:pl-8"
+              translate="no"
+            >
               {visibleInfoLinks.map((item) => (
                 <li key={item.href} className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
-                  <Link href={item.href} className="transition hover:text-white">
+                  <button
+                    type="button"
+                    onClick={() => router.push(item.href)}
+                    className="notranslate shrink-0 text-left text-white/70 outline-none"
+                    translate="no"
+                    style={{ color: "rgba(255,255,255,0.7)", WebkitTextFillColor: "rgba(255,255,255,0.7)" }}
+                  >
                     {item.label}
-                  </Link>
+                  </button>
                 </li>
               ))}
             </ul>

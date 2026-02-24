@@ -237,7 +237,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-16 flex h-full w-full max-w-[88rem] flex-col justify-start pb-10 pl-20 pr-4 pt-24 sm:-mt-20 sm:pb-12 sm:pl-28 sm:pr-6 sm:pt-28 lg:-mt-24 lg:pb-16 lg:pl-36 lg:pt-32"
+            className="relative z-10 mx-auto -mt-32 flex h-full w-full max-w-[88rem] flex-col justify-start pb-10 pl-20 pr-4 pt-16 sm:-mt-36 sm:pb-12 sm:pl-28 sm:pr-6 sm:pt-20 lg:-mt-40 lg:pb-16 lg:pl-36 lg:pt-24"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}

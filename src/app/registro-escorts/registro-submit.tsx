@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 type UploadItem = {
@@ -36,6 +37,7 @@ function serializeFormFields(formData: FormData): SavedFormFields {
 }
 
 export default function RegistroSubmit({ initialImages = [] }: Props) {
+  const router = useRouter();
   const minImages = 4;
   const maxImages = 20;
   const [uploads, setUploads] = useState<UploadItem[]>(
@@ -76,6 +78,17 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     window.addEventListener("profile:loaded", handler);
     return () => window.removeEventListener("profile:loaded", handler);
   }, []);
+
+  useEffect(() => {
+    if (!saveOk) return;
+
+    const targetPath = savedTarget === "trans" ? "/trans-escorts" : "/girls";
+    const timeout = window.setTimeout(() => {
+      router.push(targetPath);
+    }, 1500);
+
+    return () => window.clearTimeout(timeout);
+  }, [router, saveOk, savedTarget]);
 
   const removeUpload = (id: string) => {
     setUploads((prev) => prev.filter((item) => item.id !== id));
@@ -453,7 +466,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           <p className="mt-4 text-sm text-green-300">
             Saved successfully. Your ad is now pending admin approval. It will
             appear on the {savedTarget === "trans" ? "trans" : "girls"} page
-            after approval.
+            after approval. Redirecting to the{" "}
+            {savedTarget === "trans" ? "trans" : "girls"} page...
           </p>
         )}
 

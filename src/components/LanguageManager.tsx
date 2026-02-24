@@ -2,7 +2,11 @@
 
 import Script from "next/script";
 import { useEffect } from "react";
-import { readStoredLanguage, setSiteLanguage } from "@/lib/language";
+import {
+  readStoredLanguage,
+  setSiteLanguage,
+  SUPPORTED_LANGUAGE_CODES,
+} from "@/lib/language";
 
 type GoogleTranslateElementConstructor = (new (
   options: {
@@ -47,7 +51,7 @@ const mountGoogleTranslate = () => {
     layout?: unknown;
   } = {
     pageLanguage: "auto",
-    includedLanguages: "es,en",
+    includedLanguages: SUPPORTED_LANGUAGE_CODES.join(","),
     autoDisplay: false,
   };
 
@@ -66,13 +70,6 @@ const hideGoogleBanner = () => {
     "#goog-gt-tt",
     ".goog-tooltip",
     ".goog-te-balloon-frame",
-    ".VIpgJd-yAWNEb-L7lbkb",
-    ".VIpgJd-yAWNEb-r4nke",
-    ".VIpgJd-yAWNEb-VIpgJd-fmcmS-sn54Q",
-    "iframe.VIpgJd-yAWNEb-L7lbkb",
-    ".VIpgJd-ZVi9od-aZ2wEe-wOHMyf",
-    ".VIpgJd-ZVi9od-aZ2wEe-OiiCO",
-    ".VIpgJd-ZVi9od-aZ2wEe",
   ];
   selectors.forEach((selector) => {
     document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
@@ -94,6 +91,37 @@ const hideGoogleBanner = () => {
   document.documentElement.style.top = "0px";
 };
 
+const hideTranslateFloatingWidgets = () => {
+  const candidates = [
+    ".VIpgJd-ZVi9od-aZ2wEe-wOHMyf",
+    ".VIpgJd-ZVi9od-aZ2wEe-OiiCO",
+    ".VIpgJd-yAWNEb-L7lbkb",
+    ".VIpgJd-yAWNEb-r4nke",
+    ".VIpgJd-yAWNEb-VIpgJd-fmcmS-sn54Q",
+    "iframe.VIpgJd-yAWNEb-L7lbkb",
+  ];
+
+  candidates.forEach((selector) => {
+    document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
+      const computed = window.getComputedStyle(node);
+      const isOverlayLike =
+        node.tagName === "IFRAME" ||
+        computed.position === "fixed" ||
+        computed.position === "absolute" ||
+        Number.parseFloat(computed.zIndex || "0") >= 1000;
+
+      if (!isOverlayLike) {
+        return;
+      }
+
+      node.style.setProperty("display", "none", "important");
+      node.style.setProperty("visibility", "hidden", "important");
+      node.style.setProperty("opacity", "0", "important");
+      node.style.setProperty("pointer-events", "none", "important");
+    });
+  });
+};
+
 export default function LanguageManager() {
   useEffect(() => {
     const preferredLanguage = readStoredLanguage();
@@ -102,9 +130,16 @@ export default function LanguageManager() {
 
   useEffect(() => {
     hideGoogleBanner();
+    hideTranslateFloatingWidgets();
 
+    let frame = 0;
     const observer = new MutationObserver(() => {
-      hideGoogleBanner();
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        hideGoogleBanner();
+        hideTranslateFloatingWidgets();
+      });
     });
 
     observer.observe(document.documentElement, {
@@ -112,11 +147,15 @@ export default function LanguageManager() {
       subtree: true,
     });
 
-    const intervalId = window.setInterval(hideGoogleBanner, 1500);
+    const intervalId = window.setInterval(() => {
+      hideGoogleBanner();
+      hideTranslateFloatingWidgets();
+    }, 1500);
 
     return () => {
       observer.disconnect();
       window.clearInterval(intervalId);
+      if (frame) window.cancelAnimationFrame(frame);
     };
   }, []);
 
@@ -126,6 +165,7 @@ export default function LanguageManager() {
       const preferredLanguage = readStoredLanguage();
       setSiteLanguage(preferredLanguage, { persist: true, reload: false });
       hideGoogleBanner();
+      hideTranslateFloatingWidgets();
     };
 
     if (window.google?.translate?.TranslateElement) {

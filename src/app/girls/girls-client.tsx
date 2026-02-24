@@ -59,6 +59,8 @@ type Profile = {
     travel: string;
   };
   gallery: string[];
+  premiumPlan?: string | null;
+  premiumDuration?: string | null;
 };
 
 const gridVariants: Variants = {
@@ -77,6 +79,8 @@ const cardVariants: Variants = {
 
 const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—");
 const toDatabaseId = (id: string) => (id.startsWith("db-") ? id.slice(3) : id);
+const hasPremiumPlan = (value: string | null | undefined) =>
+  typeof value === "string" && value.trim().length > 0;
 
 export default function GirlsClient({
   initialProfiles,
@@ -223,6 +227,11 @@ export default function GirlsClient({
                   <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
                   </div>
+                  {hasPremiumPlan(profile.premiumPlan) && (
+                    <div className="absolute left-4 top-4 max-w-[72%] rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-3 py-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur">
+                      {profile.premiumPlan}
+                    </div>
+                  )}
                   <button
                     type="button"
                     aria-label="Save profile"
@@ -324,9 +333,17 @@ export default function GirlsClient({
                 />
               </motion.div>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.15)_0%,rgba(10,11,13,0.75)_70%,rgba(10,11,13,0.98)_100%)]" />
-              <div className="absolute left-10 top-10 flex items-center gap-3 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
-                <NavIcon path="M4 7h16M4 12h10M4 17h7" />
-                Elite profile
+              <div className="absolute left-10 top-10 flex max-w-[70%] flex-col items-start gap-2">
+                <div className="flex items-center gap-3 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
+                  <NavIcon path="M4 7h16M4 12h10M4 17h7" />
+                  Elite profile
+                </div>
+                {hasPremiumPlan(selectedProfile.premiumPlan) && (
+                  <div className="rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
+                    {selectedProfile.premiumPlan}
+                    {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
+                  </div>
+                )}
               </div>
               <button
                 type="button"

@@ -52,7 +52,8 @@ export default function RootLayout({
               try {
                 var key = "hb_site_language";
                 var stored = localStorage.getItem(key);
-                var lang = stored === "en" || stored === "es" ? stored : "es";
+                var supported = ["es", "en", "de", "fr", "it", "nl"];
+                var lang = supported.indexOf(stored) >= 0 ? stored : "es";
                 if (!stored) {
                   localStorage.setItem(key, lang);
                 }

@@ -16,7 +16,7 @@ const navItems = [
 const getUserInitial = (name?: string | null, email?: string | null) => {
   const raw = (name ?? "").trim() || (email ?? "").trim();
   if (!raw) return "U";
-  return raw.charAt(0).toUpperCase();
+  return Array.from(raw)[0]?.toUpperCase() ?? "U";
 };
 
 export default function Navbar() {
@@ -45,11 +45,11 @@ export default function Navbar() {
           <Link
             href="/"
             aria-label="Go to home"
-            className="block -ml-1 -mt-6 sm:-mt-8 lg:-mt-10"
+            className="block -ml-16 -mt-24 sm:-ml-18 sm:-mt-24 lg:-ml-28 lg:-mt-36"
           >
-            <div className="relative h-[240px] w-[240px] sm:h-[300px] sm:w-[300px] lg:h-[380px] lg:w-[380px]">
+            <div className="relative h-[340px] w-[340px] sm:h-[420px] sm:w-[420px] lg:h-[580px] lg:w-[580px]">
               <Image
-                src="/images/2.png"
+                src="/images/new%20logor.png"
                 alt="Hot Barcelona"
                 width={240}
                 height={240}
@@ -104,7 +104,10 @@ export default function Navbar() {
             <LanguageSwitcher compact />
           </div>
           {session?.user && (
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-[10px] font-semibold tracking-[0.2em] text-[#f5d68c] lg:hidden">
+            <span
+              className="notranslate flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-[11px] font-semibold leading-none tracking-normal text-[#f5d68c] lg:hidden"
+              translate="no"
+            >
               {getUserInitial(session.user.name, session.user.email)}
             </span>
           )}
@@ -125,7 +128,10 @@ export default function Navbar() {
               className="rounded-full p-2 transition hover:bg-black/60"
             >
               {session?.user ? (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-xs font-semibold tracking-[0.2em] text-[#f5d68c]">
+                <span
+                  className="notranslate flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-xs font-semibold leading-none tracking-normal text-[#f5d68c]"
+                  translate="no"
+                >
                   {getUserInitial(session.user.name, session.user.email)}
                 </span>
               ) : (
@@ -156,6 +162,12 @@ export default function Navbar() {
                       className={accountItemClass}
                     >
                       <span className="notranslate">My Profile</span>
+                    </Link>
+                    <Link
+                      href="/account/password"
+                      className={accountItemClass}
+                    >
+                      <span className="notranslate">Change Password</span>
                     </Link>
                     <button
                       type="button"
@@ -241,6 +253,13 @@ export default function Navbar() {
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Profile
+                  </Link>
+                  <Link
+                    href="/account/password"
+                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Change Password
                   </Link>
                   <button
                     type="button"

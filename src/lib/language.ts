@@ -1,13 +1,24 @@
-export type SiteLanguage = "es" | "en";
+export const SITE_LANGUAGES = [
+  { code: "es", label: "Spanish", nativeLabel: "Espanol", flagSrc: "/flags/es.svg" },
+  { code: "en", label: "English", nativeLabel: "English", flagSrc: "/flags/gb.svg" },
+  { code: "de", label: "German", nativeLabel: "Deutsch", flagSrc: "/flags/de.svg" },
+  { code: "fr", label: "French", nativeLabel: "Francais", flagSrc: "/flags/fr.svg" },
+  { code: "it", label: "Italian", nativeLabel: "Italiano", flagSrc: "/flags/it.svg" },
+  { code: "nl", label: "Dutch", nativeLabel: "Nederlands", flagSrc: "/flags/nl.svg" },
+] as const;
+
+export type SiteLanguage = (typeof SITE_LANGUAGES)[number]["code"];
 
 export const DEFAULT_SITE_LANGUAGE: SiteLanguage = "es";
+export const SUPPORTED_LANGUAGE_CODES = SITE_LANGUAGES.map((item) => item.code);
+const SUPPORTED_LANGUAGE_SET = new Set<string>(SUPPORTED_LANGUAGE_CODES);
 
 const STORAGE_KEY = "hb_site_language";
 const LANGUAGE_CHANGE_EVENT = "hb-language-change";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 const normalizeLanguage = (value: string | null | undefined): SiteLanguage =>
-  value === "en" ? "en" : "es";
+  value && SUPPORTED_LANGUAGE_SET.has(value) ? (value as SiteLanguage) : DEFAULT_SITE_LANGUAGE;
 
 export const readStoredLanguage = (): SiteLanguage => {
   if (typeof window === "undefined") {
