@@ -12,5 +12,5 @@ export default async function PostLoginPage() {
     redirect("/admin");
   }
 
-  redirect("/profile/me");
+  redirect("/");
 }
