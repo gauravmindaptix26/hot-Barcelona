@@ -955,25 +955,80 @@ export default async function RegistroEscortsPage() {
 
                         if (step.number === "6" && field === "Payment method") {
                           return (
-                            <div key={field} className="space-y-2">
-                              <div className="mt-8 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
-                                Payment type
+                            <div key={field} className="space-y-3">
+                              <div className="mt-8 flex items-center justify-between gap-3">
+                                <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                  Payment type
+                                </div>
+                                <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
+                                  Choose one
+                                </span>
                               </div>
-                              <div className="grid gap-2">
+                              <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-black/35 to-black/60 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.25)] sm:p-4">
+                              <div className="grid gap-3">
                                 {paymentMethodOptions.map((option) => (
-                                  <label
-                                    key={option}
-                                    className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/80 transition hover:border-[#f5d68c]/40"
-                                  >
+                                  <label key={option} className="block cursor-pointer">
                                     <input
                                       type="radio"
                                       name="paymentMethod"
                                       value={option}
-                                      className="h-4 w-4 accent-[#f5b35c]"
+                                      className="peer sr-only"
                                     />
-                                    <span>{option}</span>
+                                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/35 px-3 py-3 text-sm text-white/80 transition hover:border-[#f5d68c]/35 peer-focus-visible:border-[#f5d68c]/55 peer-checked:border-[#f5d68c]/55 peer-checked:bg-gradient-to-r peer-checked:from-[#f5d68c]/12 peer-checked:via-[#f5b35c]/8 peer-checked:to-transparent">
+                                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-[#f5d68c] transition peer-checked:border-[#f5d68c]/35 peer-checked:bg-[#f5d68c]/10">
+                                        {option.toLowerCase().includes("cash") ? (
+                                          <svg
+                                            viewBox="0 0 24 24"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.7"
+                                            aria-hidden="true"
+                                          >
+                                            <rect x="3.5" y="6.5" width="17" height="11" rx="2.5" />
+                                            <path d="M8 12h8" />
+                                            <circle cx="12" cy="12" r="2.3" />
+                                          </svg>
+                                        ) : (
+                                          <svg
+                                            viewBox="0 0 24 24"
+                                            className="h-5 w-5"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.7"
+                                            aria-hidden="true"
+                                          >
+                                            <path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z" />
+                                            <path d="M6 11v5.5c0 .8 2.7 2.5 6 2.5s6-1.7 6-2.5V11" />
+                                          </svg>
+                                        )}
+                                      </span>
+                                      <span className="min-w-0 flex-1">
+                                        <span className="block text-sm font-medium text-white/90">
+                                          {option.toLowerCase().includes("cash")
+                                            ? "Cash Collection"
+                                            : "ATM / Bank Transfer"}
+                                        </span>
+                                        <span className="mt-0.5 block text-xs leading-relaxed text-white/55">
+                                          {option}
+                                        </span>
+                                      </span>
+                                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-transparent transition peer-checked:border-[#f5d68c]/50 peer-checked:bg-[#f5d68c]/15 peer-checked:text-[#f5d68c]">
+                                        <svg
+                                          viewBox="0 0 20 20"
+                                          className="h-3.5 w-3.5"
+                                          fill="none"
+                                          stroke="currentColor"
+                                          strokeWidth="2.2"
+                                          aria-hidden="true"
+                                        >
+                                          <path d="m4 10 4 4 8-10" />
+                                        </svg>
+                                      </span>
+                                    </div>
                                   </label>
                                 ))}
+                              </div>
                               </div>
                             </div>
                           );

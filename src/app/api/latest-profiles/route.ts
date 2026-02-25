@@ -23,17 +23,20 @@ export async function GET() {
       .toArray(),
   ]);
 
-  const combined = [...girls, ...trans]
-    .filter((item) => item)
+  const combined = [
+    ...girls.map((profile) => ({ profile, profileType: "girls" as const })),
+    ...trans.map((profile) => ({ profile, profileType: "trans" as const })),
+  ]
+    .filter((item) => item?.profile)
     .sort((a, b) => {
-      const aTime = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
-      const bTime = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+      const aTime = a.profile.createdAt instanceof Date ? a.profile.createdAt.getTime() : 0;
+      const bTime = b.profile.createdAt instanceof Date ? b.profile.createdAt.getTime() : 0;
       return bTime - aTime;
     })
     .slice(0, 9);
 
   return NextResponse.json(
-    combined.map((profile) => ({
+    combined.map(({ profile, profileType }) => ({
       id: profile._id.toString(),
       name: profile.name ?? "New profile",
       age: typeof profile.age === "number" ? profile.age : null,
@@ -41,6 +44,7 @@ export async function GET() {
       image: Array.isArray(profile.images) ? profile.images[0] ?? null : null,
       createdAt: profile.createdAt ?? null,
       gender: profile.gender ?? null,
+      profileType,
     }))
   );
 }

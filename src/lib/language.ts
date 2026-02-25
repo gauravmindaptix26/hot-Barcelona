@@ -5,6 +5,13 @@ export const SITE_LANGUAGES = [
   { code: "fr", label: "French", nativeLabel: "Francais", flagSrc: "/flags/fr.svg" },
   { code: "it", label: "Italian", nativeLabel: "Italiano", flagSrc: "/flags/it.svg" },
   { code: "nl", label: "Dutch", nativeLabel: "Nederlands", flagSrc: "/flags/nl.svg" },
+  { code: "pt", label: "Portuguese", nativeLabel: "Portugues", flagSrc: "/flags/pt.svg" },
+  { code: "zh-CN", label: "Chinese", nativeLabel: "Zhongwen", flagSrc: "/flags/cn.svg" },
+  { code: "ru", label: "Russian", nativeLabel: "Russkiy", flagSrc: "/flags/ru.svg" },
+  { code: "ja", label: "Japanese", nativeLabel: "Nihongo", flagSrc: "/flags/jp.svg" },
+  { code: "da", label: "Danish", nativeLabel: "Dansk", flagSrc: "/flags/dk.svg" },
+  { code: "sv", label: "Swedish", nativeLabel: "Svenska", flagSrc: "/flags/se.svg" },
+  { code: "no", label: "Norwegian", nativeLabel: "Norsk", flagSrc: "/flags/no.svg" },
 ] as const;
 
 export type SiteLanguage = (typeof SITE_LANGUAGES)[number]["code"];

@@ -18,28 +18,13 @@ const heroHeadline = ["Where", "Desire", "Meets", "Elegance"];
 const heroSubheadline =
   "Exclusive. Sophisticated. Unforgettable. Experience companionship redefined.";
 
-const premiumVipImages = [
+const premiumVipFallbackImages = [
   "/images/hot1.webp",
   "/images/hot2.webp",
   "/images/hot3.webp",
   "/images/hot4.webp",
   "/images/hot5.webp",
   "/images/hot6.jpeg",
-];
-
-const lifestyleShowcase = [
-  "/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg",
-  "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
-  "/images/Frau%20sitzt%20auf%20Mann.png",
-  "/images/K%C3%BCssendesPaarStartbild.jpeg",
-  "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-  "/images/Frau%20im%20Auto%20.jpg",
-];
-
-const premiumMosaicColumns = [
-  [0, 3],
-  [1, 4],
-  [2, 5],
 ];
 
 const prestigeSlider = [
@@ -71,7 +56,28 @@ type LatestProfile = {
   age: number | null;
   location: string;
   image: string | null;
+  gender?: string | null;
+  profileType?: "girls" | "trans" | null;
 };
+
+type PremiumVipProfile = {
+  id: string;
+  name: string;
+  age: number | null;
+  location: string;
+  image: string | null;
+  gender?: string | null;
+  profileType?: "girls" | "trans" | null;
+};
+
+const fallbackPremiumVipProfiles: PremiumVipProfile[] = premiumVipFallbackImages.map((src, index) => ({
+  id: `vip-fallback-${index}`,
+  name: "VIP Profile",
+  age: null,
+  location: "Barcelona",
+  image: src,
+  profileType: null,
+}));
 
 
 const galleryImages = [
@@ -95,7 +101,21 @@ const fallbackProfiles: LatestProfile[] = galleryImages.slice(0, 12).map((src, i
   age: null,
   location: "Barcelona",
   image: src,
+  profileType: null,
 }));
+
+const getPublicProfileHref = (profile: {
+  id: string;
+  profileType?: "girls" | "trans" | null;
+  gender?: string | null;
+}) => {
+  const typeHint =
+    profile.profileType ??
+    (typeof profile.gender === "string" ? profile.gender : null);
+  const normalized = (typeHint ?? "").toLowerCase();
+  const basePath = normalized.includes("trans") ? "/trans-escorts" : "/girls";
+  return `${basePath}?profile=${encodeURIComponent(profile.id)}`;
+};
 
 const infiniteVisualsRows = [
   [
@@ -140,12 +160,25 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement | null>(null);
   const lifestyleRef = useRef<HTMLDivElement | null>(null);
   const ctaRef = useRef<HTMLDivElement | null>(null);
+  const premiumBannerScrollerRef = useRef<HTMLDivElement | null>(null);
   const [latestProfiles, setLatestProfiles] =
     useState<LatestProfile[]>(fallbackProfiles);
+  const [premiumVipProfiles, setPremiumVipProfiles] =
+    useState<PremiumVipProfile[]>(fallbackPremiumVipProfiles);
   const latestProfilesSafe = useMemo(
     () => latestProfiles.slice(0, 12),
     [latestProfiles]
   );
+  const premiumVipProfilesSafe = useMemo(() => {
+    const merged = [...premiumVipProfiles];
+    if (merged.length < 6) {
+      const fillers = fallbackPremiumVipProfiles.filter(
+        (item) => !merged.some((profile) => profile.id === item.id)
+      );
+      merged.push(...fillers);
+    }
+    return merged.slice(0, 6);
+  }, [premiumVipProfiles]);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const smoothX = useSpring(mouseX, { stiffness: 120, damping: 20 });
@@ -193,11 +226,35 @@ export default function Home() {
         // Keep fallback profiles on error.
       }
     };
+    const loadPremiumVipProfiles = async () => {
+      try {
+        const response = await fetch("/api/premium-vip-profiles");
+        if (!response.ok) return;
+        const data = (await response.json()) as PremiumVipProfile[];
+        if (active && Array.isArray(data) && data.length > 0) {
+          setPremiumVipProfiles(data.slice(0, 6));
+        }
+      } catch {
+        // Keep fallback VIP profiles on error.
+      }
+    };
     loadLatestProfiles();
+    loadPremiumVipProfiles();
     return () => {
       active = false;
     };
   }, []);
+
+  const scrollPremiumBanner = (direction: "left" | "right") => {
+    const node = premiumBannerScrollerRef.current;
+    if (!node) return;
+
+    const step = Math.max(280, Math.round(node.clientWidth * 0.78));
+    node.scrollBy({
+      left: direction === "left" ? -step : step,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
@@ -314,7 +371,7 @@ export default function Home() {
 
         <section
           ref={lifestyleRef}
-          className="relative z-10 mx-auto grid w-full max-w-[88rem] gap-12 px-4 pb-16 pt-6 sm:px-6 lg:min-h-screen lg:grid-cols-[0.95fr_1.05fr] lg:pt-10"
+          className="relative z-10 mx-auto grid w-full max-w-[88rem] gap-6 px-4 pb-16 pt-6 sm:px-6 lg:min-h-screen lg:grid-cols-[0.42fr_1.58fr] lg:pt-10"
         >
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -338,68 +395,63 @@ export default function Home() {
             style={{ y: lifestyleY }}
             className="w-full"
           >
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:hidden">
-              {lifestyleShowcase.map((src, index) => (
-                <motion.div
-                  key={`mobile-${src}`}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: index * 0.1,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  whileHover={{ y: -6 }}
-                  className="group relative h-[260px] overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:h-[320px]"
-                >
-                  <Image src={src} alt="Lifestyle moment" fill className="object-cover" />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.55)_100%)] transition group-hover:opacity-90" />
-                  <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+              {premiumVipProfilesSafe.map((profile, index) => {
+                const isFallback = profile.id.startsWith("vip-fallback-");
+                const card = (
+                  <motion.div
+                    key={profile.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: index * 0.08,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    viewport={{ once: true, amount: 0.25 }}
+                    whileHover={{ y: -6 }}
+                    className="group relative aspect-[4/5] w-full overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:aspect-[3/4] xl:aspect-[5/8]"
+                  >
+                    <Image
+                      src={profile.image ?? premiumVipFallbackImages[index % premiumVipFallbackImages.length]}
+                      alt={profile.name}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] transition group-hover:opacity-90" />
+                    <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 p-5">
+                      <div className="inline-flex items-center rounded-full border border-[#f5d68c]/25 bg-black/45 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-[#f5d68c]">
+                        Top Premium VIP
+                      </div>
+                      <p className="mt-3 text-lg font-semibold text-white sm:text-xl">
+                        {profile.name}
+                        {profile.age ? `, ${profile.age}` : ""}
+                      </p>
+                      <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white/65 sm:text-xs">
+                        <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                        {profile.location || "Barcelona"}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
 
-            <div className="hidden gap-6 lg:grid lg:grid-cols-3">
-              {premiumMosaicColumns.map((column, colIndex) => (
-                <div
-                  key={`col-${colIndex}`}
-                  className={`flex flex-col gap-6 ${
-                    colIndex === 1 ? "pt-10" : "pt-0"
-                  }`}
-                >
-                  {column.map((imageIndex, rowIndex) => {
-                    const src = lifestyleShowcase[imageIndex];
-                    if (!src) return null;
-                    const isCenter = colIndex === 1;
-                    return (
-                      <motion.div
-                        key={`desktop-${src}`}
-                        initial={{ opacity: 0, y: 24 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.8,
-                          delay: (colIndex * 2 + rowIndex) * 0.1,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                        viewport={{ once: true, amount: 0.3 }}
-                        whileHover={{ y: -6 }}
-                        className={`group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] ${
-                          isCenter ? "h-[300px]" : "h-[380px]"
-                        }`}
-                      >
-                        <Image src={src} alt="Lifestyle moment" fill className="object-cover" />
-                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.55)_100%)] transition group-hover:opacity-90" />
-                        <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ))}
+                if (isFallback) {
+                  return (
+                    <div key={profile.id} className="cursor-default">
+                      {card}
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link key={profile.id} href={getPublicProfileHref(profile)}>
+                    {card}
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
         </section>
@@ -474,44 +526,89 @@ export default function Home() {
 
         <section className="relative z-10 flex flex-col justify-center bg-[#0c0d10] py-16 lg:min-h-screen">
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-              viewport={{ once: true, amount: 0.4 }}
-              className="max-w-2xl text-left"
-            >
-              <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-                Top Premium Banner
-              </p>
-               
-              <p className="mt-3 text-lg text-white/60 sm:mt-4 sm:text-base lg:text-lg">
-                Explore our Top Premium banner showcasing exclusive VIP profiles, luxury services, verified companions, and premium experiences designed for elite clients.
-              </p>
-            </motion.div>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, amount: 0.4 }}
+                className="max-w-2xl text-left"
+              >
+                <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
+                  Top Premium Banner
+                </p>
+                
+                <p className="mt-3 text-lg text-white/60 sm:mt-4 sm:text-base lg:text-lg">
+                  Explore our Top Premium banner showcasing exclusive VIP profiles, luxury services, verified companions, and premium experiences designed for elite clients.
+                </p>
+              </motion.div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => scrollPremiumBanner("left")}
+                  aria-label="Scroll premium banner left"
+                  className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-[#f5d68c]/45 hover:text-[#f5d68c]"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5 transition group-hover:-translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  >
+                    <path d="M15 6 9 12l6 6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollPremiumBanner("right")}
+                  aria-label="Scroll premium banner right"
+                  className="group flex h-12 w-12 items-center justify-center rounded-full border border-[#f5d68c]/30 bg-[#f5d68c]/10 text-[#f5d68c] shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-[#f5d68c]/55 hover:bg-[#f5d68c]/14"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5 transition group-hover:translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  >
+                    <path d="m9 6 6 6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="mt-12 overflow-hidden">
-            <motion.div
-              className="flex gap-8 px-6"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ duration: 32, repeat: Infinity, ease: "linear" }}
+          <div className="relative mt-12">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#0c0d10] to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#0c0d10] to-transparent" />
+            <div
+              ref={premiumBannerScrollerRef}
+              className="no-scrollbar snap-x snap-mandatory overflow-x-auto scroll-smooth px-6 pb-2"
             >
-              {[...prestigeSlider, ...prestigeSlider].map((src, index) => (
+              <div className="flex w-max gap-6 pr-6">
+                {prestigeSlider.map((src, index) => (
                 <motion.div
                   key={`${src}-${index}`}
                   whileHover={{ y: -6 }}
-                className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]"
-              >
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
-                  <Image src={src} alt="Premium showcase" fill className="object-cover" />
-                  <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
-                  <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
-                  <span className="pointer-events-none absolute bottom-6 left-6 text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/80">
-                    Private Edition
-                  </span>
+                  whileTap={{ scale: 0.985 }}
+                  className="snap-start"
+                >
+                  <div className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
+                    <Image src={src} alt="Premium showcase" fill className="object-cover" />
+                    <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
+                    <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
+                    <span className="pointer-events-none absolute bottom-6 left-6 text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/80">
+                      Private Edition
+                    </span>
+                  </div>
                 </motion.div>
               ))}
-            </motion.div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -769,7 +866,7 @@ export default function Home() {
               }
 
               return (
-                <Link key={profile.id} href={`/profile/view/${profile.id}`}>
+                <Link key={profile.id} href={getPublicProfileHref(profile)}>
                   {card}
                 </Link>
               );

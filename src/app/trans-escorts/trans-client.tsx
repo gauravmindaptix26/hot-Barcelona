@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Footer from "../../components/Footer";
@@ -73,6 +74,8 @@ export default function TransClient({
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const didApplyQueryProfileRef = useRef(false);
+  const searchParams = useSearchParams();
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
 
@@ -86,6 +89,28 @@ export default function TransClient({
   useEffect(() => {
     // Client-only hook reserved if you want to add filters/interactions later.
   }, []);
+
+  useEffect(() => {
+    if (didApplyQueryProfileRef.current) {
+      return;
+    }
+
+    const requestedProfile = searchParams?.get("profile");
+    if (!requestedProfile) {
+      didApplyQueryProfileRef.current = true;
+      return;
+    }
+
+    const match = liveProfiles.find(
+      (profile) => profile.id === requestedProfile || toDatabaseId(profile.id) === requestedProfile
+    );
+
+    if (match) {
+      setSelectedId(match.id);
+    }
+
+    didApplyQueryProfileRef.current = true;
+  }, [liveProfiles, searchParams]);
 
   useEffect(() => {
     if (!selectedProfile) {
@@ -187,11 +212,6 @@ export default function TransClient({
                   <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
                   </div>
-                  {hasPremiumPlan(profile.premiumPlan) && (
-                    <div className="absolute left-4 top-4 max-w-[72%] rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-3 py-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur">
-                      {profile.premiumPlan}
-                    </div>
-                  )}
                   <button
                     type="button"
                     aria-label="Save profile"
@@ -200,8 +220,14 @@ export default function TransClient({
                     <NavIcon path="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
                   </button>
 
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <div className="flex items-center justify-between">
+                  <div className="absolute inset-x-0 bottom-0 px-5 pb-2 pt-5">
+                    <div className="flex flex-col gap-2">
+                      {hasPremiumPlan(profile.premiumPlan) && (
+                        <div className="inline-flex max-w-full self-start rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-3 py-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur">
+                          {profile.premiumPlan}
+                        </div>
+                      )}
+                      <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-lg font-semibold">
                           {profile.name}, {formatAge(profile.age)}
@@ -216,11 +242,9 @@ export default function TransClient({
                         <span className="text-white/80">{profile.rating}</span>
                       </div>
                     </div>
+                    </div>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.35em] text-white/70">
-                        {profile.tag}
-                      </span>
+                    <div className="mt-4 flex items-center justify-end">
                       <span className="translate-y-2 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
                         View Profile
                       </span>
@@ -315,11 +339,8 @@ export default function TransClient({
               <div className="absolute inset-x-0 bottom-0 px-10 pb-10">
                 <div className="flex flex-wrap items-end justify-between gap-6">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                      {selectedProfile.status}
-                    </p>
                     <h2
-                      className="mt-4 text-4xl font-semibold sm:text-5xl"
+                      className="text-4xl font-semibold sm:text-5xl"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {selectedProfile.name}, {formatAge(selectedProfile.age)}

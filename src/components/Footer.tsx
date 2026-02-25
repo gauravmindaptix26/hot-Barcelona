@@ -123,7 +123,23 @@ export default function Footer() {
 
         <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
           <p>(c) 2026 Hot Barcelona. All rights reserved.</p>
-          <p>Crafted for private, curated experiences.</p>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/legal-notice")}
+              className="text-white/55 transition hover:text-white/80"
+            >
+              Legal Notice
+            </button>
+            <span className="h-1 w-1 rounded-full bg-white/30" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={() => router.push("/privacy-policy")}
+              className="text-white/55 transition hover:text-white/80"
+            >
+              Privacy Policy
+            </button>
+          </div>
         </div>
       </div>
     </footer>

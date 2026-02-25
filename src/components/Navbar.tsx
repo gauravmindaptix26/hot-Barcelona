@@ -49,7 +49,7 @@ export default function Navbar() {
           >
             <div className="relative h-[340px] w-[340px] sm:h-[420px] sm:w-[420px] lg:h-[580px] lg:w-[580px]">
               <Image
-                src="/images/new%20logor.png"
+                src="/images/added%20logo.png"
                 alt="Hot Barcelona"
                 width={240}
                 height={240}

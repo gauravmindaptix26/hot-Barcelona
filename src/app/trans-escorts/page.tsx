@@ -9,20 +9,46 @@ const publicVisibilityQuery = {
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
 
-const PREMIUM_PLANS = new Set([
+const PREMIUM_PLAN_ORDER = [
   "TOP PREMIUM VIP",
   "TOP PREMIUM BANNER",
   "TOP PREMIUM TOP",
   "TOP PREMIUM STANDARD",
-]);
+] as const;
+const normalizePremiumPlanText = (value: string) =>
+  value.replace(/\s+/g, " ").trim().toUpperCase();
+const PREMIUM_PLAN_LOOKUP = new Map(
+  PREMIUM_PLAN_ORDER.map((plan) => [normalizePremiumPlanText(plan), plan] as const)
+);
 
-const readSubscriptionPlan = (value: unknown) =>
-  typeof value === "string" && PREMIUM_PLANS.has(value.trim())
-    ? value.trim()
-    : null;
+const readSubscriptionPlan = (value: unknown) => {
+  if (typeof value !== "string") return null;
+
+  const normalized = normalizePremiumPlanText(value);
+  const exact = PREMIUM_PLAN_LOOKUP.get(normalized);
+  if (exact) return exact;
+
+  for (const plan of PREMIUM_PLAN_ORDER) {
+    if (normalized.startsWith(normalizePremiumPlanText(plan))) {
+      return plan;
+    }
+  }
+
+  return null;
+};
 
 const readSubscriptionDuration = (value: unknown) =>
   typeof value === "string" && value.trim() ? value.trim() : null;
+
+const readFormFields = (value: unknown) =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+
+const readItemValue = (item: unknown, key: string) =>
+  item && typeof item === "object" && !Array.isArray(item)
+    ? (item as Record<string, unknown>)[key]
+    : undefined;
 
 export default async function TransPage() {
   const db = await getDb();
@@ -37,12 +63,15 @@ export default async function TransPage() {
     const images = Array.isArray(item.images) && item.images.length
       ? item.images
       : ["/images/hot1.webp"];
-    const formFields =
-      item.formFields && typeof item.formFields === "object" && !Array.isArray(item.formFields)
-        ? (item.formFields as Record<string, unknown>)
-        : {};
-    const premiumPlan = readSubscriptionPlan(formFields.subscriptionPlan);
-    const premiumDuration = readSubscriptionDuration(formFields.subscriptionDuration);
+    const formFields = readFormFields(item.formFields);
+    const premiumPlan =
+      readSubscriptionPlan(formFields.subscriptionPlan) ??
+      readSubscriptionPlan(readItemValue(item, "subscriptionPlan")) ??
+      readSubscriptionPlan(readItemValue(item, "premiumPlan"));
+    const premiumDuration =
+      readSubscriptionDuration(formFields.subscriptionDuration) ??
+      readSubscriptionDuration(readItemValue(item, "subscriptionDuration")) ??
+      readSubscriptionDuration(readItemValue(item, "premiumDuration"));
 
     return {
       id: `db-${item._id.toString()}`,
