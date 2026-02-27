@@ -644,127 +644,123 @@ export default function GirlsClient({
                 </div>
               </div>
             </div>
-            <div className="grid gap-10 px-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-8">
-                {selectedProfile.about.trim() && (
-                  <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-6 sm:p-7">
-                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                      About
-                    </p>
-                    <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
-                      {selectedProfile.about}
-                    </p>
-                  </section>
-                )}
+            <div className="space-y-8 px-6 py-10 sm:px-10 sm:py-12">
+              <ProfileReviews
+                profileId={toDatabaseId(selectedProfile.id)}
+                profileType="girls"
+              />
 
-                <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                      Gallery
-                    </p>
-                    <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
-                      {selectedProfile.gallery.length} items
-                    </span>
-                  </div>
-                  {selectedProfile.gallery.length === 0 ? (
-                    <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
-                      No photos uploaded.
-                    </div>
-                  ) : (
-                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                      {selectedProfile.gallery.map((src) => (
-                        <div
-                          key={src}
-                          className="group relative h-56 overflow-hidden rounded-2xl border border-white/10"
-                        >
-                          <Image
-                            src={src}
-                            alt={`${selectedProfile.name} gallery`}
-                            fill
-                            className="object-cover transition duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
+              <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-6 sm:p-7">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                    Profile Details
+                  </p>
+                  <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
+                    {filledFormEntries.length} entries
+                  </span>
+                </div>
+                {groupedFormEntries.length === 0 ? (
+                  <p className="mt-6 text-sm text-white/60">
+                    No details submitted yet.
+                  </p>
+                ) : (
+                  <div className="mt-6 space-y-4">
+                    {groupedFormEntries.map((group) => (
+                      <div
+                        key={group.id}
+                        className="rounded-2xl border border-white/10 bg-black/35 p-4"
+                      >
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <p className="text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/90">
+                            {group.label}
+                          </p>
+                          <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
+                            {group.entries.length}
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </div>
-
-              <div className="space-y-8">
-                <ProfileReviews
-                  profileId={toDatabaseId(selectedProfile.id)}
-                  profileType="girls"
-                />
-
-                <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-6 sm:p-7">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                      Profile Details
-                    </p>
-                    <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
-                      {filledFormEntries.length} entries
-                    </span>
-                  </div>
-                  {groupedFormEntries.length === 0 ? (
-                    <p className="mt-6 text-sm text-white/60">
-                      No details submitted yet.
-                    </p>
-                  ) : (
-                    <div className="mt-6 space-y-4">
-                      {groupedFormEntries.map((group) => (
-                        <div
-                          key={group.id}
-                          className="rounded-2xl border border-white/10 bg-black/35 p-4"
-                        >
-                          <div className="mb-3 flex items-center justify-between gap-3">
-                            <p className="text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/90">
-                              {group.label}
-                            </p>
-                            <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
-                              {group.entries.length}
-                            </span>
-                          </div>
-                          <div className="grid gap-3 sm:grid-cols-2">
-                            {group.entries.map((entry) => {
-                              const tags = splitValueIntoTags(entry.value);
-                              const isLongValue = tags.length === 0 && entry.value.length > 90;
-                              return (
-                                <article
-                                  key={entry.key}
-                                  className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
-                                    isLongValue ? "sm:col-span-2" : ""
-                                  }`}
-                                >
-                                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/55">
-                                    {entry.label}
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {group.entries.map((entry) => {
+                            const tags = splitValueIntoTags(entry.value);
+                            const isLongValue = tags.length === 0 && entry.value.length > 90;
+                            return (
+                              <article
+                                key={entry.key}
+                                className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
+                                  isLongValue ? "sm:col-span-2" : ""
+                                }`}
+                              >
+                                <p className="text-[10px] uppercase tracking-[0.3em] text-white/55">
+                                  {entry.label}
+                                </p>
+                                {tags.length > 0 ? (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    {tags.map((tag) => (
+                                      <span
+                                        key={`${entry.key}-${tag}`}
+                                        className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/10 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
+                                    {entry.value}
                                   </p>
-                                  {tags.length > 0 ? (
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                      {tags.map((tag) => (
-                                        <span
-                                          key={`${entry.key}-${tag}`}
-                                          className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/10 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]"
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
-                                      {entry.value}
-                                    </p>
-                                  )}
-                                </article>
-                              );
-                            })}
-                          </div>
+                                )}
+                              </article>
+                            );
+                          })}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {selectedProfile.about.trim() && (
+                <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-6 sm:p-7">
+                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                    About
+                  </p>
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
+                    {selectedProfile.about}
+                  </p>
                 </section>
-              </div>
+              )}
+
+              <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                    Gallery
+                  </p>
+                  <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                    {selectedProfile.gallery.length} items
+                  </span>
+                </div>
+                {selectedProfile.gallery.length === 0 ? (
+                  <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
+                    No photos uploaded.
+                  </div>
+                ) : (
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {selectedProfile.gallery.map((src, index) => (
+                      <div
+                        key={`${src}-${index}`}
+                        className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
+                      >
+                        <Image
+                          src={src}
+                          alt={`${selectedProfile.name} gallery`}
+                          fill
+                          className="object-cover transition duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
             </div>
           </motion.div>
         </motion.div>
