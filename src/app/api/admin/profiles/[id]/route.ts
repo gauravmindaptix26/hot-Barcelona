@@ -5,6 +5,10 @@ import crypto from "crypto";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
+import {
+  deriveCloudinaryPublicIds,
+  extractCloudinaryPublicId,
+} from "@/lib/cloudinary";
 
 const allowedCollections = new Set(["girls", "trans"]);
 const allowedActions = new Set(["accept", "reject"]);
@@ -23,35 +27,23 @@ function getType(req: Request) {
   return allowedCollections.has(type) ? type : null;
 }
 
-function extractPublicId(url: string) {
-  try {
-    const parsed = new URL(url);
-    const parts = parsed.pathname.split("/").filter(Boolean);
-    const uploadIndex = parts.indexOf("upload");
-    if (uploadIndex === -1) return null;
-    let publicParts = parts.slice(uploadIndex + 1);
-    if (publicParts.length === 0) return null;
-    if (/^v\d+$/.test(publicParts[0])) {
-      publicParts = publicParts.slice(1);
-    }
-    if (publicParts.length === 0) return null;
-    const withExt = publicParts.join("/");
-    return withExt.replace(/\.[^/.]+$/, "");
-  } catch {
-    return null;
-  }
-}
-
-async function deleteFromCloudinary(urls: string[]) {
+async function deleteFromCloudinary(urls: string[], imagePublicIds: string[]) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
   if (!cloudName || !apiKey || !apiSecret) return;
 
+  const publicIds = Array.from(
+    new Set([
+      ...imagePublicIds,
+      ...urls
+        .map((url) => extractCloudinaryPublicId(url))
+        .filter((id): id is string => Boolean(id)),
+    ])
+  );
+
   const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`;
-  for (const url of urls) {
-    const publicId = extractPublicId(url);
-    if (!publicId) continue;
+  for (const publicId of publicIds) {
     const timestamp = Math.floor(Date.now() / 1000);
     const signatureBase = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
     const signature = crypto.createHash("sha1").update(signatureBase).digest("hex");
@@ -99,10 +91,13 @@ export async function DELETE(
   const images = Array.isArray(doc.images)
     ? doc.images.filter((item: unknown) => typeof item === "string")
     : [];
+  const imagePublicIds = Array.isArray(doc.imagePublicIds)
+    ? doc.imagePublicIds.filter((item: unknown): item is string => typeof item === "string")
+    : deriveCloudinaryPublicIds(images);
 
   await db.collection(type).deleteOne({ _id });
-  if (images.length > 0) {
-    await deleteFromCloudinary(images);
+  if (images.length > 0 || imagePublicIds.length > 0) {
+    await deleteFromCloudinary(images, imagePublicIds);
   }
 
   return NextResponse.json({ ok: true });
@@ -164,5 +159,113 @@ export async function PATCH(
     approvalStatus,
     reviewedAt: result.reviewedAt ?? null,
     reviewedBy: result.reviewedBy ?? null,
+  });
+}
+
+type AdminProfileUpdatePayload = {
+  name?: unknown;
+  age?: unknown;
+  location?: unknown;
+  images?: unknown;
+};
+
+const sanitizeText = (value: unknown) =>
+  typeof value === "string" ? value.trim() : "";
+
+const sanitizeImages = (value: unknown) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 20);
+};
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await assertAdmin();
+  if (!session?.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  if (!ObjectId.isValid(id)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const type = getType(req);
+  if (!type) {
+    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+  }
+
+  let payload: AdminProfileUpdatePayload;
+  try {
+    payload = (await req.json()) as AdminProfileUpdatePayload;
+  } catch {
+    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
+  const name = sanitizeText(payload.name);
+  const location = sanitizeText(payload.location);
+  const age = Number(payload.age);
+  const images = sanitizeImages(payload.images);
+  const imagePublicIds = deriveCloudinaryPublicIds(images);
+
+  if (!name || !location || !Number.isFinite(age)) {
+    return NextResponse.json(
+      { error: "Name, age, and location are required." },
+      { status: 400 }
+    );
+  }
+
+  if (images.length < 1) {
+    return NextResponse.json(
+      { error: "At least 1 image is required." },
+      { status: 400 }
+    );
+  }
+
+  if (images.length > 20) {
+    return NextResponse.json(
+      { error: "No more than 20 images are allowed." },
+      { status: 400 }
+    );
+  }
+
+  const db = await getDb();
+  const _id = new ObjectId(id);
+
+  const result = await db.collection(type).findOneAndUpdate(
+    { _id },
+    {
+      $set: {
+        name,
+        age,
+        location,
+        images,
+        imagePublicIds,
+        updatedAt: new Date(),
+      },
+    },
+    { returnDocument: "after" }
+  );
+
+  if (!result) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    profile: {
+      _id: result._id.toString(),
+      name: typeof result.name === "string" ? result.name : "",
+      age: typeof result.age === "number" ? result.age : null,
+      location: typeof result.location === "string" ? result.location : "",
+      images: Array.isArray(result.images)
+        ? result.images.filter((item: unknown) => typeof item === "string")
+        : [],
+    },
   });
 }

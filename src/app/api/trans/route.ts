@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
+import { deriveCloudinaryPublicIds } from "@/lib/cloudinary";
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
@@ -92,6 +93,7 @@ export async function POST(req: Request) {
   const images = Array.isArray(payload.images)
     ? payload.images.filter((item) => typeof item === "string")
     : [];
+  const imagePublicIds = deriveCloudinaryPublicIds(images);
   const formFields = sanitizeFormFields(payload.formFields);
 
   if (!name || !location || !Number.isFinite(age)) {
@@ -148,6 +150,7 @@ export async function POST(req: Request) {
           age,
           location,
           images,
+          imagePublicIds,
           gender: payload.gender ?? "trans",
           formFields,
           approvalStatus: "pending",
@@ -172,6 +175,7 @@ export async function POST(req: Request) {
     age,
     location,
     images,
+    imagePublicIds,
     gender: payload.gender ?? "trans",
     email,
     formFields,

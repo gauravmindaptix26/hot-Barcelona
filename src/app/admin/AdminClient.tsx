@@ -30,6 +30,14 @@ export default function AdminClient({ girls, trans }: Props) {
   });
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    age: "",
+    location: "",
+    imagesText: "",
+  });
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -128,6 +136,105 @@ export default function AdminClient({ girls, trans }: Props) {
       setError("Failed to update profile status.");
     } finally {
       setIsUpdatingStatus(null);
+    }
+  };
+
+  const startEdit = (item: ProfileItem) => {
+    setEditingId(item._id);
+    setEditForm({
+      name: item.name,
+      age: item.age !== null && Number.isFinite(item.age) ? String(item.age) : "",
+      location: item.location,
+      imagesText: item.images.join("\n"),
+    });
+    setError("");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setIsSavingEdit(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) return;
+
+    const age = Number(editForm.age);
+    const images = editForm.imagesText
+      .split(/\r?\n/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (!editForm.name.trim() || !editForm.location.trim() || !Number.isFinite(age)) {
+      setError("Name, age, and location are required.");
+      return;
+    }
+    if (images.length < 1) {
+      setError("At least 1 image URL is required.");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        `/api/admin/profiles/${editingId}?type=${activeTab}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: editForm.name.trim(),
+            age,
+            location: editForm.location.trim(),
+            images,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to update profile.");
+        return;
+      }
+
+      const data = (await response.json()) as {
+        profile?: {
+          _id?: string;
+          name?: string;
+          age?: number | null;
+          location?: string;
+          images?: string[];
+        };
+      };
+
+      const updated = data.profile;
+      if (!updated?._id) {
+        setError("Failed to update profile.");
+        return;
+      }
+
+      setItems((prev) => ({
+        ...prev,
+        [activeTab]: prev[activeTab].map((item) =>
+          item._id === updated._id
+            ? {
+                ...item,
+                name: typeof updated.name === "string" ? updated.name : item.name,
+                age: typeof updated.age === "number" ? updated.age : item.age,
+                location:
+                  typeof updated.location === "string"
+                    ? updated.location
+                    : item.location,
+                images: Array.isArray(updated.images) ? updated.images : item.images,
+              }
+            : item
+        ),
+      }));
+      setEditingId(null);
+    } catch {
+      setError("Failed to update profile.");
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -262,9 +369,23 @@ export default function AdminClient({ girls, trans }: Props) {
               <div className="flex items-center gap-3 pt-2">
                 <button
                   type="button"
+                  onClick={() => startEdit(item)}
+                  disabled={
+                    isDeleting === item._id ||
+                    isUpdatingStatus === item._id ||
+                    isSavingEdit
+                  }
+                  className="rounded-full border border-sky-300/30 bg-sky-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-sky-200 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleApproval(item._id, "accept")}
                   disabled={
-                    isUpdatingStatus === item._id || item.approvalStatus === "approved"
+                    isUpdatingStatus === item._id ||
+                    item.approvalStatus === "approved" ||
+                    isSavingEdit
                   }
                   className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
@@ -274,7 +395,9 @@ export default function AdminClient({ girls, trans }: Props) {
                   type="button"
                   onClick={() => handleApproval(item._id, "reject")}
                   disabled={
-                    isUpdatingStatus === item._id || item.approvalStatus === "rejected"
+                    isUpdatingStatus === item._id ||
+                    item.approvalStatus === "rejected" ||
+                    isSavingEdit
                   }
                   className="rounded-full border border-amber-300/30 bg-amber-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-amber-200 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
@@ -283,12 +406,86 @@ export default function AdminClient({ girls, trans }: Props) {
                 <button
                   type="button"
                   onClick={() => handleDelete(item._id)}
-                  disabled={isDeleting === item._id || isUpdatingStatus === item._id}
+                  disabled={
+                    isDeleting === item._id ||
+                    isUpdatingStatus === item._id ||
+                    isSavingEdit
+                  }
                   className="rounded-full border border-red-400/40 bg-red-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isDeleting === item._id ? "Deleting..." : "Delete"}
                 </button>
               </div>
+
+              {editingId === item._id && (
+                <div className="mt-4 space-y-3 rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <input
+                      value={editForm.name}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, name: event.target.value }))
+                      }
+                      placeholder="Name"
+                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                    <input
+                      type="number"
+                      min={18}
+                      max={80}
+                      value={editForm.age}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, age: event.target.value }))
+                      }
+                      placeholder="Age"
+                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                    <input
+                      value={editForm.location}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, location: event.target.value }))
+                      }
+                      placeholder="Location"
+                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-white/50">
+                      Images (one URL per line)
+                    </p>
+                    <textarea
+                      value={editForm.imagesText}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          imagesText: event.target.value,
+                        }))
+                      }
+                      rows={4}
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={isSavingEdit}
+                      className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSavingEdit ? "Saving..." : "Save Changes"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      disabled={isSavingEdit}
+                      className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white/70 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

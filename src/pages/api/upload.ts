@@ -1,8 +1,11 @@
-// @ts-nocheck
 import type { NextApiRequest, NextApiResponse } from "next";
 import multer from "multer";
 import crypto from "crypto";
 import { rateLimit } from "@/lib/rate-limit";
+import {
+  extractCloudinaryPublicId,
+  getCloudinaryAdsFolder,
+} from "@/lib/cloudinary";
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -26,7 +29,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  upload.array("images", 20)(req, res, async (err) => {
+  upload.array("images", 20)(req, res, async (err: unknown) => {
     if (err) {
       if ((err as { code?: string }).code === "LIMIT_FILE_SIZE") {
         return res
@@ -55,13 +58,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     try {
-      const cloudinaryFolder = "hot-barcelona/ads";
+      const cloudinaryFolder = getCloudinaryAdsFolder();
       const timestamp = Math.floor(Date.now() / 1000);
       const signatureBase = `folder=${cloudinaryFolder}&timestamp=${timestamp}${apiSecret}`;
       const signature = crypto.createHash("sha1").update(signatureBase).digest("hex");
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
       const urls: string[] = [];
+      const publicIds: string[] = [];
 
       for (const file of files) {
         const formData = new FormData();
@@ -91,10 +95,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         if (data.secure_url) {
           urls.push(data.secure_url);
+          const publicId = extractCloudinaryPublicId(data.secure_url);
+          if (publicId) {
+            publicIds.push(publicId);
+          }
         }
       }
 
-      return res.status(200).json({ urls });
+      return res.status(200).json({ urls, publicIds });
     } catch {
       return res.status(500).json({ error: "Upload failed" });
     }

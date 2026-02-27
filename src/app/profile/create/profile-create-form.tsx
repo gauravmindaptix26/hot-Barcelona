@@ -235,7 +235,7 @@ export default function ProfileCreateForm({
                 <div>
                   <h2 className="text-lg font-semibold">Upload Images</h2>
                   <p className="mt-1 text-sm text-white/60">
-                    Minimum 3, maximum 4 images. Files are stored locally.
+                    Minimum 3, maximum 4 images. Stored in Cloudinary.
                   </p>
                 </div>
                 <label
