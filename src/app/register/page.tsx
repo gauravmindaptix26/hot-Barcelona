@@ -80,7 +80,7 @@ export default function RegisterPage() {
                 return;
               }
 
-              router.replace(signInResult.url ?? callbackUrl);
+              router.replace(callbackUrl);
               setIsSubmitting(false);
             }}
           >

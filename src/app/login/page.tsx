@@ -83,7 +83,7 @@ export default function LoginPage() {
                 return;
               }
 
-              router.replace(result.url ?? callbackUrl);
+              router.replace(callbackUrl);
               setIsSubmitting(false);
             }}
           >

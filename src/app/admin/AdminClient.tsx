@@ -3,13 +3,17 @@
 import { useMemo, useState } from "react";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
+type PersistedFormFields = Record<string, string | string[]>;
 
 type ProfileItem = {
   _id: string;
   name: string;
   age: number | null;
   location: string;
+  email: string;
+  gender: string;
   images: string[];
+  formFields: PersistedFormFields;
   approvalStatus: ApprovalStatus;
   createdAt: string | null;
   createdAtLabel?: string;
@@ -35,7 +39,10 @@ export default function AdminClient({ girls, trans }: Props) {
     name: "",
     age: "",
     location: "",
+    email: "",
+    gender: "",
     imagesText: "",
+    formFieldsJson: "{}",
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [error, setError] = useState("");
@@ -145,7 +152,10 @@ export default function AdminClient({ girls, trans }: Props) {
       name: item.name,
       age: item.age !== null && Number.isFinite(item.age) ? String(item.age) : "",
       location: item.location,
+      email: item.email,
+      gender: item.gender,
       imagesText: item.images.join("\n"),
+      formFieldsJson: JSON.stringify(item.formFields ?? {}, null, 2),
     });
     setError("");
   };
@@ -163,6 +173,7 @@ export default function AdminClient({ girls, trans }: Props) {
       .split(/\r?\n/)
       .map((item) => item.trim())
       .filter(Boolean);
+    let parsedFormFields: unknown = {};
 
     if (!editForm.name.trim() || !editForm.location.trim() || !Number.isFinite(age)) {
       setError("Name, age, and location are required.");
@@ -170,6 +181,17 @@ export default function AdminClient({ girls, trans }: Props) {
     }
     if (images.length < 1) {
       setError("At least 1 image URL is required.");
+      return;
+    }
+    try {
+      const parsed = JSON.parse(editForm.formFieldsJson || "{}") as unknown;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        setError("Form fields JSON must be a valid object.");
+        return;
+      }
+      parsedFormFields = parsed;
+    } catch {
+      setError("Form fields JSON is invalid.");
       return;
     }
 
@@ -186,7 +208,10 @@ export default function AdminClient({ girls, trans }: Props) {
             name: editForm.name.trim(),
             age,
             location: editForm.location.trim(),
+            email: editForm.email.trim().toLowerCase(),
+            gender: editForm.gender.trim().toLowerCase(),
             images,
+            formFields: parsedFormFields,
           }),
         }
       );
@@ -203,7 +228,10 @@ export default function AdminClient({ girls, trans }: Props) {
           name?: string;
           age?: number | null;
           location?: string;
+          email?: string;
+          gender?: string;
           images?: string[];
+          formFields?: PersistedFormFields;
         };
       };
 
@@ -225,7 +253,15 @@ export default function AdminClient({ girls, trans }: Props) {
                   typeof updated.location === "string"
                     ? updated.location
                     : item.location,
+                email:
+                  typeof updated.email === "string" ? updated.email : item.email,
+                gender:
+                  typeof updated.gender === "string" ? updated.gender : item.gender,
                 images: Array.isArray(updated.images) ? updated.images : item.images,
+                formFields:
+                  updated.formFields && typeof updated.formFields === "object"
+                    ? updated.formFields
+                    : item.formFields,
               }
             : item
         ),
@@ -345,6 +381,9 @@ export default function AdminClient({ girls, trans }: Props) {
                   <p className="text-sm text-white/60">
                     {item.age ?? "-"} - {item.location || "Unknown location"}
                   </p>
+                  {item.email && (
+                    <p className="mt-1 text-xs text-white/45">{item.email}</p>
+                  )}
                 </div>
                 <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white/60">
                   {activeTab}
@@ -363,7 +402,10 @@ export default function AdminClient({ girls, trans }: Props) {
 
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
                 <span>{item.createdAtLabel ?? "No date"}</span>
-                <span>{item.images.length} photos</span>
+                <span>
+                  {item.images.length} photos •{" "}
+                  {Object.keys(item.formFields ?? {}).length} fields
+                </span>
               </div>
 
               <div className="flex items-center gap-3 pt-2">
@@ -419,7 +461,7 @@ export default function AdminClient({ girls, trans }: Props) {
 
               {editingId === item._id && (
                 <div className="mt-4 space-y-3 rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-5">
                     <input
                       value={editForm.name}
                       onChange={(event) =>
@@ -447,6 +489,26 @@ export default function AdminClient({ girls, trans }: Props) {
                       placeholder="Location"
                       className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                     />
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, email: event.target.value }))
+                      }
+                      placeholder="Email"
+                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                    <select
+                      value={editForm.gender}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, gender: event.target.value }))
+                      }
+                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="girl">girl</option>
+                      <option value="trans">trans</option>
+                    </select>
                   </div>
 
                   <div>
@@ -463,6 +525,23 @@ export default function AdminClient({ girls, trans }: Props) {
                       }
                       rows={4}
                       className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-white/50">
+                      All form fields JSON (admin full edit)
+                    </p>
+                    <textarea
+                      value={editForm.formFieldsJson}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          formFieldsJson: event.target.value,
+                        }))
+                      }
+                      rows={10}
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 font-mono text-xs text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                     />
                   </div>
 

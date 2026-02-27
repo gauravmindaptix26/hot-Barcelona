@@ -166,8 +166,13 @@ type AdminProfileUpdatePayload = {
   name?: unknown;
   age?: unknown;
   location?: unknown;
+  email?: unknown;
+  gender?: unknown;
   images?: unknown;
+  formFields?: unknown;
 };
+
+type PersistedFormFields = Record<string, string | string[]>;
 
 const sanitizeText = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
@@ -179,6 +184,39 @@ const sanitizeImages = (value: unknown) => {
     .map((item) => item.trim())
     .filter(Boolean)
     .slice(0, 20);
+};
+
+const sanitizeEmail = (value: unknown) =>
+  typeof value === "string" ? value.trim().toLowerCase() : "";
+
+const sanitizeGender = (value: unknown) => {
+  const normalized = sanitizeText(value).toLowerCase();
+  return normalized === "girl" || normalized === "trans" ? normalized : "";
+};
+
+const sanitizeFormFields = (input: unknown): PersistedFormFields => {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  const fields: PersistedFormFields = {};
+  for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
+    if (key === "password") continue;
+
+    if (typeof value === "string") {
+      fields[key] = value.trim();
+      continue;
+    }
+
+    if (Array.isArray(value)) {
+      fields[key] = value
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+  }
+
+  return fields;
 };
 
 export async function PUT(
@@ -209,8 +247,11 @@ export async function PUT(
 
   const name = sanitizeText(payload.name);
   const location = sanitizeText(payload.location);
+  const email = sanitizeEmail(payload.email);
+  const gender = sanitizeGender(payload.gender);
   const age = Number(payload.age);
   const images = sanitizeImages(payload.images);
+  const formFields = sanitizeFormFields(payload.formFields);
   const imagePublicIds = deriveCloudinaryPublicIds(images);
 
   if (!name || !location || !Number.isFinite(age)) {
@@ -244,8 +285,11 @@ export async function PUT(
         name,
         age,
         location,
+        ...(email ? { email } : {}),
+        ...(gender ? { gender } : {}),
         images,
         imagePublicIds,
+        formFields,
         updatedAt: new Date(),
       },
     },
@@ -263,9 +307,12 @@ export async function PUT(
       name: typeof result.name === "string" ? result.name : "",
       age: typeof result.age === "number" ? result.age : null,
       location: typeof result.location === "string" ? result.location : "",
+      email: typeof result.email === "string" ? result.email : "",
+      gender: typeof result.gender === "string" ? result.gender : "",
       images: Array.isArray(result.images)
         ? result.images.filter((item: unknown) => typeof item === "string")
         : [],
+      formFields: sanitizeFormFields(result.formFields),
     },
   });
 }

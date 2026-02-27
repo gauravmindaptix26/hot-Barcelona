@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db";
 import AdminClient from "./AdminClient";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
+type PersistedFormFields = Record<string, string | string[]>;
 
 const normalizeApprovalStatus = (value: unknown): ApprovalStatus => {
   if (value === "pending" || value === "rejected") {
@@ -27,6 +28,29 @@ const parseIsoDate = (value: unknown): string | null => {
     return null;
   }
   return parsed.toISOString();
+};
+
+const normalizeFormFields = (value: unknown): PersistedFormFields => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  const next: PersistedFormFields = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof raw === "string") {
+      next[key] = raw.trim();
+      continue;
+    }
+
+    if (Array.isArray(raw)) {
+      next[key] = raw
+        .filter((item): item is string => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+  }
+
+  return next;
 };
 
 export default async function AdminPage() {
@@ -60,7 +84,10 @@ export default async function AdminPage() {
     name?: unknown;
     age?: unknown;
     location?: unknown;
+    email?: unknown;
+    gender?: unknown;
     images?: unknown;
+    formFields?: unknown;
     createdAt?: unknown;
     approvalStatus?: unknown;
   }) => {
@@ -70,7 +97,10 @@ export default async function AdminPage() {
     name: typeof item.name === "string" ? item.name : "",
     age: typeof item.age === "number" ? item.age : null,
     location: typeof item.location === "string" ? item.location : "",
+    email: typeof item.email === "string" ? item.email : "",
+    gender: typeof item.gender === "string" ? item.gender : "",
     images: Array.isArray(item.images) ? item.images : [],
+    formFields: normalizeFormFields(item.formFields),
     approvalStatus: normalizeApprovalStatus(item.approvalStatus),
     createdAt: createdAtIso,
     createdAtLabel: createdAtIso
