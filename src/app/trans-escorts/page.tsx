@@ -324,6 +324,7 @@ export default async function TransPage() {
       gallery: images,
       premiumPlan,
       premiumDuration,
+      formFields,
     };
   });
 

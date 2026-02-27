@@ -45,6 +45,7 @@ type Profile = {
   gallery: string[];
   premiumPlan?: string | null;
   premiumDuration?: string | null;
+  formFields: Record<string, unknown>;
 };
 
 const gridVariants: Variants = {
@@ -65,6 +66,45 @@ const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—
 const toDatabaseId = (id: string) => (id.startsWith("db-") ? id.slice(3) : id);
 const hasPremiumPlan = (value: string | null | undefined) =>
   typeof value === "string" && value.trim().length > 0;
+const humanizeFieldKey = (key: string) =>
+  key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+const formatFieldValue = (value: unknown): string => {
+  if (value === null || value === undefined) return "";
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => formatFieldValue(item).trim())
+      .filter(Boolean)
+      .join(", ");
+  }
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (typeof value === "number") return Number.isFinite(value) ? String(value) : "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>)
+      .map(([nestedKey, nestedValue]) => {
+        const formattedNestedValue = formatFieldValue(nestedValue);
+        return formattedNestedValue
+          ? `${humanizeFieldKey(nestedKey)}: ${formattedNestedValue}`
+          : "";
+      })
+      .filter(Boolean)
+      .join(" | ");
+  }
+  return "";
+};
+const getFilledFormEntries = (fields: Record<string, unknown>) =>
+  Object.entries(fields)
+    .map(([key, value]) => ({
+      key,
+      label: humanizeFieldKey(key),
+      value: formatFieldValue(value),
+    }))
+    .filter((entry) => entry.value.length > 0);
 
 export default function TransClient({
   initialProfiles,
@@ -84,6 +124,10 @@ export default function TransClient({
   const selectedProfile = useMemo(
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
     [displayProfiles, selectedId]
+  );
+  const filledFormEntries = useMemo(
+    () => (selectedProfile ? getFilledFormEntries(selectedProfile.formFields) : []),
+    [selectedProfile]
   );
 
   useEffect(() => {
@@ -507,6 +551,31 @@ export default function TransClient({
                       </span>
                     </div>
                   </div>
+                </section>
+
+                <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
+                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                    All Filled Details
+                  </p>
+                  {filledFormEntries.length === 0 ? (
+                    <p className="mt-6 text-sm text-white/60">
+                      No additional details added yet.
+                    </p>
+                  ) : (
+                    <div className="mt-6 grid gap-4 text-sm text-white/70">
+                      {filledFormEntries.map((entry) => (
+                        <div
+                          key={entry.key}
+                          className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3"
+                        >
+                          <span className="text-xs uppercase tracking-[0.35em] text-white/50">
+                            {entry.label}
+                          </span>
+                          <span className="text-right text-white/80">{entry.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
 
                 <section className="rounded-3xl border border-white/10 bg-black/50 p-6">

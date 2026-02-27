@@ -324,6 +324,7 @@ export default async function GirlsPage() {
       gallery: images,
       premiumPlan,
       premiumDuration,
+      formFields,
     };
   });
 
