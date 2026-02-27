@@ -1,14 +1,14 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+
 
 export default function LoginPage() {
   const router = useRouter();
-  const { status } = useSession();
+
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,13 +19,6 @@ export default function LoginPage() {
     }
     router.push("/");
   };
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/post-login");
-    }
-  }, [router, status]);
-
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
