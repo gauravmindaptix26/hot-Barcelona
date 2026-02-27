@@ -107,6 +107,104 @@ const getFilledFormEntries = (fields: Record<string, unknown>) =>
       value: formatFieldValue(value),
     }))
     .filter((entry) => entry.value.length > 0);
+type FilledFormEntry = {
+  key: string;
+  label: string;
+  value: string;
+};
+const detailGroupOrder = [
+  "identity",
+  "description",
+  "services",
+  "rates",
+  "schedule",
+  "location",
+  "plan",
+  "other",
+] as const;
+const detailGroupLabels: Record<(typeof detailGroupOrder)[number], string> = {
+  identity: "Identity",
+  description: "Description",
+  services: "Services",
+  rates: "Rates & Payment",
+  schedule: "Schedule",
+  location: "Location",
+  plan: "Subscription",
+  other: "More Details",
+};
+const getDetailGroupId = (key: string): (typeof detailGroupOrder)[number] => {
+  const normalized = key.toLowerCase();
+  if (
+    [
+      "gender",
+      "stage",
+      "email",
+      "phone",
+      "age",
+      "nationality",
+      "language",
+      "height",
+      "body",
+      "hair",
+      "eyes",
+    ].some((token) => normalized.includes(token))
+  ) {
+    return "identity";
+  }
+  if (normalized.includes("description")) return "description";
+  if (
+    ["service", "physical", "attention", "special"].some((token) =>
+      normalized.includes(token)
+    )
+  ) {
+    return "services";
+  }
+  if (
+    normalized.startsWith("rate") ||
+    normalized.includes("payment") ||
+    normalized.includes("price")
+  ) {
+    return "rates";
+  }
+  if (normalized.startsWith("schedule-")) return "schedule";
+  if (["address", "location", "city", "map"].some((token) => normalized.includes(token))) {
+    return "location";
+  }
+  if (
+    ["subscription", "premium", "featured", "banner", "duration"].some((token) =>
+      normalized.includes(token)
+    )
+  ) {
+    return "plan";
+  }
+  return "other";
+};
+const groupFilledFormEntries = (entries: FilledFormEntry[]) => {
+  const grouped = new Map<(typeof detailGroupOrder)[number], FilledFormEntry[]>();
+  for (const entry of entries) {
+    const groupId = getDetailGroupId(entry.key);
+    const existing = grouped.get(groupId) ?? [];
+    existing.push(entry);
+    grouped.set(groupId, existing);
+  }
+
+  return detailGroupOrder
+    .map((id) => ({
+      id,
+      label: detailGroupLabels[id],
+      entries: grouped.get(id) ?? [],
+    }))
+    .filter((group) => group.entries.length > 0);
+};
+const splitValueIntoTags = (value: string) => {
+  if (value.length > 160 || value.includes("|") || value.includes(":")) return [];
+  const tags = value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (tags.length < 2 || tags.length > 8) return [];
+  return tags;
+};
 
 export default function TransClient({
   initialProfiles,
@@ -127,9 +225,13 @@ export default function TransClient({
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
     [displayProfiles, selectedId]
   );
-  const filledFormEntries = useMemo(
+  const filledFormEntries = useMemo<FilledFormEntry[]>(
     () => (selectedProfile ? getFilledFormEntries(selectedProfile.formFields) : []),
     [selectedProfile]
+  );
+  const groupedFormEntries = useMemo(
+    () => groupFilledFormEntries(filledFormEntries),
+    [filledFormEntries]
   );
 
   useEffect(() => {
@@ -409,6 +511,14 @@ export default function TransClient({
                         {selectedProfile.location}
                       </div>
                     )}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-[#f5d68c]/35 bg-black/55 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
+                        {filledFormEntries.length} filled fields
+                      </span>
+                      <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                        {selectedProfile.gallery.length} photos
+                      </span>
+                    </div>
                   </div>
                   {hasRatingData(selectedProfile) && (
                     <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">
@@ -447,20 +557,25 @@ export default function TransClient({
             <div className="grid gap-10 px-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-8">
                 {selectedProfile.about.trim() && (
-                  <section>
+                  <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-6 sm:p-7">
                     <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
                       About
                     </p>
-                    <p className="mt-4 whitespace-pre-wrap text-lg leading-relaxed text-white/75">
+                    <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
                       {selectedProfile.about}
                     </p>
                   </section>
                 )}
 
-                <section>
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Gallery
-                  </p>
+                <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      Gallery
+                    </p>
+                    <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                      {selectedProfile.gallery.length} items
+                    </span>
+                  </div>
                   {selectedProfile.gallery.length === 0 ? (
                     <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
                       No photos uploaded.
@@ -492,30 +607,69 @@ export default function TransClient({
                   profileType="trans"
                 />
 
-                <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    All Filled Details
-                  </p>
-                  {filledFormEntries.length === 0 ? (
+                <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-6 sm:p-7">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      Profile Details
+                    </p>
+                    <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
+                      {filledFormEntries.length} entries
+                    </span>
+                  </div>
+                  {groupedFormEntries.length === 0 ? (
                     <p className="mt-6 text-sm text-white/60">
                       No details submitted yet.
                     </p>
                   ) : (
-                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                      {filledFormEntries.map((entry) => (
-                        <article
-                          key={entry.key}
-                          className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
-                            entry.value.length > 80 ? "sm:col-span-2" : ""
-                          }`}
+                    <div className="mt-6 space-y-4">
+                      {groupedFormEntries.map((group) => (
+                        <div
+                          key={group.id}
+                          className="rounded-2xl border border-white/10 bg-black/35 p-4"
                         >
-                          <p className="text-[11px] uppercase tracking-[0.32em] text-white/55">
-                            {entry.label}
-                          </p>
-                          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
-                            {entry.value}
-                          </p>
-                        </article>
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <p className="text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/90">
+                              {group.label}
+                            </p>
+                            <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
+                              {group.entries.length}
+                            </span>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            {group.entries.map((entry) => {
+                              const tags = splitValueIntoTags(entry.value);
+                              const isLongValue = tags.length === 0 && entry.value.length > 90;
+                              return (
+                                <article
+                                  key={entry.key}
+                                  className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
+                                    isLongValue ? "sm:col-span-2" : ""
+                                  }`}
+                                >
+                                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/55">
+                                    {entry.label}
+                                  </p>
+                                  {tags.length > 0 ? (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                      {tags.map((tag) => (
+                                        <span
+                                          key={`${entry.key}-${tag}`}
+                                          className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/10 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]"
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
+                                      {entry.value}
+                                    </p>
+                                  )}
+                                </article>
+                              );
+                            })}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
