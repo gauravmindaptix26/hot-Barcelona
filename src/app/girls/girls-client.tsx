@@ -74,6 +74,14 @@ const hasRatingData = (profile: Profile) =>
 const hiddenFormFieldKeys = new Set([
   "password",
   "confirmPassword",
+  "phone",
+  "phonenumber",
+  "mobile",
+  "mobilenumber",
+  "whatsapp",
+  "whatsappnumber",
+  "contact",
+  "contactnumber",
   "userid",
   "_id",
   "isdeleted",
@@ -86,6 +94,14 @@ const isVisibleFormField = (key: string) => {
   const normalized = key.toLowerCase().replace(/\s+/g, "");
   if (hiddenFormFieldKeys.has(normalized)) return false;
   if (normalized.includes("password")) return false;
+  if (
+    normalized.includes("phone") ||
+    normalized.includes("mobile") ||
+    normalized.includes("whatsapp") ||
+    normalized.includes("contactnumber")
+  ) {
+    return false;
+  }
   return true;
 };
 const humanizeFieldKey = (key: string) =>
@@ -119,15 +135,79 @@ const formatFieldValue = (value: unknown): string => {
   }
   return "";
 };
-const getFilledFormEntries = (fields: Record<string, unknown>) =>
-  Object.entries(fields)
-    .filter(([key]) => isVisibleFormField(key))
-    .map(([key, value]) => ({
+const scheduleDaysOrder = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+const isRestValue = (value: string) => value.trim().toLowerCase() === "rest";
+const getFilledFormEntries = (fields: Record<string, unknown>) => {
+  const regularEntries: Array<{ key: string; label: string; value: string }> = [];
+  const scheduleByDay = new Map<string, { start?: string; end?: string }>();
+
+  for (const [key, rawValue] of Object.entries(fields)) {
+    if (!isVisibleFormField(key)) continue;
+    const value = formatFieldValue(rawValue);
+    if (!value) continue;
+
+    const scheduleMatch = key.match(/^schedule-(.+)-(start|end)$/i);
+    if (scheduleMatch) {
+      if (isRestValue(value)) continue;
+      const day = scheduleMatch[1];
+      const part = scheduleMatch[2].toLowerCase();
+      const existing = scheduleByDay.get(day) ?? {};
+      if (part === "start") {
+        existing.start = value;
+      } else {
+        existing.end = value;
+      }
+      scheduleByDay.set(day, existing);
+      continue;
+    }
+
+    regularEntries.push({
       key,
       label: humanizeFieldKey(key),
-      value: formatFieldValue(value),
-    }))
-    .filter((entry) => entry.value.length > 0);
+      value,
+    });
+  }
+
+  const orderedScheduleEntries: Array<{ key: string; label: string; value: string }> = [];
+  for (const day of scheduleDaysOrder) {
+    const dayValues = scheduleByDay.get(day);
+    if (!dayValues) continue;
+    const mergedValue =
+      dayValues.start && dayValues.end
+        ? `${dayValues.start} - ${dayValues.end}`
+        : dayValues.start ?? dayValues.end ?? "";
+    if (!mergedValue) continue;
+    orderedScheduleEntries.push({
+      key: `schedule-${day}`,
+      label: `Schedule ${day}`,
+      value: mergedValue,
+    });
+  }
+
+  for (const [day, dayValues] of scheduleByDay.entries()) {
+    if (scheduleDaysOrder.includes(day as (typeof scheduleDaysOrder)[number])) continue;
+    const mergedValue =
+      dayValues.start && dayValues.end
+        ? `${dayValues.start} - ${dayValues.end}`
+        : dayValues.start ?? dayValues.end ?? "";
+    if (!mergedValue) continue;
+    orderedScheduleEntries.push({
+      key: `schedule-${day}`,
+      label: `Schedule ${day}`,
+      value: mergedValue,
+    });
+  }
+
+  return [...regularEntries, ...orderedScheduleEntries];
+};
 type FilledFormEntry = {
   key: string;
   label: string;
