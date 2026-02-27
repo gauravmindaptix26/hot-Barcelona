@@ -15,18 +15,30 @@ const PREMIUM_PLAN_ORDER = [
   "TOP PREMIUM TOP",
   "TOP PREMIUM STANDARD",
 ] as const;
+
 const PREMIUM_PLAN_PRIORITY = new Map<string, number>(
   PREMIUM_PLAN_ORDER.map((plan, index) => [plan, index])
 );
+
+const scheduleDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+
 const normalizePremiumPlanText = (value: string) =>
   value.replace(/\s+/g, " ").trim().toUpperCase();
+
 const PREMIUM_PLAN_LOOKUP = new Map(
   PREMIUM_PLAN_ORDER.map((plan) => [normalizePremiumPlanText(plan), plan] as const)
 );
 
 const readSubscriptionPlan = (value: unknown) => {
   if (typeof value !== "string") return null;
-
   const normalized = normalizePremiumPlanText(value);
   const exact = PREMIUM_PLAN_LOOKUP.get(normalized);
   if (exact) return exact;
@@ -53,8 +65,45 @@ const readItemValue = (item: unknown, key: string) =>
     ? (item as Record<string, unknown>)[key]
     : undefined;
 
-const getPremiumPlanPriority = (value: string | null) =>
-  value ? (PREMIUM_PLAN_PRIORITY.get(value) ?? PREMIUM_PLAN_ORDER.length) : PREMIUM_PLAN_ORDER.length;
+const readString = (value: unknown) =>
+  typeof value === "string" ? value.trim() : "";
+
+const readNumber = (value: unknown) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const readStringArray = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return Array.from(
+      new Set(
+        value
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean)
+      )
+    );
+  }
+  if (typeof value === "string" && value.trim()) {
+    return [value.trim()];
+  }
+  return [];
+};
+
+const readFieldText = (fields: Record<string, unknown>, key: string) => {
+  const raw = fields[key];
+  if (typeof raw === "string") return raw.trim();
+  if (Array.isArray(raw)) {
+    const first = raw.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
+    return first?.trim() ?? "";
+  }
+  return "";
+};
+
+const uniqueStrings = (values: string[]) =>
+  Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 
 const readCreatedAtMs = (value: unknown) => {
   if (value instanceof Date) return value.getTime();
@@ -63,6 +112,91 @@ const readCreatedAtMs = (value: unknown) => {
     return Number.isFinite(parsed) ? parsed : 0;
   }
   return 0;
+};
+
+const getPremiumPlanPriority = (value: string | null) =>
+  value ? (PREMIUM_PLAN_PRIORITY.get(value) ?? PREMIUM_PLAN_ORDER.length) : PREMIUM_PLAN_ORDER.length;
+
+const buildAvailability = (
+  fields: Record<string, unknown>,
+  services: string[],
+  attention: string[]
+) => {
+  const openSlots: Array<{ day: string; start: string; end: string }> = [];
+  let hasScheduleValue = false;
+
+  for (const day of scheduleDays) {
+    const start = readFieldText(fields, `schedule-${day}-start`);
+    const end = readFieldText(fields, `schedule-${day}-end`);
+    if (!start && !end) continue;
+
+    hasScheduleValue = true;
+    const isRest =
+      start.toLowerCase() === "rest" || end.toLowerCase() === "rest";
+    if (!isRest && start && end) {
+      openSlots.push({ day, start, end });
+    }
+  }
+
+  const daysLabel =
+    openSlots.length > 0
+      ? uniqueStrings(openSlots.map((slot) => slot.day.slice(0, 3))).join(", ")
+      : hasScheduleValue
+        ? "Rest / custom"
+        : "Mon - Sun";
+
+  const hourPairs = uniqueStrings(openSlots.map((slot) => `${slot.start} - ${slot.end}`));
+  const hoursLabel =
+    openSlots.length === 0
+      ? hasScheduleValue
+        ? "Rest"
+        : "00:00 - 23:59"
+      : hourPairs.length === 1
+        ? hourPairs[0]
+        : `${hourPairs.length} schedules`;
+
+  const hasTravel = [...services, ...attention].some((value) =>
+    value.toLowerCase().includes("travel")
+  );
+
+  return {
+    days: daysLabel,
+    hours: hoursLabel,
+    travel: hasTravel ? "Yes" : "No",
+  };
+};
+
+const buildAbout = (params: {
+  name: string;
+  age: number;
+  location: string;
+  description: string;
+  nationality: string;
+  services: string[];
+  rates: string[];
+}) => {
+  if (params.description) return params.description;
+
+  const chunks: string[] = [];
+  if (params.nationality) chunks.push(`Nationality: ${params.nationality}`);
+  if (params.services.length) {
+    chunks.push(`Services: ${params.services.slice(0, 5).join(", ")}`);
+  }
+  if (params.rates.length) chunks.push(`Rates: ${params.rates.join(" | ")}`);
+
+  const heading = [
+    params.name,
+    params.age > 0 ? `${params.age}` : "",
+    params.location ? `in ${params.location}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const body = chunks.join(". ");
+  if (heading && body) return `${heading}. ${body}.`;
+  if (body) return `${body}.`;
+  if (heading) return `${heading}.`;
+  return "Profile details will be updated soon.";
 };
 
 export default async function GirlsPage() {
@@ -96,10 +230,38 @@ export default async function GirlsPage() {
   });
 
   const initialProfiles = sortedItems.map((item) => {
+    const formFields = readFormFields(item.formFields);
     const images = Array.isArray(item.images) && item.images.length
       ? item.images
       : ["/images/hot1.webp"];
-    const formFields = readFormFields(item.formFields);
+
+    const services = readStringArray(formFields.servicesOffered);
+    const physicalAttributes = readStringArray(formFields.physicalAttributes);
+    const attentionLevel = readStringArray(formFields.attentionLevel);
+    const specialFilters = readStringArray(formFields.specialFilters);
+    const languages = readStringArray(formFields.languages);
+
+    const nationality = readFieldText(formFields, "nationality");
+    const descriptionText = readFieldText(formFields, "descriptionText");
+    const paymentMethod = readFieldText(formFields, "paymentMethod");
+
+    const rates = uniqueStrings(
+      [
+        readFieldText(formFields, "rate20"),
+        readFieldText(formFields, "rate30"),
+        readFieldText(formFields, "rate45"),
+        readFieldText(formFields, "rate60"),
+      ].filter(Boolean)
+    );
+
+    const name =
+      readString(item.name) || readFieldText(formFields, "stageName") || "New";
+    const age = readNumber(item.age) ?? readNumber(formFields.age) ?? 0;
+    const location =
+      readString(item.location) ||
+      readFieldText(formFields, "address") ||
+      "Barcelona";
+
     const premiumPlan =
       readSubscriptionPlan(formFields.subscriptionPlan) ??
       readSubscriptionPlan(readItemValue(item, "subscriptionPlan")) ??
@@ -109,37 +271,56 @@ export default async function GirlsPage() {
       readSubscriptionDuration(readItemValue(item, "subscriptionDuration")) ??
       readSubscriptionDuration(readItemValue(item, "premiumDuration"));
 
+    const profileServices = uniqueStrings([
+      ...services,
+      ...specialFilters,
+      ...attentionLevel,
+      ...(paymentMethod ? [paymentMethod] : []),
+      ...rates.map((rate) => `Rate: ${rate}`),
+    ]);
+
     return {
       id: `db-${item._id.toString()}`,
-      name: item.name ?? "New",
-      age: Number.isFinite(Number(item.age)) ? Number(item.age) : 0,
-      location: item.location ?? "Barcelona",
+      name,
+      age,
+      location,
       rating: 4.7,
       reviews: 0,
-      status: "New profile",
+      status: "Active profile",
       image: images[0],
-      tag: "New",
-      about:
-        "Fresh profile added by the model. Details and preferences will be updated soon.",
+      tag: premiumPlan ? "Premium" : "Active",
+      about: buildAbout({
+        name,
+        age,
+        location,
+        description: descriptionText,
+        nationality,
+        services,
+        rates,
+      }),
       details: {
-        height: "—",
-        body: "—",
-        hair: "—",
-        eyes: "—",
-        nationality: "—",
-        languages: "—",
+        height: readFieldText(formFields, "height") || "-",
+        body: readFieldText(formFields, "body") || physicalAttributes[0] || "-",
+        hair: readFieldText(formFields, "hair") || "-",
+        eyes: readFieldText(formFields, "eyes") || "-",
+        nationality: nationality || "-",
+        languages: languages.length ? languages.join(", ") : "-",
       },
       style: {
-        fashion: "Classic",
-        personality: ["New", "Private", "Charming"],
-        vibe: ["Fresh", "Glow", "Night"],
+        fashion: premiumPlan ?? "Classic",
+        personality:
+          attentionLevel.length > 0
+            ? attentionLevel.slice(0, 3)
+            : physicalAttributes.slice(0, 3).length > 0
+              ? physicalAttributes.slice(0, 3)
+              : ["Private"],
+        vibe:
+          specialFilters.length > 0
+            ? specialFilters.slice(0, 3)
+            : ["Night", "Premium"],
       },
-      services: ["Private time", "Events"],
-      availability: {
-        days: "Mon - Sun",
-        hours: "00:00 - 23:59",
-        travel: "No",
-      },
+      services: profileServices.length > 0 ? profileServices : ["Private time", "Events"],
+      availability: buildAvailability(formFields, services, attentionLevel),
       gallery: images,
       premiumPlan,
       premiumDuration,

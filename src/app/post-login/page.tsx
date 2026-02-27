@@ -12,5 +12,9 @@ export default async function PostLoginPage() {
     redirect("/admin");
   }
 
-  redirect("/");
+  if (session.user.gender === "female") {
+    redirect("/profile/me");
+  }
+
+  redirect("/my-ad");
 }

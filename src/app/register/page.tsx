@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { status } = useSession();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/post-login");
+    }
+  }, [router, status]);
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
@@ -50,12 +59,28 @@ export default function RegisterPage() {
                 return;
               }
 
-              await signIn("credentials", {
+              const requestedCallback = new URLSearchParams(
+                window.location.search
+              ).get("callbackUrl");
+              const callbackUrl =
+                requestedCallback && requestedCallback.startsWith("/")
+                  ? requestedCallback
+                  : "/post-login";
+
+              const signInResult = await signIn("credentials", {
                 email: payload.email,
                 password: payload.password,
-                redirect: true,
-                callbackUrl: "/post-login",
+                redirect: false,
+                callbackUrl,
               });
+
+              if (!signInResult || signInResult.error) {
+                setError("Account created, but auto-login failed. Please login.");
+                setIsSubmitting(false);
+                return;
+              }
+
+              router.replace(signInResult.url ?? callbackUrl);
               setIsSubmitting(false);
             }}
           >

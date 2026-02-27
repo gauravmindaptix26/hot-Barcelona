@@ -1,17 +1,44 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { status } = useSession();
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/");
+  };
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/post-login");
+    }
+  }, [router, status]);
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-white">
       <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
         <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
+          <div className="mb-5 flex justify-end">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="inline-flex items-center rounded-full border border-white/20 bg-black/50 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/75 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
+            >
+              Back
+            </button>
+          </div>
           <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
             Profile Access
           </p>
@@ -33,17 +60,30 @@ export default function LoginPage() {
               setError("");
               setIsSubmitting(true);
               const formData = new FormData(event.currentTarget);
-              const email = formData.get("email");
-              const password = formData.get("password");
+              const email = String(formData.get("email") ?? "");
+              const password = String(formData.get("password") ?? "");
+              const requestedCallback = new URLSearchParams(
+                window.location.search
+              ).get("callbackUrl");
+              const callbackUrl =
+                requestedCallback && requestedCallback.startsWith("/")
+                  ? requestedCallback
+                  : "/post-login";
+
               const result = await signIn("credentials", {
                 email,
                 password,
-                redirect: true,
-                callbackUrl: "/post-login",
+                redirect: false,
+                callbackUrl,
               });
-              if (result?.error) {
+
+              if (!result || result.error) {
                 setError("Invalid email or password");
+                setIsSubmitting(false);
+                return;
               }
+
+              router.replace(result.url ?? callbackUrl);
               setIsSubmitting(false);
             }}
           >
