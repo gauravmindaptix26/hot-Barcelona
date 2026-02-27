@@ -143,18 +143,19 @@ const buildAvailability = (
       ? uniqueStrings(openSlots.map((slot) => slot.day.slice(0, 3))).join(", ")
       : hasScheduleValue
         ? "Rest / custom"
-        : "Mon - Sun";
+        : "";
 
   const hourPairs = uniqueStrings(openSlots.map((slot) => `${slot.start} - ${slot.end}`));
   const hoursLabel =
     openSlots.length === 0
       ? hasScheduleValue
         ? "Rest"
-        : "00:00 - 23:59"
+        : ""
       : hourPairs.length === 1
         ? hourPairs[0]
         : `${hourPairs.length} schedules`;
 
+  const hasTravelSignal = [...services, ...attention].length > 0;
   const hasTravel = [...services, ...attention].some((value) =>
     value.toLowerCase().includes("travel")
   );
@@ -162,7 +163,7 @@ const buildAvailability = (
   return {
     days: daysLabel,
     hours: hoursLabel,
-    travel: hasTravel ? "Yes" : "No",
+    travel: hasTravelSignal ? (hasTravel ? "Yes" : "No") : "",
   };
 };
 
@@ -231,9 +232,12 @@ export default async function TransPage() {
 
   const initialProfiles = sortedItems.map((item) => {
     const formFields = readFormFields(item.formFields);
-    const images = Array.isArray(item.images) && item.images.length
-      ? item.images
-      : ["/images/hot1.webp"];
+    const images = Array.isArray(item.images)
+      ? item.images.filter(
+          (image): image is string =>
+            typeof image === "string" && image.trim().length > 0
+        )
+      : [];
 
     const services = readStringArray(formFields.servicesOffered);
     const physicalAttributes = readStringArray(formFields.physicalAttributes);
@@ -255,12 +259,17 @@ export default async function TransPage() {
     );
 
     const name =
-      readString(item.name) || readFieldText(formFields, "stageName") || "New";
+      readString(item.name) || readFieldText(formFields, "stageName") || "Profile";
     const age = readNumber(item.age) ?? readNumber(formFields.age) ?? 0;
     const location =
       readString(item.location) ||
-      readFieldText(formFields, "address") ||
-      "Barcelona";
+      readFieldText(formFields, "address");
+    const rating =
+      readNumber(readItemValue(item, "rating")) ??
+      readNumber(readItemValue(formFields, "rating"));
+    const reviews =
+      readNumber(readItemValue(item, "reviews")) ??
+      readNumber(readItemValue(formFields, "reviews"));
 
     const premiumPlan =
       readSubscriptionPlan(formFields.subscriptionPlan) ??
@@ -284,42 +293,34 @@ export default async function TransPage() {
       name,
       age,
       location,
-      rating: 4.7,
-      reviews: 0,
-      status: "Active profile",
-      image: images[0],
-      tag: premiumPlan ? "Premium" : "Active",
-      about: buildAbout({
-        name,
-        age,
-        location,
-        description: descriptionText,
-        nationality,
-        services,
-        rates,
-      }),
+      rating,
+      reviews,
+      status: readString(readItemValue(item, "status")),
+      image: images[0] ?? "",
+      tag: premiumPlan ? "Premium" : "",
+      about: descriptionText,
       details: {
-        height: readFieldText(formFields, "height") || "-",
-        body: readFieldText(formFields, "body") || physicalAttributes[0] || "-",
-        hair: readFieldText(formFields, "hair") || "-",
-        eyes: readFieldText(formFields, "eyes") || "-",
-        nationality: nationality || "-",
-        languages: languages.length ? languages.join(", ") : "-",
+        height: readFieldText(formFields, "height"),
+        body: readFieldText(formFields, "body") || physicalAttributes[0] || "",
+        hair: readFieldText(formFields, "hair"),
+        eyes: readFieldText(formFields, "eyes"),
+        nationality,
+        languages: languages.length ? languages.join(", ") : "",
       },
       style: {
-        fashion: premiumPlan ?? "Classic",
+        fashion: premiumPlan ?? "",
         personality:
           attentionLevel.length > 0
             ? attentionLevel.slice(0, 3)
             : physicalAttributes.slice(0, 3).length > 0
               ? physicalAttributes.slice(0, 3)
-              : ["Private"],
+              : [],
         vibe:
           specialFilters.length > 0
             ? specialFilters.slice(0, 3)
-            : ["Night", "Premium"],
+            : [],
       },
-      services: profileServices.length > 0 ? profileServices : ["Private time", "Events"],
+      services: profileServices,
       availability: buildAvailability(formFields, services, attentionLevel),
       gallery: images,
       premiumPlan,

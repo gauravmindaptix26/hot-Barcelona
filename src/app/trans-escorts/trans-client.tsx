@@ -10,38 +10,19 @@ import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileReviews from "../../components/ProfileReviews";
 
-const filters = ["Age 20-30", "Barcelona", "4.7+ Rating", "Verified", "Tonight"];
+const filters = ["Age 20-30", "Barcelona"];
 
 type Profile = {
   id: string;
   name: string;
   age: number;
   location: string;
-  rating: number;
-  reviews: number;
-  status: string;
+  rating: number | null;
+  reviews: number | null;
+  status?: string;
   image: string;
-  tag: string;
+  tag?: string;
   about: string;
-  details: {
-    height: string;
-    body: string;
-    hair: string;
-    eyes: string;
-    nationality: string;
-    languages: string;
-  };
-  style: {
-    fashion: string;
-    personality: string[];
-    vibe: string[];
-  };
-  services: string[];
-  availability: {
-    days: string;
-    hours: string;
-    travel: string;
-  };
   gallery: string[];
   premiumPlan?: string | null;
   premiumDuration?: string | null;
@@ -66,6 +47,26 @@ const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—
 const toDatabaseId = (id: string) => (id.startsWith("db-") ? id.slice(3) : id);
 const hasPremiumPlan = (value: string | null | undefined) =>
   typeof value === "string" && value.trim().length > 0;
+const hasRatingData = (profile: Profile) =>
+  (typeof profile.rating === "number" && profile.rating > 0) ||
+  (typeof profile.reviews === "number" && profile.reviews > 0);
+const hiddenFormFieldKeys = new Set([
+  "password",
+  "confirmPassword",
+  "userid",
+  "_id",
+  "isdeleted",
+  "approvalstatus",
+  "createdat",
+  "updatedat",
+  "resetpasswordtoken",
+]);
+const isVisibleFormField = (key: string) => {
+  const normalized = key.toLowerCase().replace(/\s+/g, "");
+  if (hiddenFormFieldKeys.has(normalized)) return false;
+  if (normalized.includes("password")) return false;
+  return true;
+};
 const humanizeFieldKey = (key: string) =>
   key
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
@@ -99,6 +100,7 @@ const formatFieldValue = (value: unknown): string => {
 };
 const getFilledFormEntries = (fields: Record<string, unknown>) =>
   Object.entries(fields)
+    .filter(([key]) => isVisibleFormField(key))
     .map(([key, value]) => ({
       key,
       label: humanizeFieldKey(key),
@@ -245,13 +247,17 @@ export default function TransClient({
                 className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)]"
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
-                  <Image
-                    src={profile.image}
-                    alt={profile.name}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                  />
+                  {profile.image ? (
+                    <Image
+                      src={profile.image}
+                      alt={profile.name}
+                      fill
+                      sizes="(max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(245,214,140,0.24),rgba(10,11,13,0.96)_65%)]" />
+                  )}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_20%,rgba(10,11,13,0.7)_100%)] opacity-70 transition duration-500 group-hover:opacity-90" />
                   <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
@@ -276,15 +282,19 @@ export default function TransClient({
                         <p className="text-lg font-semibold">
                           {profile.name}, {formatAge(profile.age)}
                         </p>
-                        <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/60">
-                          <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
-                          {profile.location}
+                        {profile.location && (
+                          <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/60">
+                            <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                            {profile.location}
+                          </div>
+                        )}
+                      </div>
+                      {typeof profile.rating === "number" && profile.rating > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-[#f5d68c]">
+                          <NavIcon path="M12 3.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.9L12 3.5Z" />
+                          <span className="text-white/80">{profile.rating}</span>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-[#f5d68c]">
-                        <NavIcon path="M12 3.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.9L12 3.5Z" />
-                        <span className="text-white/80">{profile.rating}</span>
-                      </div>
+                      )}
                     </div>
                     </div>
 
@@ -352,13 +362,17 @@ export default function TransClient({
           >
             <div className="relative h-[55vh] min-h-[380px] overflow-hidden">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
-                <Image
-                  src={selectedProfile.image}
-                  alt={selectedProfile.name}
-                  fill
-                  priority
-                  className="object-cover"
-                />
+                {selectedProfile.image ? (
+                  <Image
+                    src={selectedProfile.image}
+                    alt={selectedProfile.name}
+                    fill
+                    priority
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-[radial-gradient(circle_at_top,rgba(245,214,140,0.2),rgba(10,11,13,0.96)_65%)]" />
+                )}
               </motion.div>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.15)_0%,rgba(10,11,13,0.75)_70%,rgba(10,11,13,0.98)_100%)]" />
               <div className="absolute left-10 top-10 flex max-w-[70%] flex-col items-start gap-2">
@@ -389,110 +403,86 @@ export default function TransClient({
                     >
                       {selectedProfile.name}, {formatAge(selectedProfile.age)}
                     </h2>
-                    <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
-                      <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
-                      {selectedProfile.location}
-                    </div>
+                    {selectedProfile.location && (
+                      <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
+                        <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                        {selectedProfile.location}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">
-                    <div className="flex items-center gap-2 text-[#f5d68c]">
-                      {Array.from({ length: 5 }).map((_, index) => (
-                        <span
-                          key={index}
-                          className={
-                            index < Math.round(selectedProfile.rating)
-                              ? "text-[#f5d68c]"
-                              : "text-white/20"
-                          }
-                        >
-                          ★
-                        </span>
-                      ))}
+                  {hasRatingData(selectedProfile) && (
+                    <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">
+                      <div className="flex items-center gap-2 text-[#f5d68c]">
+                        {Array.from({ length: 5 }).map((_, index) => (
+                          <span
+                            key={index}
+                            className={
+                              index <
+                              Math.round(
+                                typeof selectedProfile.rating === "number"
+                                  ? selectedProfile.rating
+                                  : 0
+                              )
+                                ? "text-[#f5d68c]"
+                                : "text-white/20"
+                            }
+                          >
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-sm text-white/70">
+                        {typeof selectedProfile.rating === "number"
+                          ? selectedProfile.rating
+                          : "N/A"}
+                        {typeof selectedProfile.reviews === "number"
+                          ? ` · ${selectedProfile.reviews} reviews`
+                          : ""}
+                      </p>
                     </div>
-                    <p className="text-sm text-white/70">
-                      {selectedProfile.rating} · {selectedProfile.reviews} reviews
-                    </p>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>
             <div className="grid gap-10 px-10 py-12 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-10">
-                <section>
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    About Her
-                  </p>
-                  <p className="mt-4 text-lg text-white/75">
-                    {selectedProfile.about}
-                  </p>
-                </section>
-
-                <section>
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Style & Personality
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <span className="rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70">
-                      {selectedProfile.style.fashion}
-                    </span>
-                    {selectedProfile.style.personality.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/60"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {selectedProfile.style.vibe.map((item) => (
-                      <span
-                        key={item}
-                        className="flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/60"
-                      >
-                        <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-
-                <section>
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Services & Preferences
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {selectedProfile.services.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-white/10 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </section>
+              <div className="space-y-8">
+                {selectedProfile.about.trim() && (
+                  <section>
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      About
+                    </p>
+                    <p className="mt-4 whitespace-pre-wrap text-lg leading-relaxed text-white/75">
+                      {selectedProfile.about}
+                    </p>
+                  </section>
+                )}
 
                 <section>
                   <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
                     Gallery
                   </p>
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                    {selectedProfile.gallery.map((src) => (
-                      <div
-                        key={src}
-                        className="group relative h-56 overflow-hidden rounded-2xl border border-white/10"
-                      >
-                        <Image
-                          src={src}
-                          alt={`${selectedProfile.name} gallery`}
-                          fill
-                          className="object-cover transition duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
-                      </div>
-                    ))}
-                  </div>
+                  {selectedProfile.gallery.length === 0 ? (
+                    <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
+                      No photos uploaded.
+                    </div>
+                  ) : (
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                      {selectedProfile.gallery.map((src) => (
+                        <div
+                          key={src}
+                          className="group relative h-56 overflow-hidden rounded-2xl border border-white/10"
+                        >
+                          <Image
+                            src={src}
+                            alt={`${selectedProfile.name} gallery`}
+                            fill
+                            className="object-cover transition duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </div>
 
@@ -504,97 +494,31 @@ export default function TransClient({
 
                 <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
                   <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Personal Details
-                  </p>
-                  <div className="mt-6 grid gap-4 text-sm text-white/70">
-                    {Object.entries(selectedProfile.details).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 px-4 py-3"
-                      >
-                        <span className="text-xs uppercase tracking-[0.35em] text-white/50">
-                          {key}
-                        </span>
-                        <span className="text-white/80">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Availability
-                  </p>
-                  <div className="mt-6 space-y-4 text-sm text-white/70">
-                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                      <span className="text-xs uppercase tracking-[0.35em] text-white/50">
-                        Days
-                      </span>
-                      <span className="text-white/80">
-                        {selectedProfile.availability.days}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                      <span className="text-xs uppercase tracking-[0.35em] text-white/50">
-                        Time
-                      </span>
-                      <span className="text-white/80">
-                        {selectedProfile.availability.hours}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/30 px-4 py-3">
-                      <span className="text-xs uppercase tracking-[0.35em] text-white/50">
-                        Travel
-                      </span>
-                      <span className="text-white/80">
-                        {selectedProfile.availability.travel}
-                      </span>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
                     All Filled Details
                   </p>
                   {filledFormEntries.length === 0 ? (
                     <p className="mt-6 text-sm text-white/60">
-                      No additional details added yet.
+                      No details submitted yet.
                     </p>
                   ) : (
-                    <div className="mt-6 grid gap-4 text-sm text-white/70">
+                    <div className="mt-6 grid gap-3 sm:grid-cols-2">
                       {filledFormEntries.map((entry) => (
-                        <div
+                        <article
                           key={entry.key}
-                          className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3"
+                          className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
+                            entry.value.length > 80 ? "sm:col-span-2" : ""
+                          }`}
                         >
-                          <span className="text-xs uppercase tracking-[0.35em] text-white/50">
+                          <p className="text-[11px] uppercase tracking-[0.32em] text-white/55">
                             {entry.label}
-                          </span>
-                          <span className="text-right text-white/80">{entry.value}</span>
-                        </div>
+                          </p>
+                          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
+                            {entry.value}
+                          </p>
+                        </article>
                       ))}
                     </div>
                   )}
-                </section>
-
-                <section className="rounded-3xl border border-white/10 bg-black/50 p-6">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Actions
-                  </p>
-                  <div className="mt-6 grid gap-3">
-                    <button className="flex items-center justify-between rounded-full border border-white/15 bg-black/50 px-5 py-3 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]">
-                      Like / Save
-                      <NavIcon path="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
-                    </button>
-                    <button className="flex items-center justify-between rounded-full border border-white/15 bg-black/50 px-5 py-3 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]">
-                      Add to Favorites
-                      <NavIcon path="M12 3.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.9L12 3.5Z" />
-                    </button>
-                    <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110">
-                      Contact / Connect
-                    </button>
-                  </div>
                 </section>
               </div>
             </div>
