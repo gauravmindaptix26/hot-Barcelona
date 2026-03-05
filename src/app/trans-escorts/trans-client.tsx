@@ -47,6 +47,16 @@ const formatAge = (age: number) => (Number.isFinite(age) && age > 0 ? age : "—
 const toDatabaseId = (id: string) => (id.startsWith("db-") ? id.slice(3) : id);
 const hasPremiumPlan = (value: string | null | undefined) =>
   typeof value === "string" && value.trim().length > 0;
+const normalizePremiumCategory = (value: string | null | undefined) =>
+  typeof value === "string"
+    ? value.replace(/\s+/g, " ").trim().toUpperCase().replace("TOP PREMIUM TOP", "PREMIUM SUPERIOR")
+    : "";
+const formatPremiumPlanLabel = (value: string | null | undefined) => {
+  if (typeof value !== "string") return "";
+  const normalized = normalizePremiumCategory(value);
+  if (normalized === "PREMIUM SUPERIOR") return "Premium superior";
+  return value.trim();
+};
 const hasRatingData = (profile: Profile) =>
   (typeof profile.rating === "number" && profile.rating > 0) ||
   (typeof profile.reviews === "number" && profile.reviews > 0);
@@ -456,7 +466,7 @@ export default function TransClient({
                     <div className="flex flex-col gap-2">
                       {hasPremiumPlan(profile.premiumPlan) && (
                         <div className="inline-flex max-w-full self-start rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-3 py-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur">
-                          {profile.premiumPlan}
+                          {formatPremiumPlanLabel(profile.premiumPlan)}
                         </div>
                       )}
                       <div className="flex items-center justify-between gap-3">
@@ -564,7 +574,7 @@ export default function TransClient({
                 </div>
                 {hasPremiumPlan(selectedProfile.premiumPlan) && (
                   <div className="rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
-                    {selectedProfile.premiumPlan}
+                    {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
                     {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
                   </div>
                 )}

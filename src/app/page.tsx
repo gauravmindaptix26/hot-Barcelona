@@ -16,7 +16,7 @@ import NavIcon from "../components/NavIcon";
 
 const heroHeadline = ["Where", "Desire", "Meets", "Elegance"];
 const heroSubheadline =
-  "Exclusive. Sophisticated. Unforgettable. Experience companionship redefined.";
+  "Hot Barcelona es un portal de escorts y acompañantes independiente que ofrece su acompañamiento exclusivo..";
 
 const premiumVipFallbackImages = [
   "/images/hot1.webp",
@@ -369,91 +369,90 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section
-          ref={lifestyleRef}
-          className="relative z-10 mx-auto grid w-full max-w-[88rem] gap-6 px-4 pb-16 pt-6 sm:px-6 lg:min-h-screen lg:grid-cols-[0.42fr_1.58fr] lg:pt-10"
-        >
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            viewport={{ once: true, amount: 0.4 }}
-            className="mt-48 flex flex-col items-center justify-start text-center sm:mt-52 lg:mt-60"
-          >
-            <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-              Top Premium VIP
-            </p>
-            
-            <p className="mt-4 max-w-2xl text-sm text-white/70 sm:mt-5 sm:text-base lg:text-lg">
-             Discover Hot Barecelona's Top Premium VIP profiles, carefully selected for those who value exclusivity, elegance, and high standards. These six premium VIP companions represent the finest in style, confidence, and professionalism. Verified, discreet, and in high demand, they offer a truly luxury experience for clients seeking quality, privacy, and unforgettable moments in Barcelona.            </p>
-            <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-white/60 sm:mt-5 sm:text-xs sm:tracking-[0.35em]">
-              <span className="h-px w-12 bg-white/25" />
-              Limited Availability
-            </div>
-          </motion.div>
-          <motion.div
-            style={{ y: lifestyleY }}
-            className="w-full"
-          >
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
-              {premiumVipProfilesSafe.map((profile, index) => {
-                const isFallback = profile.id.startsWith("vip-fallback-");
-                const card = (
-                  <motion.div
-                    key={profile.id}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: index * 0.08,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    viewport={{ once: true, amount: 0.25 }}
-                    whileHover={{ y: -6 }}
-                    className="group relative aspect-[4/5] w-full overflow-hidden rounded-[30px] border border-white/10 bg-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:aspect-[3/4] xl:aspect-[5/8]"
-                  >
-                    <Image
-                      src={profile.image ?? premiumVipFallbackImages[index % premiumVipFallbackImages.length]}
-                      alt={profile.name}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] transition group-hover:opacity-90" />
-                    <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
-                    </div>
-                    <div className="absolute inset-x-0 bottom-0 p-5">
-                      <div className="inline-flex items-center rounded-full border border-[#f5d68c]/25 bg-black/45 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-[#f5d68c]">
-                        Top Premium VIP
-                      </div>
-                      <p className="mt-3 text-lg font-semibold text-white sm:text-xl">
-                        {profile.name}
-                        {profile.age ? `, ${profile.age}` : ""}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white/65 sm:text-xs">
-                        <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
-                        {profile.location || "Barcelona"}
-                      </div>
-                    </div>
-                  </motion.div>
-                );
+        <section ref={lifestyleRef} className="relative z-10 overflow-hidden bg-[#060a11] py-14 sm:py-16 lg:py-20">
+          <div className="pointer-events-none absolute -left-32 top-0 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.18),_rgba(245,214,140,0)_72%)] blur-2xl" />
+          <div className="pointer-events-none absolute -right-24 top-16 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(212,106,122,0.14),_rgba(212,106,122,0)_75%)] blur-2xl" />
+          <div className="relative mx-auto grid w-full max-w-[88rem] items-center gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.25fr] lg:gap-10">
+            <motion.div
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true, amount: 0.4 }}
+              className="mx-auto max-w-[42rem] text-center lg:mx-0 lg:text-left"
+            >
+              <p className="font-cinzel text-4xl uppercase tracking-[0.22em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
+                Top Premium VIP
+              </p>
 
-                if (isFallback) {
-                  return (
-                    <div key={profile.id} className="cursor-default">
-                      {card}
-                    </div>
+              <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/72 sm:text-[1.05rem] lg:text-lg">
+                Discover Hot Barecelona&apos;s Top Premium VIP profiles, carefully selected for those who value exclusivity, elegance, and high standards. These six premium VIP companions represent the finest in style, confidence, and professionalism. Verified, discreet, and in high demand, they offer a truly luxury experience for clients seeking quality, privacy, and unforgettable moments in Barcelona.
+              </p>
+              <div className="mt-6 flex items-center justify-center gap-4 text-[11px] uppercase tracking-[0.36em] text-white/58 lg:justify-start">
+                <span className="h-px w-14 bg-white/28" />
+                Limited Availability
+              </div>
+            </motion.div>
+
+            <motion.div style={{ y: lifestyleY }} className="w-full">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+                {premiumVipProfilesSafe.map((profile, index) => {
+                  const isFallback = profile.id.startsWith("vip-fallback-");
+                  const card = (
+                    <motion.div
+                      initial={{ opacity: 0, y: 24 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.8,
+                        delay: index * 0.08,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      whileHover={{ y: -6 }}
+                      className="group relative aspect-[3/4.65] overflow-hidden rounded-[26px] border border-white/15 bg-[#11141b] shadow-[0_24px_48px_rgba(0,0,0,0.45)]"
+                    >
+                      <Image
+                        src={profile.image ?? premiumVipFallbackImages[index % premiumVipFallbackImages.length]}
+                        alt={profile.name}
+                        fill
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,14,0.18)_8%,rgba(8,10,14,0.88)_100%)]" />
+                      <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(245,214,140,0.25),rgba(8,10,14,0)_52%)]" />
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5">
+                        <div className="inline-flex items-center rounded-full border border-[#f5d68c]/30 bg-black/45 px-3 py-1 text-[9px] uppercase tracking-[0.28em] text-[#f5d68c]">
+                          Top Premium VIP
+                        </div>
+                        <p className="mt-3 text-lg font-semibold text-white sm:text-2xl">
+                          {profile.name}
+                          {profile.age ? `, ${profile.age}` : ""}
+                        </p>
+                        <div className="mt-1 flex items-center gap-2 text-[11px] uppercase tracking-[0.26em] text-white/68 sm:text-sm">
+                          <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                          {profile.location || "Barcelona"}
+                        </div>
+                      </div>
+                    </motion.div>
                   );
-                }
 
-                return (
-                  <Link key={profile.id} href={getPublicProfileHref(profile)}>
-                    {card}
-                  </Link>
-                );
-              })}
-            </div>
-          </motion.div>
+                  if (isFallback) {
+                    return (
+                      <div key={profile.id} className="cursor-default">
+                        {card}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <Link key={profile.id} href={getPublicProfileHref(profile)}>
+                      {card}
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
         </section>
 
         <section className="relative z-10 bg-[#1b1b1b] py-8">

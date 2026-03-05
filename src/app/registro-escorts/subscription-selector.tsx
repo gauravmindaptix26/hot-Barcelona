@@ -30,7 +30,7 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "TOP PREMIUM TOP",
+    name: "Premium superior",
     durations: [
       { label: "1 month", price: "\u20AC135" },
       { label: "15 days", price: "\u20AC90" },

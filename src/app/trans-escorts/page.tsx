@@ -12,7 +12,7 @@ const publicVisibilityQuery = {
 const PREMIUM_PLAN_ORDER = [
   "TOP PREMIUM VIP",
   "TOP PREMIUM BANNER",
-  "TOP PREMIUM TOP",
+  "PREMIUM SUPERIOR",
   "TOP PREMIUM STANDARD",
 ] as const;
 
@@ -36,12 +36,19 @@ const normalizePremiumPlanText = (value: string) =>
 const PREMIUM_PLAN_LOOKUP = new Map(
   PREMIUM_PLAN_ORDER.map((plan) => [normalizePremiumPlanText(plan), plan] as const)
 );
+const LEGACY_TOP_PLAN = "TOP PREMIUM TOP";
 
 const readSubscriptionPlan = (value: unknown) => {
   if (typeof value !== "string") return null;
   const normalized = normalizePremiumPlanText(value);
+  if (normalized === normalizePremiumPlanText(LEGACY_TOP_PLAN)) {
+    return "PREMIUM SUPERIOR";
+  }
   const exact = PREMIUM_PLAN_LOOKUP.get(normalized);
   if (exact) return exact;
+  if (normalized.startsWith(normalizePremiumPlanText(LEGACY_TOP_PLAN))) {
+    return "PREMIUM SUPERIOR";
+  }
 
   for (const plan of PREMIUM_PLAN_ORDER) {
     if (normalized.startsWith(normalizePremiumPlanText(plan))) {

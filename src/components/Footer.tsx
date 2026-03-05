@@ -34,7 +34,7 @@ export default function Footer() {
   return (
     <>
       <section className="relative bg-[#100b13] px-4 pb-4 pt-7 text-white sm:px-6 sm:pt-8">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto w-full max-w-[88rem]">
           <div className="rounded-2xl border border-[#f5d68c]/25 bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-4 shadow-[0_16px_44px_rgba(0,0,0,0.38)] backdrop-blur-sm sm:p-6">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#f5d68c]/35 bg-[#f5d68c]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]">
               Aviso Importante
