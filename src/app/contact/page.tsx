@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 
@@ -241,7 +240,6 @@ export default function ContactPage() {
           </div>
         </section>
 
-        <Footer />
       </main>
     </div>
   );

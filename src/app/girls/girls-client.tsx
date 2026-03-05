@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileReviews from "../../components/ProfileReviews";
@@ -607,7 +606,6 @@ export default function GirlsClient({
           </div>
         </section>
 
-        <Footer />
       </main>
 
       {selectedProfile && (

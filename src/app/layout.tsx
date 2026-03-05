@@ -10,6 +10,7 @@ import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
 import AgeCheckMount from "../components/AgeCheckMount";
 import LanguageManager from "../components/LanguageManager";
+import Footer from "../components/Footer";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space",
@@ -74,6 +75,7 @@ export default function RootLayout({
         </Script>
         <SessionProvider>
           {children}
+          <Footer />
           <AgeCheckMount />
           <LanguageManager />
         </SessionProvider>

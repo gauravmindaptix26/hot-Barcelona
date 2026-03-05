@@ -10,7 +10,6 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import NavIcon from "../components/NavIcon";
 
@@ -873,14 +872,6 @@ export default function Home() {
           </div>
         </section>
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          viewport={{ once: true, amount: 0.4 }}
-        >
-          <Footer />
-        </motion.div>
       </main>
     </div>
   );
