@@ -14,7 +14,7 @@ type PlanOption = {
 
 const planOptions: PlanOption[] = [
   {
-    name: "TOP PREMIUM VIP",
+    name: "VIP PREMINUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC335" },
       { label: "15 days", price: "\u20AC195" },
@@ -22,7 +22,7 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "TOP PREMIUM BANNER",
+    name: "BANNER PREMIUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC185" },
       { label: "15 days", price: "\u20AC120" },
@@ -30,7 +30,7 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "Premium superior",
+    name: "PREMIUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC135" },
       { label: "15 days", price: "\u20AC90" },
