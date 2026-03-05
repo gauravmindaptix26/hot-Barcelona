@@ -66,7 +66,7 @@ const writeGoogleTranslateCookie = (language: SiteLanguage) => {
   if (typeof document === "undefined") {
     return;
   }
-  const value = `/auto/${language}`;
+  const value = `/es/${language}`;
   document.cookie = `googtrans=${value};path=/;max-age=${COOKIE_MAX_AGE_SECONDS}`;
   document.cookie = `googtrans=${value};path=/`;
 };
