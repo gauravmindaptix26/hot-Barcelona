@@ -39,8 +39,12 @@ export default function LanguageSwitcher({
 
   const selectLanguage = (nextLanguage: (typeof SITE_LANGUAGES)[number]["code"]) => {
     setIsOpen(false);
-    if (nextLanguage === language) return;
-    setSiteLanguage(nextLanguage, { persist: true, reload: false });
+    if (nextLanguage === language) {
+      setSiteLanguage(nextLanguage, { persist: true, reload: false });
+      return;
+    }
+    // Google Translate applies most reliably after a reload once cookie/localStorage are updated.
+    setSiteLanguage(nextLanguage, { persist: true, reload: true });
   };
 
   return (

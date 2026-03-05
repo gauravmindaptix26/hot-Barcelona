@@ -75,15 +75,19 @@ const syncGoogleTranslateSelect = (language: SiteLanguage) => {
   if (typeof document === "undefined") {
     return false;
   }
-  const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
-  if (!select) {
+  const selects = Array.from(document.querySelectorAll<HTMLSelectElement>(".goog-te-combo"));
+  if (selects.length === 0) {
     return false;
   }
-  if (select.value === language) {
-    return true;
-  }
-  select.value = language;
-  select.dispatchEvent(new Event("change"));
+
+  selects.forEach((select) => {
+    if (select.value !== language) {
+      select.value = language;
+    }
+    select.dispatchEvent(new Event("input", { bubbles: true }));
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
   return true;
 };
 
@@ -107,14 +111,14 @@ export const setSiteLanguage = (
   const syncedNow = syncGoogleTranslateSelect(language);
   if (!syncedNow) {
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = 120;
     const intervalId = window.setInterval(() => {
       attempts += 1;
       const synced = syncGoogleTranslateSelect(language);
       if (synced || attempts >= maxAttempts) {
         window.clearInterval(intervalId);
       }
-    }, 120);
+    }, 100);
   }
   window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
 
