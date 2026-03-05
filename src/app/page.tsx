@@ -380,7 +380,7 @@ export default function Home() {
               className="mx-auto max-w-[42rem] text-center lg:mx-0 lg:text-left"
             >
               <p className="font-cinzel text-4xl uppercase tracking-[0.22em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
-                Top Premium VIP
+                 VIP Premium superior
               </p>
 
               <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/72 sm:text-[1.05rem] lg:text-lg">
@@ -533,7 +533,7 @@ export default function Home() {
                 className="max-w-2xl text-left"
               >
                 <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-                  Top Premium Banner
+                  Banner premium superior
                 </p>
                 
                 <p className="mt-3 text-lg text-white/60 sm:mt-4 sm:text-base lg:text-lg">
@@ -615,7 +615,7 @@ export default function Home() {
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
                 <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-                  Top Premium
+                  Premium superior
                 </p>
                 <p className="mt-4 w-full text-base text-white/75 sm:mt-5 sm:text-lg lg:text-xl">
                   The Top Premium section features carefully selected profiles offering a refined, stylish, and high-quality experience. Designed for those who appreciate class, privacy, and professionalism, these premium profiles represent the perfect balance of elegance, discretion, and exclusivity.
