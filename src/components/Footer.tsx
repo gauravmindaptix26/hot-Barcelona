@@ -101,15 +101,14 @@ export default function Footer() {
                 </span>
                 <h3 className="text-2xl font-semibold">Information</h3>
               </div>
-              <ul className="mt-6 space-y-3 pl-6 text-lg text-white/70 sm:pl-8" translate="no">
+              <ul className="mt-6 space-y-3 pl-6 text-lg text-white/70 sm:pl-8">
                 {visibleInfoLinks.map((item) => (
                   <li key={item.href} className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
                     <button
                       type="button"
                       onClick={() => router.push(item.href)}
-                      className="notranslate shrink-0 text-left text-white/70 outline-none"
-                      translate="no"
+                      className="shrink-0 text-left text-white/70 outline-none"
                       style={{ color: "rgba(255,255,255,0.7)", WebkitTextFillColor: "rgba(255,255,255,0.7)" }}
                     >
                       {item.label}

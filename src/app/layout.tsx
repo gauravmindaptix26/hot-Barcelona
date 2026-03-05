@@ -63,12 +63,12 @@ export default function RootLayout({
                 if (!stored) {
                   localStorage.setItem(key, lang);
                 }
-                var value = "/es/" + lang;
+                var value = "/auto/" + lang;
                 document.cookie = "googtrans=" + value + ";path=/;max-age=31536000";
                 document.cookie = "googtrans=" + value + ";path=/";
               } catch (error) {
-                document.cookie = "googtrans=/es/es;path=/;max-age=31536000";
-                document.cookie = "googtrans=/es/es;path=/";
+                document.cookie = "googtrans=/auto/es;path=/;max-age=31536000";
+                document.cookie = "googtrans=/auto/es;path=/";
               }
             })();
           `}

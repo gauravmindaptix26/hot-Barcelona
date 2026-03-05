@@ -105,8 +105,7 @@ export default function Navbar() {
           </div>
           {session?.user && (
             <span
-              className="notranslate flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-[11px] font-semibold leading-none tracking-normal text-[#f5d68c] lg:hidden"
-              translate="no"
+              className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-[11px] font-semibold leading-none tracking-normal text-[#f5d68c] lg:hidden"
             >
               {getUserInitial(session.user.name, session.user.email)}
             </span>
@@ -129,8 +128,7 @@ export default function Navbar() {
             >
               {session?.user ? (
                 <span
-                  className="notranslate flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-xs font-semibold leading-none tracking-normal text-[#f5d68c]"
-                  translate="no"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-xs font-semibold leading-none tracking-normal text-[#f5d68c]"
                 >
                   {getUserInitial(session.user.name, session.user.email)}
                 </span>
@@ -148,33 +146,33 @@ export default function Navbar() {
                         href="/admin"
                         className={accountItemClass}
                       >
-                        <span className="notranslate">Admin</span>
+                        <span>Admin</span>
                       </Link>
                     )}
                     <Link
                       href="/my-ad"
                       className={accountItemClass}
                     >
-                      <span className="notranslate">My Ad</span>
+                      <span>My Ad</span>
                     </Link>
                     <Link
                       href="/profile/me"
                       className={accountItemClass}
                     >
-                      <span className="notranslate">My Profile</span>
+                      <span>My Profile</span>
                     </Link>
                     <Link
                       href="/account/password"
                       className={accountItemClass}
                     >
-                      <span className="notranslate">Change Password</span>
+                      <span>Change Password</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => signOut({ callbackUrl: "/" })}
                       className={accountItemClass}
                     >
-                      <span className="notranslate">Logout</span>
+                      <span>Logout</span>
                     </button>
                   </div>
                 ) : (
@@ -183,13 +181,13 @@ export default function Navbar() {
                       href="/login"
                       className={accountItemClass}
                     >
-                      <span className="notranslate">Login</span>
+                      <span>Login</span>
                     </Link>
                     <Link
                       href="/register"
                       className="rounded-xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.22em] text-black"
                     >
-                      <span className="notranslate">Register</span>
+                      <span>Register</span>
                     </Link>
                   </div>
                 )}

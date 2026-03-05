@@ -66,21 +66,25 @@ const writeGoogleTranslateCookie = (language: SiteLanguage) => {
   if (typeof document === "undefined") {
     return;
   }
-  const value = `/es/${language}`;
+  const value = `/auto/${language}`;
   document.cookie = `googtrans=${value};path=/;max-age=${COOKIE_MAX_AGE_SECONDS}`;
   document.cookie = `googtrans=${value};path=/`;
 };
 
 const syncGoogleTranslateSelect = (language: SiteLanguage) => {
   if (typeof document === "undefined") {
-    return;
+    return false;
   }
   const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
-  if (!select || select.value === language) {
-    return;
+  if (!select) {
+    return false;
+  }
+  if (select.value === language) {
+    return true;
   }
   select.value = language;
   select.dispatchEvent(new Event("change"));
+  return true;
 };
 
 export const setSiteLanguage = (
@@ -100,7 +104,18 @@ export const setSiteLanguage = (
 
   document.documentElement.lang = language;
   writeGoogleTranslateCookie(language);
-  syncGoogleTranslateSelect(language);
+  const syncedNow = syncGoogleTranslateSelect(language);
+  if (!syncedNow) {
+    let attempts = 0;
+    const maxAttempts = 20;
+    const intervalId = window.setInterval(() => {
+      attempts += 1;
+      const synced = syncGoogleTranslateSelect(language);
+      if (synced || attempts >= maxAttempts) {
+        window.clearInterval(intervalId);
+      }
+    }, 120);
+  }
   window.dispatchEvent(new Event(LANGUAGE_CHANGE_EVENT));
 
   if (reload) {
