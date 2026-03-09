@@ -408,7 +408,7 @@ export default function GirlsClient({
       <main className="relative z-10">
         <section className="relative overflow-hidden pb-10 pt-0 sm:pb-12 sm:pt-0">
           <Navbar />
-          <div className="mx-auto -mt-16 w-full max-w-6xl px-4 sm:-mt-20 sm:px-6">
+          <div className="mx-auto mt-2 w-full max-w-6xl px-4 sm:mt-4 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -639,9 +639,9 @@ export default function GirlsClient({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 24 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="no-scrollbar relative z-10 max-h-[92vh] w-full max-w-6xl overflow-y-auto rounded-[32px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)]"
+            className="no-scrollbar relative z-10 max-h-[96svh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:max-h-[92vh] sm:rounded-[32px]"
           >
-            <div className="relative h-[55vh] min-h-[380px] overflow-hidden">
+            <div className="relative h-[48vh] min-h-[300px] overflow-hidden sm:h-[55vh] sm:min-h-[380px]">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
                 {selectedProfile.image ? (
                   <Image
@@ -656,8 +656,8 @@ export default function GirlsClient({
                 )}
               </motion.div>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.15)_0%,rgba(10,11,13,0.75)_70%,rgba(10,11,13,0.98)_100%)]" />
-              <div className="absolute left-10 top-10 flex max-w-[70%] flex-col items-start gap-2">
-                <div className="flex items-center gap-3 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-xs uppercase tracking-[0.35em] text-white/80">
+              <div className="absolute left-4 top-4 flex max-w-[75%] flex-col items-start gap-2 sm:left-10 sm:top-10 sm:max-w-[70%]">
+                <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.24em] text-white/80 sm:gap-3 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.35em]">
                   <NavIcon path="M4 7h16M4 12h10M4 17h7" />
                   Elite profile
                 </div>
@@ -665,42 +665,42 @@ export default function GirlsClient({
               <button
                 type="button"
                 onClick={() => setSelectedId(null)}
-                className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
+                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c] sm:right-6 sm:top-6 sm:h-11 sm:w-11"
               >
                 <NavIcon path="M6 6l12 12M18 6l-12 12" />
               </button>
-              <div className="absolute inset-x-0 bottom-0 px-10 pb-10">
-                <div className="flex flex-wrap items-end justify-between gap-6">
-                  <div>
+              <div className="absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-10 sm:pb-10">
+                <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
+                  <div className="min-w-0">
                     <h2
-                      className="text-4xl font-semibold sm:text-5xl"
+                      className="text-2xl font-semibold sm:text-5xl"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {selectedProfile.name}, {formatAge(selectedProfile.age)}
                     </h2>
                     {selectedProfile.location && (
-                      <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
+                      <div className="mt-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/70 sm:mt-3 sm:gap-3 sm:text-sm sm:tracking-[0.3em]">
                         <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
                         {selectedProfile.location}
                       </div>
                     )}
                     {hasPremiumPlan(selectedProfile.premiumPlan) && (
-                      <div className="mt-4 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:text-[11px]">
+                      <div className="mt-3 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.18em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:mt-4 sm:text-[11px] sm:tracking-[0.24em]">
                         {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
                         {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
                       </div>
                     )}
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-[#f5d68c]/35 bg-black/55 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
+                    <div className="mt-3 flex flex-wrap gap-2 sm:mt-4">
+                      <span className="rounded-full border border-[#f5d68c]/35 bg-black/55 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c] sm:px-4 sm:py-2 sm:tracking-[0.26em]">
                         {filledFormEntries.length} filled fields
                       </span>
-                      <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                      <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-white/70 sm:px-4 sm:py-2 sm:tracking-[0.26em]">
                         {selectedProfile.gallery.length} photos
                       </span>
                     </div>
                   </div>
                   {hasRatingData(selectedProfile) && (
-                    <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">
+                    <div className="flex w-full flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-4 py-3 sm:w-auto sm:px-6 sm:py-4">
                       <div className="flex items-center gap-2 text-[#f5d68c]">
                         {Array.from({ length: 5 }).map((_, index) => (
                           <span
@@ -733,18 +733,18 @@ export default function GirlsClient({
                 </div>
               </div>
             </div>
-            <div className="space-y-8 px-6 py-10 sm:px-10 sm:py-12">
+            <div className="space-y-6 px-4 py-6 sm:space-y-8 sm:px-10 sm:py-12">
               <ProfileReviews
                 profileId={toDatabaseId(selectedProfile.id)}
                 profileType="girls"
               />
 
-              <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-6 sm:p-7">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+              <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-4 sm:p-7">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                     Profile Details
                   </p>
-                  <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
+                  <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c] sm:tracking-[0.26em]">
                     {filledFormEntries.length} entries
                   </span>
                 </div>
@@ -759,8 +759,8 @@ export default function GirlsClient({
                         key={group.id}
                         className="rounded-2xl border border-white/10 bg-black/35 p-4"
                       >
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/90">
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/90 sm:text-[11px] sm:tracking-[0.35em]">
                             {group.label}
                           </p>
                           <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
@@ -808,8 +808,8 @@ export default function GirlsClient({
               </section>
 
               {selectedProfile.about.trim() && (
-                <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-6 sm:p-7">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+              <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-4 sm:p-7">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                     About
                   </p>
                   <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
@@ -818,12 +818,12 @@ export default function GirlsClient({
                 </section>
               )}
 
-              <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+              <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-4 sm:p-7">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                     Gallery
                   </p>
-                  <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                  <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/70 sm:tracking-[0.26em]">
                     {selectedProfile.gallery.length} items
                   </span>
                 </div>
@@ -842,6 +842,7 @@ export default function GirlsClient({
                           src={src}
                           alt={`${selectedProfile.name} gallery`}
                           fill
+                          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
                           className="object-cover transition duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />

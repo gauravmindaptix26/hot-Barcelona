@@ -682,18 +682,18 @@ export default async function RegistroEscortsPage() {
               <div key={step.number} className="contents">
                 <div
                   className={`rounded-[28px] border border-white/10 bg-white/5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] ${
-                    step.number === "5" ? "p-2 sm:p-3" : "p-4 sm:p-8"
+                    step.number === "5" ? "p-2 sm:p-3" : "p-3 sm:p-8"
                   }`}
                 >
                   <div
-                    className={`flex flex-wrap items-start ${
-                      step.number === "5" ? "gap-2" : "gap-6"
+                    className={`flex flex-col items-start ${
+                      step.number === "5" ? "gap-2" : "gap-4 sm:gap-6"
                     }`}
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 text-lg font-semibold">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-base font-semibold sm:h-12 sm:w-12 sm:text-lg">
                       {step.number}
                     </div>
-                    <div className="flex-1 space-y-3">
+                    <div className="w-full flex-1 space-y-3 min-w-0">
                       <h3 className="text-base font-semibold sm:text-xl">
                         {step.title}
                       </h3>
@@ -955,17 +955,17 @@ export default async function RegistroEscortsPage() {
 
                         if (step.number === "6" && field === "Payment method") {
                           return (
-                            <div key={field} className="space-y-3">
-                              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
-                                <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
-                                  Payment type
+                              <div key={field} className="space-y-3">
+                                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
+                                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                    Payment type
+                                  </div>
+                                  <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
+                                    Choose one
+                                  </span>
                                 </div>
-                                <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
-                                  Choose one
-                                </span>
-                              </div>
-                              <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-black/35 to-black/60 p-3 shadow-[0_18px_40px_rgba(0,0,0,0.25)] sm:p-4">
-                              <div className="grid gap-3">
+                              <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 via-black/35 to-black/60 p-2.5 shadow-[0_18px_40px_rgba(0,0,0,0.25)] sm:p-4">
+                              <div className="grid gap-2.5 sm:gap-3">
                                 {paymentMethodOptions.map((option) => (
                                   <label key={option} className="block cursor-pointer">
                                     <input
@@ -974,8 +974,8 @@ export default async function RegistroEscortsPage() {
                                       value={option}
                                       className="peer sr-only"
                                     />
-                                    <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/35 px-3 py-3 text-sm text-white/80 transition hover:border-[#f5d68c]/35 peer-focus-visible:border-[#f5d68c]/55 peer-checked:border-[#f5d68c]/55 peer-checked:bg-gradient-to-r peer-checked:from-[#f5d68c]/12 peer-checked:via-[#f5b35c]/8 peer-checked:to-transparent">
-                                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-[#f5d68c] transition peer-checked:border-[#f5d68c]/35 peer-checked:bg-[#f5d68c]/10">
+                                    <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm text-white/80 transition hover:border-[#f5d68c]/35 peer-focus-visible:border-[#f5d68c]/55 peer-checked:border-[#f5d68c]/55 peer-checked:bg-gradient-to-r peer-checked:from-[#f5d68c]/12 peer-checked:via-[#f5b35c]/8 peer-checked:to-transparent sm:gap-3 sm:py-3">
+                                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-[#f5d68c] transition peer-checked:border-[#f5d68c]/35 peer-checked:bg-[#f5d68c]/10 sm:h-11 sm:w-11">
                                         {option.toLowerCase().includes("cash") ? (
                                           <svg
                                             viewBox="0 0 24 24"
@@ -1004,7 +1004,7 @@ export default async function RegistroEscortsPage() {
                                         )}
                                       </span>
                                       <span className="min-w-0 flex-1">
-                                        <span className="block text-sm font-medium text-white/90">
+                                        <span className="block text-sm font-medium leading-tight text-white/90">
                                           {option.toLowerCase().includes("cash")
                                             ? "Cash Collection"
                                             : "ATM / Bank Transfer"}
@@ -1058,10 +1058,10 @@ export default async function RegistroEscortsPage() {
                   </div>
                 </div>
                 {step.number === "3" ? (
-                  <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
+                  <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
                     <div className="space-y-3">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white sm:h-10 sm:w-10">
                           4
                         </div>
                         <h3 className="text-base font-semibold sm:text-xl">
@@ -1072,11 +1072,11 @@ export default async function RegistroEscortsPage() {
                         Set your schedule by day. If you do not work on a day,
                         select it as Rest.
                       </p>
-                      <div className="mt-5 space-y-3">
+                      <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
                         {scheduleDays.map((day) => (
                           <div
                             key={day}
-                            className="grid items-center gap-3 sm:grid-cols-[120px_1fr_1fr] md:grid-cols-[140px_1fr_1fr_100px]"
+                            className="rounded-2xl border border-white/10 bg-black/25 p-3 grid items-center gap-2.5 sm:grid-cols-[110px_1fr_1fr] sm:gap-3 sm:bg-transparent sm:p-0 md:grid-cols-[140px_1fr_1fr_100px]"
                           >
                             <span className="text-sm font-semibold">{day}</span>
                             <select

@@ -13,8 +13,10 @@ export default function LocationMapField({ initialValue = "" }: Props) {
   useEffect(() => {
     if (initialValue || value) return;
     if (!("geolocation" in navigator)) {
-      setGeoError("Location not supported on this device.");
-      return;
+      const timeoutId = window.setTimeout(() => {
+        setGeoError("Location not supported on this device.");
+      }, 0);
+      return () => window.clearTimeout(timeoutId);
     }
 
     let active = true;
@@ -45,8 +47,8 @@ export default function LocationMapField({ initialValue = "" }: Props) {
   }, [value]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-[1fr_1.6fr] md:items-start">
-      <div className="flex min-h-[260px] w-full flex-col justify-between space-y-2 rounded-2xl border border-white/10 bg-black/40 p-4 md:min-h-[300px]">
+    <div className="grid gap-3 sm:gap-4 md:grid-cols-[1fr_1.6fr] md:items-start">
+      <div className="flex min-h-[220px] w-full flex-col justify-between space-y-2 rounded-2xl border border-white/10 bg-black/40 p-3 sm:min-h-[260px] sm:p-4 md:min-h-[300px]">
         <label className="text-xs uppercase tracking-[0.3em] text-white/50">
           Address
         </label>
@@ -56,7 +58,7 @@ export default function LocationMapField({ initialValue = "" }: Props) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           autoComplete="street-address"
-          className="h-14 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+          className="h-12 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none sm:h-14"
         />
         <p className="text-xs text-white/50">
           {geoError ??
@@ -64,7 +66,7 @@ export default function LocationMapField({ initialValue = "" }: Props) {
         </p>
       </div>
 
-      <div className="relative h-full min-h-[260px] overflow-hidden rounded-2xl border border-white/10 bg-black/50 md:min-h-[300px]">
+      <div className="relative h-full min-h-[220px] overflow-hidden rounded-2xl border border-white/10 bg-black/50 sm:min-h-[260px] md:min-h-[300px]">
         {mapSrc ? (
           <iframe
             title="Map preview"

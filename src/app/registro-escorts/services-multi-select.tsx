@@ -39,7 +39,7 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
 
   return (
     <div ref={containerRef} className="space-y-2">
-      <div className="flex flex-wrap items-start gap-2">
+      <div className="flex flex-col items-start gap-1">
         <span className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
           {label}
         </span>

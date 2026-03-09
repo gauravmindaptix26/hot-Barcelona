@@ -9,7 +9,13 @@ import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileReviews from "../../components/ProfileReviews";
 
-const filters = ["Age 20-30", "Barcelona"];
+const filters = ["Age 20-60", "Barcelona"] as const;
+const premiumCategoryFilters = [
+  { value: "TOP PREMIUM VIP", label: "VIP PREMIUM SUPERIOR" },
+  { value: "TOP PREMIUM BANNER", label: "BANNER PREMIUM SUPERIOR" },
+  { value: "Premium superior", label: "PREMIUM SUPERIOR" },
+  { value: "TOP PREMIUM STANDARD", label: "TOP PREMIUM STANDARD" },
+] as const;
 
 type Profile = {
   id: string;
@@ -56,6 +62,18 @@ const formatPremiumPlanLabel = (value: string | null | undefined) => {
   if (normalized === "PREMIUM SUPERIOR") return "Premium superior";
   return value.trim();
 };
+const filterMatches = (profile: Profile, filter: string) => {
+  switch (filter) {
+    case "Age 20-60":
+      return Number.isFinite(profile.age) && profile.age >= 20 && profile.age <= 60;
+    case "Barcelona":
+      return profile.location.toLowerCase().includes("barcelona");
+    default:
+      return true;
+  }
+};
+const matchesPremiumCategory = (profile: Profile, category: string) =>
+  normalizePremiumCategory(profile.premiumPlan) === normalizePremiumCategory(category);
 const hasRatingData = (profile: Profile) =>
   (typeof profile.rating === "number" && profile.rating > 0) ||
   (typeof profile.reviews === "number" && profile.reviews > 0);
@@ -301,6 +319,8 @@ export default function TransClient({
   initialProfiles: Profile[];
 }) {
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
@@ -308,7 +328,19 @@ export default function TransClient({
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
 
-  const displayProfiles = useMemo(() => liveProfiles, [liveProfiles]);
+  const displayProfiles = useMemo(() => {
+    let nextProfiles = liveProfiles;
+
+    if (activeFilter) {
+      nextProfiles = nextProfiles.filter((profile) => filterMatches(profile, activeFilter));
+    }
+
+    if (activeCategory) {
+      nextProfiles = nextProfiles.filter((profile) => matchesPremiumCategory(profile, activeCategory));
+    }
+
+    return nextProfiles;
+  }, [activeCategory, activeFilter, liveProfiles]);
 
   const selectedProfile = useMemo(
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
@@ -373,7 +405,7 @@ export default function TransClient({
       <main className="relative z-10">
         <section className="relative overflow-hidden pb-10 pt-0 sm:pb-12 sm:pt-0">
           <Navbar />
-          <div className="mx-auto -mt-10 w-full max-w-6xl px-4 sm:-mt-12 sm:px-6">
+          <div className="mx-auto -mt-6 w-full max-w-6xl px-4 sm:-mt-8 sm:px-6">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -398,23 +430,70 @@ export default function TransClient({
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 flex items-center gap-2 overflow-x-auto rounded-3xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur sm:mt-8 sm:flex-wrap sm:gap-3 sm:px-6 sm:py-4"
+              className="mt-6 rounded-3xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur sm:mt-8 sm:px-6 sm:py-4"
             >
-              <button className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]">
-                Filters
-                <NavIcon path="M4 6h16M7 12h10M10 18h4" />
-              </button>
-              {filters.map((filter) => (
-                <span
-                  key={filter}
-                  className="whitespace-nowrap rounded-full border border-white/10 bg-black/30 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs sm:tracking-[0.3em]"
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveFilter(null);
+                    setActiveCategory(null);
+                  }}
+                  className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
                 >
-                  {filter}
+                  Filters
+                  <NavIcon path="M4 6h16M7 12h10M10 18h4" />
+                </button>
+                {filters.map((filter) => {
+                  const isActive = activeFilter === filter;
+                  return (
+                    <button
+                      key={filter}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(null);
+                        setActiveFilter(isActive ? null : filter);
+                      }}
+                      className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
+                        isActive
+                          ? "border-[#f5d68c]/60 bg-[#f5d68c]/10 text-[#f5d68c]"
+                          : "border-white/10 bg-black/30 text-white/60 hover:text-white"
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  );
+                })}
+                <span className="ml-2 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-xs sm:tracking-[0.3em]">
+                  {displayProfiles.length} profiles
                 </span>
-              ))}
-              <span className="ml-2 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-xs sm:tracking-[0.3em]">
-                {displayProfiles.length} profiles
-              </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/5 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-[#f5d68c]/85 sm:text-xs sm:tracking-[0.3em]">
+                  Categories
+                </span>
+                {premiumCategoryFilters.map((category) => {
+                  const isActive = activeCategory === category.value;
+                  return (
+                    <button
+                      key={category.value}
+                      type="button"
+                      onClick={() => {
+                        setActiveFilter(null);
+                        setActiveCategory(isActive ? null : category.value);
+                      }}
+                      className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
+                        isActive
+                          ? "border-[#f5d68c]/60 bg-[#f5d68c]/10 text-[#f5d68c]"
+                          : "border-white/10 bg-black/30 text-white/60 hover:text-white"
+                      }`}
+                    >
+                      {category.label}
+                    </button>
+                  );
+                })}
+              </div>
             </motion.div>
           </div>
         </section>

@@ -60,7 +60,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
         Choose Subscription
       </div>
@@ -69,7 +69,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
         {uniquePlans.map((plan) => (
           <div
             key={plan.name}
-            className={`rounded-3xl border p-4 text-left transition ${
+            className={`rounded-3xl border p-3 text-left transition sm:p-4 ${
               selectedPlan === plan.name
                 ? "border-[#f5d68c]/70 bg-gradient-to-br from-[#f5d68c]/20 via-[#f5b35c]/10 to-transparent text-white shadow-[0_10px_30px_rgba(245,179,92,0.2)]"
                 : "border-white/10 bg-black/40 text-white/75 hover:border-[#f5d68c]/35 hover:text-white"
@@ -78,7 +78,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
             <div className="break-words text-[11px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em]">
               {plan.name}
             </div>
-            <div className="mt-3 space-y-1.5">
+            <div className="mt-2.5 space-y-1.5 sm:mt-3">
               {plan.durations.map((duration) => (
                 <button
                   key={`${plan.name}-${duration.label}`}
