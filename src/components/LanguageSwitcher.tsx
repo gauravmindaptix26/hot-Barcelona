@@ -54,8 +54,8 @@ export default function LanguageSwitcher({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="Change language"
         aria-expanded={isOpen}
-        className={`flex items-center gap-2 rounded-full border border-white/15 bg-transparent px-2 py-1 text-white/90 shadow-[0_12px_26px_rgba(0,0,0,0.35)] backdrop-blur transition hover:bg-transparent ${
-          compact ? "h-9" : "h-10"
+        className={`flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-white shadow-[0_12px_26px_rgba(0,0,0,0.4)] backdrop-blur-md transition hover:bg-black/60 ${
+          compact ? "h-9 min-w-[5.5rem]" : "h-10 min-w-[6rem]"
         }`}
       >
         <span className="overflow-hidden rounded-full border border-white/15">
@@ -68,12 +68,12 @@ export default function LanguageSwitcher({
             aria-hidden="true"
           />
         </span>
-        <span className="notranslate min-w-7 text-xs font-semibold tracking-[0.14em]">
+        <span className="notranslate min-w-7 text-xs font-semibold tracking-[0.14em] text-white">
           {activeLanguage.code.toUpperCase()}
         </span>
         <svg
           viewBox="0 0 20 20"
-          className={`h-4 w-4 text-white/70 transition ${isOpen ? "rotate-180" : ""}`}
+          className={`h-4 w-4 text-white/80 transition ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           strokeWidth="1.8"

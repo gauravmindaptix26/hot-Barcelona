@@ -313,13 +313,13 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-5 max-w-[12ch] text-[2.4rem] font-semibold leading-[0.95] text-white sm:mt-6 sm:max-w-3xl sm:text-6xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
+              className="mt-5 max-w-[11ch] text-[2.2rem] font-semibold leading-[0.95] text-white sm:mt-6 sm:max-w-3xl sm:text-6xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
                 <motion.span
                   key={word}
-                  className="mr-3 inline-block"
+                  className="mr-2 inline-block sm:mr-3"
                   variants={{
                     hidden: { opacity: 0, y: 22, rotateX: 35 },
                     show: {
@@ -331,8 +331,8 @@ export default function Home() {
                   }}
                 >
                   {word === "Desire" ? (
-                    <span className="relative inline-flex items-center">
-                      <span className="inline-block bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">
+                      <span className="relative inline-flex items-center">
+                      <span className="inline-block text-[#f3a0ab] sm:bg-gradient-to-r sm:from-[#f5d68c] sm:via-[#f090a1] sm:to-[#d46a7a] sm:bg-clip-text sm:text-transparent sm:[-webkit-text-fill-color:transparent]">
                         {word}
                       </span>
                       <span className="absolute -bottom-1.5 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] sm:-bottom-2" />

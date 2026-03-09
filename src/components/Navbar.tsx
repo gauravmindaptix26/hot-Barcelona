@@ -40,14 +40,14 @@ export default function Navbar() {
 
   return (
     <header className="relative z-20 lg:-mt-5">
-      <nav className="mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-3 sm:px-6 sm:py-4 lg:items-start lg:py-1">
+      <nav className="mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-2.5 sm:px-6 sm:py-4 lg:items-start lg:py-1">
         <div className="flex items-center">
           <Link
             href="/"
             aria-label="Go to home"
             className="block -ml-1 -mt-1 sm:-ml-2 sm:-mt-2 lg:-ml-28 lg:-mt-36"
           >
-            <div className="relative h-[4.5rem] w-[4.5rem] sm:h-24 sm:w-24 lg:h-[580px] lg:w-[580px]">
+            <div className="relative h-[5.25rem] w-[5.25rem] sm:h-24 sm:w-24 lg:h-[580px] lg:w-[580px]">
               <Image
                 src="/images/added%20logo.png"
                 alt="Hot Barcelona"
