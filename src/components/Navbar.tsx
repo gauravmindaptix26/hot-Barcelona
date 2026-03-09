@@ -50,15 +50,15 @@ export default function Navbar({
         }`}
       >
         <div className="flex items-center">
-          <Link
-            href="/"
-            aria-label="Go to home"
-            className={`block -ml-1.5 -mt-2 sm:-ml-2 sm:-mt-2 ${
-              compactDesktop ? "lg:ml-0 lg:mt-0" : "lg:-ml-28 lg:-mt-36"
-            }`}
-          >
+            <Link
+              href="/"
+              aria-label="Go to home"
+              className={`block -ml-6 -mt-6 sm:-ml-5 sm:-mt-5 ${
+                compactDesktop ? "lg:ml-0 lg:mt-0" : "lg:-ml-28 lg:-mt-36"
+              }`}
+            >
             <div
-              className={`relative h-[7.75rem] w-[7.75rem] sm:h-[8rem] sm:w-[8rem] ${
+              className={`relative h-[13.5rem] w-[13.5rem] sm:h-[14rem] sm:w-[14rem] ${
                 compactDesktop ? "lg:h-28 lg:w-28" : "lg:h-[580px] lg:w-[580px]"
               }`}
             >
@@ -69,8 +69,8 @@ export default function Navbar({
                 height={2000}
                 sizes={
                   compactDesktop
-                    ? "(max-width: 639px) 7.75rem, (max-width: 1023px) 8rem, 7rem"
-                    : "(max-width: 639px) 7.75rem, (max-width: 1023px) 8rem, 580px"
+                    ? "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 7rem"
+                    : "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 580px"
                 }
                 priority
                 className="h-full w-full object-contain object-top"
