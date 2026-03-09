@@ -537,29 +537,29 @@ export default async function RegistroEscortsPage() {
 
       <main className="relative z-10">
         <Navbar />
-        <section className="mx-auto -mt-12 grid w-full max-w-6xl gap-8 px-4 pb-10 pt-2 sm:-mt-16 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-3 lg:-mt-20 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mx-auto -mt-4 grid w-full max-w-6xl gap-8 px-4 pb-10 pt-2 sm:-mt-8 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-3 lg:-mt-20 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-6">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
               Registration Studio
             </p>
-            <h1
-              className="text-3xl font-semibold sm:text-5xl lg:text-6xl"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
+              <h1
+                className="max-w-[12ch] text-2xl font-semibold leading-tight sm:max-w-none sm:text-5xl lg:text-6xl"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
               Advertise in just 6 steps
             </h1>
             <p className="text-sm text-white/70 sm:text-lg">
               Create a premium profile, manage your ad, and reach your audience
               with a modern, secure workflow.
             </p>
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <Link
                 href="/"
-                className="rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
+                className="inline-flex justify-center rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
               >
                 Go to main page
               </Link>
-              <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
+              <button className="inline-flex justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
                 Start Registration
               </button>
             </div>
@@ -573,7 +573,7 @@ export default async function RegistroEscortsPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[10px] uppercase tracking-[0.25em] text-white/70 sm:p-4 sm:text-xs sm:tracking-[0.3em]"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/70 sm:p-4 sm:text-xs sm:tracking-[0.3em]"
                 >
                   <div className="mb-3 text-2xl">{item.icon}</div>
                   {item.label}
@@ -600,7 +600,7 @@ export default async function RegistroEscortsPage() {
 
         <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
           <div className="rounded-[26px] border border-[#f5d68c]/40 bg-gradient-to-br from-[#f5d68c]/25 via-[#f5b35c]/10 to-[#0c0d10] p-5 text-center shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
-            <div className="mx-auto inline-flex items-center gap-3 rounded-full border border-[#f5d68c]/40 bg-black/40 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-[#f5d68c]">
+            <div className="mx-auto inline-flex items-center gap-3 rounded-full border border-[#f5d68c]/40 bg-black/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.35em]">
               <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#f5d68c]/40 bg-black/60 text-sm">
                 !
               </span>
@@ -676,13 +676,13 @@ export default async function RegistroEscortsPage() {
 
         
 
-          <section className="mx-auto w-full max-w-6xl px-6 pb-24">
+          <section className="mx-auto w-full max-w-6xl px-4 pb-24 sm:px-6">
             <div className="grid gap-6">
               {steps.slice(1).map((step) => (
               <div key={step.number} className="contents">
                 <div
                   className={`rounded-[28px] border border-white/10 bg-white/5 shadow-[0_24px_60px_rgba(0,0,0,0.35)] ${
-                    step.number === "5" ? "p-2 sm:p-3" : "p-6 sm:p-8"
+                    step.number === "5" ? "p-2 sm:p-3" : "p-4 sm:p-8"
                   }`}
                 >
                   <div
@@ -694,11 +694,11 @@ export default async function RegistroEscortsPage() {
                       {step.number}
                     </div>
                     <div className="flex-1 space-y-3">
-                      <h3 className="text-lg font-semibold sm:text-xl">
+                      <h3 className="text-base font-semibold sm:text-xl">
                         {step.title}
                       </h3>
                       <p className="text-sm text-white/60">{step.note}</p>
-                      <div className="grid gap-3 md:grid-cols-2">
+                      <div className="grid gap-3 sm:grid-cols-2">
                         {step.fields.map((field) => {
                         if (step.number === "3" && field === "Rate 20 min") {
                           return (
@@ -956,7 +956,7 @@ export default async function RegistroEscortsPage() {
                         if (step.number === "6" && field === "Payment method") {
                           return (
                             <div key={field} className="space-y-3">
-                              <div className="mt-8 flex items-center justify-between gap-3">
+                              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
                                 <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
                                   Payment type
                                 </div>
@@ -1064,7 +1064,7 @@ export default async function RegistroEscortsPage() {
                         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white">
                           4
                         </div>
-                        <h3 className="text-lg font-semibold sm:text-xl">
+                        <h3 className="text-base font-semibold sm:text-xl">
                           Weekly schedule
                         </h3>
                       </div>
@@ -1076,7 +1076,7 @@ export default async function RegistroEscortsPage() {
                         {scheduleDays.map((day) => (
                           <div
                             key={day}
-                            className="grid items-center gap-3 md:grid-cols-[140px_1fr_1fr_100px]"
+                            className="grid items-center gap-3 sm:grid-cols-[120px_1fr_1fr] md:grid-cols-[140px_1fr_1fr_100px]"
                           >
                             <span className="text-sm font-semibold">{day}</span>
                             <select

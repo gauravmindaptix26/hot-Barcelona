@@ -285,6 +285,7 @@ export default function Home() {
               alt="Barcelona nightlife"
               fill
               priority
+              sizes="100vw"
               className="object-cover object-center"
             />
           </motion.div>
@@ -293,7 +294,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto flex h-[calc(100svh-4.5rem)] w-full max-w-[88rem] flex-col items-center justify-center px-4 pb-8 pt-6 text-center sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-12 lg:-mt-40 lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[11rem] lg:pr-8 lg:pt-28 lg:text-left xl:-mt-44 xl:pl-[13rem] xl:pr-12"
+            className="relative z-10 mx-auto flex h-[calc(100svh-4.5rem)] w-full max-w-[88rem] flex-col items-center justify-center px-4 pb-8 pt-3 text-center sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-8 lg:-mt-40 lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[11rem] lg:pr-8 lg:pt-28 lg:text-left xl:-mt-44 xl:pl-[13rem] xl:pr-12"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -413,6 +414,7 @@ export default function Home() {
                         src={profile.image ?? premiumVipFallbackImages[index % premiumVipFallbackImages.length]}
                         alt={profile.name}
                         fill
+                        sizes="(max-width: 640px) 88vw, (max-width: 1279px) 42vw, 28vw"
                         className="object-cover transition duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,14,0.18)_8%,rgba(8,10,14,0.88)_100%)]" />
@@ -420,16 +422,16 @@ export default function Home() {
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_18%,rgba(245,214,140,0.25),rgba(8,10,14,0)_52%)]" />
                       </div>
                       <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5">
-                        <div className="inline-flex items-center rounded-full border border-[#f5d68c]/30 bg-black/45 px-3 py-1 text-[9px] uppercase tracking-[0.28em] text-[#f5d68c]">
-                          Top Premium VIP
-                        </div>
-                        <p className="mt-3 text-xl font-semibold text-white sm:text-2xl">
+                        <p className="text-xl font-semibold text-white sm:text-2xl">
                           {profile.name}
                           {profile.age ? `, ${profile.age}` : ""}
                         </p>
                         <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/68 sm:text-sm sm:tracking-[0.26em]">
                           <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
                           {profile.location || "Barcelona"}
+                        </div>
+                        <div className="mt-3 inline-flex items-center rounded-full border border-[#f5d68c]/30 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-[11px]">
+                          Top Premium VIP
                         </div>
                       </div>
                     </motion.div>
@@ -596,7 +598,13 @@ export default function Home() {
                 >
                   <div className="group relative h-[280px] w-[200px] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
-                    <Image src={src} alt="Premium showcase" fill className="object-cover" />
+                    <Image
+                      src={src}
+                      alt="Premium showcase"
+                      fill
+                      sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"
+                      className="object-cover"
+                    />
                     <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
                     <span className="pointer-events-none absolute bottom-5 left-5 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/80 sm:bottom-6 sm:left-6 sm:text-[11px] sm:tracking-[0.35em]">
@@ -656,6 +664,7 @@ export default function Home() {
                       src={src}
                       alt="Luxury gallery"
                       fill
+                      sizes="(max-width: 640px) 180px, (max-width: 1024px) 300px, 380px"
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-70 transition group-hover:opacity-90" />
@@ -722,6 +731,7 @@ export default function Home() {
                 src="/images/Frauen%20in%20Limousine.jpeg"
                 alt="Evening elegance"
                 fill
+                sizes="100vw"
                 className="object-cover object-center"
               />
             </motion.div>
@@ -794,6 +804,7 @@ export default function Home() {
                       src={profile.image ?? "/images/hot1.webp"}
                       alt={profile.name}
                       fill
+                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 24vw"
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_15%,rgba(10,11,13,0.75)_100%)] opacity-80 transition duration-500 group-hover:opacity-90" />

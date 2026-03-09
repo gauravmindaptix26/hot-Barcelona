@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
+import PageShell from "@/components/PageShell";
 import PasswordChangeForm from "./password-change-form";
 
 export default async function AccountPasswordPage() {
@@ -11,8 +12,7 @@ export default async function AccountPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
+    <PageShell widthClassName="max-w-4xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
@@ -39,7 +39,6 @@ export default async function AccountPasswordPage() {
             isAdmin={Boolean(session.user.isAdmin)}
           />
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

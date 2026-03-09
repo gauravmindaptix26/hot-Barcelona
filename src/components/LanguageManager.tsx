@@ -1,11 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
+  DEFAULT_SITE_LANGUAGE,
   readStoredLanguage,
   setSiteLanguage,
   SUPPORTED_LANGUAGE_CODES,
+  TRANSLATION_SCRIPT_REQUEST_EVENT,
 } from "@/lib/language";
 
 type GoogleTranslateElementConstructor = (new (
@@ -123,12 +126,37 @@ const hideTranslateFloatingWidgets = () => {
 };
 
 export default function LanguageManager() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const searchKey = searchParams?.toString() ?? "";
+  const [shouldLoadScript, setShouldLoadScript] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return readStoredLanguage() !== DEFAULT_SITE_LANGUAGE;
+  });
+
   useEffect(() => {
     const preferredLanguage = readStoredLanguage();
     setSiteLanguage(preferredLanguage, { persist: true, reload: false });
   }, []);
 
   useEffect(() => {
+    const handleScriptRequest = () => {
+      setShouldLoadScript(true);
+    };
+
+    window.addEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleScriptRequest);
+    return () => {
+      window.removeEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleScriptRequest);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!shouldLoadScript) {
+      return;
+    }
+
     hideGoogleBanner();
     hideTranslateFloatingWidgets();
 
@@ -157,9 +185,13 @@ export default function LanguageManager() {
       window.clearInterval(intervalId);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, []);
+  }, [shouldLoadScript]);
 
   useEffect(() => {
+    if (!shouldLoadScript) {
+      return;
+    }
+
     window.googleTranslateElementInit = () => {
       mountGoogleTranslate();
       const preferredLanguage = readStoredLanguage();
@@ -171,15 +203,37 @@ export default function LanguageManager() {
     if (window.google?.translate?.TranslateElement) {
       window.googleTranslateElementInit();
     }
-  }, []);
+  }, [shouldLoadScript]);
+
+  useEffect(() => {
+    const preferredLanguage = readStoredLanguage();
+
+    if (preferredLanguage === DEFAULT_SITE_LANGUAGE) {
+      return;
+    }
+
+    const timers = [120, 420, 900].map((delay) =>
+      window.setTimeout(() => {
+        setSiteLanguage(preferredLanguage, { persist: false, reload: false });
+        hideGoogleBanner();
+        hideTranslateFloatingWidgets();
+      }, delay)
+    );
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [pathname, searchKey]);
 
   return (
     <>
       <div id="google_translate_element" aria-hidden="true" />
-      <Script
-        src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-        strategy="afterInteractive"
-      />
+      {shouldLoadScript ? (
+        <Script
+          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="lazyOnload"
+        />
+      ) : null}
     </>
   );
 }

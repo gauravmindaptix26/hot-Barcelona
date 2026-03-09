@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const infoLinks = [
   { label: "Home", href: "/" },
@@ -28,7 +26,6 @@ const legalDisclaimerParagraphs = [
 ];
 
 export default function Footer() {
-  const router = useRouter();
   const visibleInfoLinks = infoLinks.slice(0, 5);
 
   return (
@@ -105,14 +102,13 @@ export default function Footer() {
                 {visibleInfoLinks.map((item) => (
                   <li key={item.href} className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-[#f5d68c]" />
-                    <button
-                      type="button"
-                      onClick={() => router.push(item.href)}
+                    <Link
+                      href={item.href}
                       className="shrink-0 text-left text-white/70 outline-none"
                       style={{ color: "rgba(255,255,255,0.7)", WebkitTextFillColor: "rgba(255,255,255,0.7)" }}
                     >
                       {item.label}
-                    </button>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -144,21 +140,13 @@ export default function Footer() {
           <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
             <p>(c) 2026 Hot Barcelona. All rights reserved.</p>
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => router.push("/legal-notice")}
-                className="text-white/55 transition hover:text-white/80"
-              >
+              <Link href="/legal-notice" className="text-white/55 transition hover:text-white/80">
                 Legal Notice
-              </button>
+              </Link>
               <span className="h-1 w-1 rounded-full bg-white/30" aria-hidden="true" />
-              <button
-                type="button"
-                onClick={() => router.push("/privacy-policy")}
-                className="text-white/55 transition hover:text-white/80"
-              >
+              <Link href="/privacy-policy" className="text-white/55 transition hover:text-white/80">
                 Privacy Policy
-              </button>
+              </Link>
             </div>
           </div>
         </div>

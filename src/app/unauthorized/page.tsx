@@ -1,9 +1,9 @@
 import Link from "next/link";
+import PageShell from "@/components/PageShell";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center px-6 text-center">
+    <PageShell centered widthClassName="max-w-3xl" contentClassName="text-center">
         <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
           Access Denied
         </p>
@@ -22,7 +22,6 @@ export default function UnauthorizedPage() {
         >
           Back to home
         </Link>
-      </div>
-    </div>
+    </PageShell>
   );
 }

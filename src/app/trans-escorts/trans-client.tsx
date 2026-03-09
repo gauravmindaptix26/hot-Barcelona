@@ -343,7 +343,11 @@ export default function TransClient({
     );
 
     if (match) {
-      setSelectedId(match.id);
+      const timeoutId = window.setTimeout(() => {
+        setSelectedId(match.id);
+      }, 0);
+      didApplyQueryProfileRef.current = true;
+      return () => window.clearTimeout(timeoutId);
     }
 
     didApplyQueryProfileRef.current = true;
@@ -461,13 +465,8 @@ export default function TransClient({
                     <NavIcon path="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
                   </button>
 
-                  <div className="absolute inset-x-0 bottom-0 px-5 pb-2 pt-5">
+                  <div className="absolute inset-x-0 bottom-0 px-5 pb-5 pt-5">
                     <div className="flex flex-col gap-2">
-                      {hasPremiumPlan(profile.premiumPlan) && (
-                        <div className="inline-flex max-w-full self-start rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-3 py-2 text-[9px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur">
-                          {formatPremiumPlanLabel(profile.premiumPlan)}
-                        </div>
-                      )}
                       <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-lg font-semibold">
@@ -487,10 +486,15 @@ export default function TransClient({
                         </div>
                       )}
                     </div>
+                      {hasPremiumPlan(profile.premiumPlan) && (
+                        <div className="inline-flex max-w-full self-start whitespace-nowrap rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur sm:text-[11px] sm:tracking-[0.24em]">
+                          {formatPremiumPlanLabel(profile.premiumPlan)}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-4 flex items-center justify-end">
-                      <span className="translate-y-2 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    <div className="mt-3 flex items-center justify-end">
+                      <span className="translate-y-1 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
                         View Profile
                       </span>
                     </div>
@@ -570,12 +574,6 @@ export default function TransClient({
                   <NavIcon path="M4 7h16M4 12h10M4 17h7" />
                   Elite profile
                 </div>
-                {hasPremiumPlan(selectedProfile.premiumPlan) && (
-                  <div className="rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)]">
-                    {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
-                    {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
-                  </div>
-                )}
               </div>
               <button
                 type="button"
@@ -597,6 +595,12 @@ export default function TransClient({
                       <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
                         <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
                         {selectedProfile.location}
+                      </div>
+                    )}
+                    {hasPremiumPlan(selectedProfile.premiumPlan) && (
+                      <div className="mt-4 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:text-[11px]">
+                        {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
+                        {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
                       </div>
                     )}
                     <div className="mt-4 flex flex-wrap gap-2">

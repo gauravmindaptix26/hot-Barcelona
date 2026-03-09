@@ -1,9 +1,11 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
+import Image from "next/image";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import PageShell from "@/components/PageShell";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -56,8 +58,7 @@ export default async function MyAdPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-5xl px-6 py-16">
+    <PageShell>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
@@ -121,16 +122,15 @@ export default async function MyAdPage() {
                 {(Array.isArray(ad.images) ? ad.images : []).map((url) => (
                   <div
                     key={url}
-                    className="h-40 overflow-hidden rounded-2xl border border-white/10"
+                    className="relative h-40 overflow-hidden rounded-2xl border border-white/10"
                   >
-                    <img src={url} alt="Ad" className="h-full w-full object-cover" />
+                    <Image src={url} alt="Ad" fill className="object-cover" />
                   </div>
                 ))}
               </div>
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

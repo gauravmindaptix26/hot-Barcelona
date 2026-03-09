@@ -36,10 +36,10 @@ export default function DocumentPage({
 
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,10,13,0.82)_0%,rgba(9,10,13,0.92)_65%,rgba(9,10,13,1)_100%)]" />
-        <div className="relative z-10">
-          <Navbar />
+        <div className="relative z-30">
+          <Navbar compactDesktop />
         </div>
-        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-col gap-10 px-4 pb-14 pt-8 sm:px-6 sm:pb-16 sm:pt-12 lg:gap-14 lg:pb-20 lg:pt-16">
+        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-col gap-8 px-4 pb-14 pt-4 sm:px-6 sm:pb-16 sm:pt-6 lg:gap-12 lg:pb-20 lg:pt-8">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
             <div className="max-w-4xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#f5d68c]/30 bg-[#f5d68c]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
@@ -56,59 +56,72 @@ export default function DocumentPage({
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-6">
+            <div className="min-w-0 rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-[0_24px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-6">
               <p className="text-[10px] uppercase tracking-[0.28em] text-white/45">Overview</p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {content.summaryCards.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-2xl border border-white/10 bg-black/20 px-4 py-4"
+                    className="min-w-0 rounded-2xl border border-white/10 bg-black/20 px-4 py-4"
                   >
                     <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">
                       {item.label}
                     </p>
-                    <p className="mt-2 text-sm font-semibold text-white/90">{item.value}</p>
+                    <p className="mt-2 break-words text-sm font-semibold leading-relaxed text-white/90">
+                      {item.value}
+                    </p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {content.sections.map((section) => (
-              <article
-                key={section.title}
-                className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-6"
-              >
-                {section.eyebrow ? (
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
-                    {section.eyebrow}
-                  </p>
-                ) : null}
-                <h2
-                  className="mt-3 text-xl font-semibold text-white sm:text-2xl"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  {section.title}
-                </h2>
-                <div className="mt-4 space-y-4 text-sm leading-relaxed text-white/72 sm:text-[0.98rem]">
-                  {section.paragraphs.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
-                  ))}
-                </div>
-                {section.list?.length ? (
-                  <ul className="mt-4 space-y-2 text-sm leading-relaxed text-white/72 sm:text-[0.98rem]">
-                    {section.list.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f5d68c]" />
-                        <span>{item}</span>
-                      </li>
+          <section className="rounded-[30px] border border-[#f5d68c]/25 bg-[linear-gradient(160deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#f5d68c]/35 bg-[#f5d68c]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
+              Important Notice
+            </div>
+            <h2
+              className="mt-5 text-[2rem] font-semibold leading-tight text-[#fff8e7] sm:text-[2.35rem] lg:text-[2.6rem]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {content.title}
+            </h2>
+
+            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+              {content.sections.map((section) => (
+                <article key={section.title} className="min-w-0">
+                  {section.eyebrow ? (
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
+                      {section.eyebrow}
+                    </p>
+                  ) : null}
+                  <h3
+                    className="mt-2 break-words text-lg font-semibold text-white sm:text-xl"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {section.title}
+                  </h3>
+                  <div className="mt-4 space-y-4 text-sm leading-relaxed text-white/78 sm:text-[0.98rem]">
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph} className="break-words">
+                        {paragraph}
+                      </p>
                     ))}
-                  </ul>
-                ) : null}
-              </article>
-            ))}
-          </div>
+                  </div>
+                  {section.list?.length ? (
+                    <ul className="mt-4 space-y-2 text-sm leading-relaxed text-white/78 sm:text-[0.98rem]">
+                      {section.list.map((item) => (
+                        <li key={item} className="flex gap-3">
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f5d68c]" />
+                          <span className="break-words">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
 
           <aside className="rounded-[30px] border border-[#f5d68c]/20 bg-[linear-gradient(120deg,rgba(245,214,140,0.08),rgba(212,106,122,0.08),rgba(255,255,255,0.03))] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-8">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

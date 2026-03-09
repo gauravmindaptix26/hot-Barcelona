@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { getDb } from "@/lib/db";
 import AdminClient from "./AdminClient";
+import PageShell from "@/components/PageShell";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 type PersistedFormFields = Record<string, string | string[]>;
@@ -110,8 +111,8 @@ export default async function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white pt-4">
+    <PageShell widthClassName="max-w-[88rem]" contentClassName="pt-2 sm:pt-3">
       <AdminClient girls={girls.map(mapItem)} trans={trans.map(mapItem)} />
-    </div>
+    </PageShell>
   );
 }

@@ -1,9 +1,11 @@
 import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
+import Image from "next/image";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
 import ProfileReviews from "@/components/ProfileReviews";
+import PageShell from "@/components/PageShell";
 
 export default async function ProfileViewPage({
   params,
@@ -36,8 +38,7 @@ export default async function ProfileViewPage({
     .toArray();
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+    <PageShell>
         <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
           Profile
         </p>
@@ -61,9 +62,9 @@ export default async function ProfileViewPage({
             {images.map((image) => (
               <div
                 key={image._id.toString()}
-                className="h-32 overflow-hidden rounded-2xl border border-white/10 sm:h-40"
+                className="relative h-32 overflow-hidden rounded-2xl border border-white/10 sm:h-40"
               >
-                <img src={image.url} alt="Profile" className="h-full w-full object-cover" />
+                <Image src={image.url} alt="Profile" fill className="object-cover" />
               </div>
             ))}
           </div>
@@ -72,7 +73,6 @@ export default async function ProfileViewPage({
         <div className="mt-8 sm:mt-10 lg:ml-auto lg:max-w-[52%]">
           <ProfileReviews profileId={profile._id.toString()} profileType="profiles" />
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

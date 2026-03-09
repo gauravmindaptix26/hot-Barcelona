@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import PageShell from "@/components/PageShell";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -11,8 +12,7 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-4 sm:px-6">
+    <PageShell centered>
         <div className="rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-8">
           <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
             Create Account
@@ -130,7 +130,6 @@ export default function RegisterPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

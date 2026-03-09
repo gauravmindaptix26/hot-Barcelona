@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import PageShell from "@/components/PageShell";
 
 export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -10,8 +11,7 @@ export default function ForgotPasswordPage() {
   const [debugLink, setDebugLink] = useState("");
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
+    <PageShell centered>
         <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
           <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
             Password Reset
@@ -106,7 +106,6 @@ export default function ForgotPasswordPage() {
             </Link>
           </p>
         </div>
-      </div>
-    </div>
+    </PageShell>
   );
 }

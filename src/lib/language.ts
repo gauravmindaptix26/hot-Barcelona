@@ -22,6 +22,7 @@ const SUPPORTED_LANGUAGE_SET = new Set<string>(SUPPORTED_LANGUAGE_CODES);
 
 const STORAGE_KEY = "hb_site_language";
 const LANGUAGE_CHANGE_EVENT = "hb-language-change";
+export const TRANSLATION_SCRIPT_REQUEST_EVENT = "hb-translation-script-request";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 const normalizeLanguage = (value: string | null | undefined): SiteLanguage =>
@@ -108,6 +109,11 @@ export const setSiteLanguage = (
 
   document.documentElement.lang = language;
   writeGoogleTranslateCookie(language);
+
+  if (language !== DEFAULT_SITE_LANGUAGE) {
+    window.dispatchEvent(new Event(TRANSLATION_SCRIPT_REQUEST_EVENT));
+  }
+
   const syncedNow = syncGoogleTranslateSelect(language);
   if (!syncedNow) {
     let attempts = 0;

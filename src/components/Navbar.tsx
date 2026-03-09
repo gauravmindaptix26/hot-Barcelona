@@ -19,7 +19,11 @@ const getUserInitial = (name?: string | null, email?: string | null) => {
   return Array.from(raw)[0]?.toUpperCase() ?? "U";
 };
 
-export default function Navbar() {
+export default function Navbar({
+  compactDesktop = false,
+}: {
+  compactDesktop?: boolean;
+}) {
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,20 +43,35 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="relative z-20 lg:-mt-5">
-      <nav className="mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-2.5 sm:px-6 sm:py-4 lg:items-start lg:py-1">
+    <header className={`relative z-20 ${compactDesktop ? "" : "lg:-mt-5"}`}>
+      <nav
+        className={`mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-2.5 sm:px-6 sm:py-4 ${
+          compactDesktop ? "lg:py-4" : "lg:items-start lg:py-1"
+        }`}
+      >
         <div className="flex items-center">
           <Link
             href="/"
             aria-label="Go to home"
-            className="block -ml-1 -mt-1 sm:-ml-2 sm:-mt-2 lg:-ml-28 lg:-mt-36"
+            className={`block -ml-1.5 -mt-2 sm:-ml-2 sm:-mt-2 ${
+              compactDesktop ? "lg:ml-0 lg:mt-0" : "lg:-ml-28 lg:-mt-36"
+            }`}
           >
-            <div className="relative h-[5.25rem] w-[5.25rem] sm:h-24 sm:w-24 lg:h-[580px] lg:w-[580px]">
+            <div
+              className={`relative h-[6.5rem] w-[6.5rem] sm:h-24 sm:w-24 ${
+                compactDesktop ? "lg:h-28 lg:w-28" : "lg:h-[580px] lg:w-[580px]"
+              }`}
+            >
               <Image
                 src="/images/added%20logo.png"
                 alt="Hot Barcelona"
-                width={240}
-                height={240}
+                width={2000}
+                height={2000}
+                sizes={
+                  compactDesktop
+                    ? "(max-width: 639px) 6.5rem, (max-width: 1023px) 6rem, 7rem"
+                    : "(max-width: 639px) 6.5rem, (max-width: 1023px) 6rem, 580px"
+                }
                 priority
                 className="h-full w-full object-contain object-top"
               />
@@ -60,7 +79,11 @@ export default function Navbar() {
           </Link>
         </div>
 
-        <div className="hidden items-center gap-3 rounded-full border border-white/20 bg-black/45 px-4 py-2.5 text-base font-semibold text-white shadow-[0_16px_38px_rgba(0,0,0,0.4)] backdrop-blur-xl lg:mt-24 lg:flex xl:mt-28">
+        <div
+          className={`hidden items-center gap-3 rounded-full border border-white/20 bg-black/45 px-4 py-2.5 text-base font-semibold text-white shadow-[0_16px_38px_rgba(0,0,0,0.4)] backdrop-blur-xl lg:flex ${
+            compactDesktop ? "" : "lg:mt-24 xl:mt-28"
+          }`}
+        >
           {navItems.map((item) => {
             const itemClass =
               "group relative rounded-full px-7 py-3 text-white/85 transition hover:bg-white/10 hover:text-white";
@@ -83,7 +106,11 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-3 lg:mt-24 lg:gap-3 xl:mt-28">
+        <div
+          className={`flex items-center gap-1.5 sm:gap-3 lg:gap-3 ${
+            compactDesktop ? "" : "lg:mt-24 xl:mt-28"
+          }`}
+        >
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/registro-escorts"

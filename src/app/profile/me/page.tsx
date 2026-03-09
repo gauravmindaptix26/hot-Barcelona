@@ -1,9 +1,11 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { ObjectId } from "mongodb";
 import { authOptions } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import PageShell from "@/components/PageShell";
 
 type AdCollection = "girls" | "trans";
 type DisplayValue = string | string[];
@@ -201,8 +203,7 @@ export default async function ProfileMePage() {
     : [];
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
+    <PageShell>
         <div>
           <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
             My Profile
@@ -279,13 +280,9 @@ export default async function ProfileMePage() {
                   {images.map((url) => (
                     <div
                       key={url}
-                      className="h-40 overflow-hidden rounded-2xl border border-white/10"
+                      className="relative h-40 overflow-hidden rounded-2xl border border-white/10"
                     >
-                      <img
-                        src={url}
-                        alt="Ad profile"
-                        className="h-full w-full object-cover"
-                      />
+                      <Image src={url} alt="Ad profile" fill className="object-cover" />
                     </div>
                   ))}
                 </div>
@@ -305,7 +302,6 @@ export default async function ProfileMePage() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </PageShell>
   );
 }

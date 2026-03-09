@@ -39,11 +39,11 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
 
   return (
     <div ref={containerRef} className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-start gap-2">
         <span className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
           {label}
         </span>
-        <span className="text-[10px] text-white/70 sm:text-xs">
+        <span className="min-w-0 break-words text-[10px] text-white/70 sm:text-xs">
           {summary}
         </span>
       </div>
@@ -71,9 +71,9 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
                   type="button"
                   key={option}
                   onClick={() => toggleValue(option)}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/5"
+                  className="flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/5"
                 >
-                  <span>{option}</span>
+                  <span className="min-w-0 flex-1 break-words">{option}</span>
                   <span className="text-white/60">{checked ? "✓" : ""}</span>
                 </button>
               );

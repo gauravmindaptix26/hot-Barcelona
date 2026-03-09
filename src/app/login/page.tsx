@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import PageShell from "@/components/PageShell";
 
 
 export default function LoginPage() {
@@ -20,8 +21,7 @@ export default function LoginPage() {
     router.push("/");
   };
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white">
-      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center px-6">
+    <PageShell centered>
         <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
           <div className="mb-5 flex justify-end">
             <button
@@ -118,8 +118,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-      </div>
-    </div>
+    </PageShell>
   );
 }

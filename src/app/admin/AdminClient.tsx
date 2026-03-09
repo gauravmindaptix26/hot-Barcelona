@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
@@ -289,27 +290,27 @@ export default function AdminClient({ girls, trans }: Props) {
         : "border-rose-300/30 bg-rose-500/10 text-rose-200";
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pb-24 pt-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-6 sm:pt-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
             Admin Console
           </p>
           <h1
-            className="mt-3 text-3xl font-semibold sm:text-4xl"
+            className="mt-3 text-2xl font-semibold sm:text-4xl"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Manage profiles
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/40 p-1 text-xs uppercase tracking-[0.3em] text-white/70">
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+          <div className="flex w-full items-center gap-2 rounded-full border border-white/10 bg-black/40 p-1 text-[10px] uppercase tracking-[0.18em] text-white/70 sm:w-auto sm:gap-3 sm:text-xs sm:tracking-[0.3em]">
             {(["girls", "trans"] as const).map((key) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => setActiveTab(key)}
-                className={`rounded-full px-5 py-2 transition ${
+                className={`flex-1 rounded-full px-4 py-2 transition sm:flex-none sm:px-5 ${
                   activeTab === key
                     ? "bg-white/10 text-white"
                     : "text-white/60 hover:text-white"
@@ -322,7 +323,7 @@ export default function AdminClient({ girls, trans }: Props) {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="relative w-full max-w-md">
           <input
             value={search}
@@ -334,12 +335,12 @@ export default function AdminClient({ girls, trans }: Props) {
             Search
           </span>
         </div>
-        <p className="text-xs uppercase tracking-[0.3em] text-white/50">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-white/50 sm:text-xs sm:tracking-[0.3em]">
           {activeItems.length} results
         </p>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-white/60">
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/60 sm:tracking-[0.25em]">
         <span className="rounded-full border border-amber-300/30 bg-amber-500/10 px-3 py-1 text-amber-200">
           Pending: {summary.pending}
         </span>
@@ -361,10 +362,12 @@ export default function AdminClient({ girls, trans }: Props) {
           >
             <div className="relative h-64 w-full overflow-hidden">
               {item.images[0] ? (
-                <img
+                <Image
                   src={item.images[0]}
                   alt={item.name}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.2),_rgba(10,11,13,0.9))] text-xs uppercase tracking-[0.4em] text-white/60">
@@ -375,24 +378,24 @@ export default function AdminClient({ girls, trans }: Props) {
             </div>
 
             <div className="space-y-3 p-5">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold">{item.name}</h2>
-                  <p className="text-sm text-white/60">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <h2 className="break-words text-lg font-semibold">{item.name}</h2>
+                  <p className="break-words text-sm text-white/60">
                     {item.age ?? "-"} - {item.location || "Unknown location"}
                   </p>
                   {item.email && (
-                    <p className="mt-1 text-xs text-white/45">{item.email}</p>
+                    <p className="mt-1 break-all text-xs text-white/45">{item.email}</p>
                   )}
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-white/60">
+                <span className="inline-flex w-fit rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-white/60 sm:tracking-[0.25em]">
                   {activeTab}
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span
-                  className={`rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.28em] ${statusClass(
+                  className={`rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.22em] sm:tracking-[0.28em] ${statusClass(
                     item.approvalStatus
                   )}`}
                 >
@@ -400,15 +403,15 @@ export default function AdminClient({ girls, trans }: Props) {
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
+              <div className="flex flex-col gap-1 text-xs text-white/50 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
                 <span>{item.createdAtLabel ?? "No date"}</span>
-                <span>
+                <span className="break-words">
                   {item.images.length} photos •{" "}
                   {Object.keys(item.formFields ?? {}).length} fields
                 </span>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => startEdit(item)}
@@ -417,7 +420,7 @@ export default function AdminClient({ girls, trans }: Props) {
                     isUpdatingStatus === item._id ||
                     isSavingEdit
                   }
-                  className="rounded-full border border-sky-300/30 bg-sky-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-sky-200 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-sky-300/30 bg-sky-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-sky-200 transition hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
                 >
                   Edit
                 </button>
@@ -429,7 +432,7 @@ export default function AdminClient({ girls, trans }: Props) {
                     item.approvalStatus === "approved" ||
                     isSavingEdit
                   }
-                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
                 >
                   {isUpdatingStatus === item._id ? "Saving..." : "Accept"}
                 </button>
@@ -441,7 +444,7 @@ export default function AdminClient({ girls, trans }: Props) {
                     item.approvalStatus === "rejected" ||
                     isSavingEdit
                   }
-                  className="rounded-full border border-amber-300/30 bg-amber-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-amber-200 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-amber-300/30 bg-amber-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-amber-200 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
                 >
                   {isUpdatingStatus === item._id ? "Saving..." : "Reject"}
                 </button>
@@ -453,7 +456,7 @@ export default function AdminClient({ girls, trans }: Props) {
                     isUpdatingStatus === item._id ||
                     isSavingEdit
                   }
-                  className="rounded-full border border-red-400/40 bg-red-500/10 px-5 py-2 text-xs uppercase tracking-[0.3em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-full border border-red-400/40 bg-red-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
                 >
                   {isDeleting === item._id ? "Deleting..." : "Delete"}
                 </button>
@@ -461,7 +464,7 @@ export default function AdminClient({ girls, trans }: Props) {
 
               {editingId === item._id && (
                 <div className="mt-4 space-y-3 rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="grid gap-3 sm:grid-cols-5">
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     <input
                       value={editForm.name}
                       onChange={(event) =>
@@ -545,7 +548,7 @@ export default function AdminClient({ girls, trans }: Props) {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={handleSaveEdit}

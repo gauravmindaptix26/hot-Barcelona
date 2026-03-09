@@ -75,7 +75,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
                 : "border-white/10 bg-black/40 text-white/75 hover:border-[#f5d68c]/35 hover:text-white"
             }`}
           >
-            <div className="text-[11px] font-semibold uppercase tracking-[0.22em]">
+            <div className="break-words text-[11px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em]">
               {plan.name}
             </div>
             <div className="mt-3 space-y-1.5">
@@ -87,14 +87,14 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
                     setSelectedPlan(plan.name);
                     setSelectedDuration(duration.label);
                   }}
-                  className={`flex w-full items-center justify-between gap-4 rounded-xl border px-3 py-2 text-xs ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-xs ${
                     selectedPlan === plan.name && selectedDuration === duration.label
                       ? "border-[#f5b35c]/70 bg-[#f5b35c]/20 text-white"
                       : "border-white/10 bg-black/35 text-white/75 hover:border-[#f5d68c]/35"
                   }`}
                 >
-                  <span className="whitespace-nowrap uppercase tracking-[0.12em]">{duration.label}</span>
-                  <span className="whitespace-nowrap font-semibold text-[#f5d68c]">{duration.price}</span>
+                  <span className="min-w-0 break-words uppercase tracking-[0.08em] sm:tracking-[0.12em]">{duration.label}</span>
+                  <span className="shrink-0 font-semibold text-[#f5d68c]">{duration.price}</span>
                 </button>
               ))}
             </div>
