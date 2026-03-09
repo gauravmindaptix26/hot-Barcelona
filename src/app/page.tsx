@@ -293,15 +293,15 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] w-full max-w-[88rem] flex-col justify-center px-4 pb-10 pt-28 sm:min-h-[calc(100svh-6rem)] sm:px-6 sm:pb-12 sm:pt-32 lg:min-h-[calc(100svh-7rem)] lg:pb-16 lg:pl-[18rem] lg:pr-8 lg:pt-36 xl:pl-[22rem] xl:pr-12"
+            className="relative z-10 mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-[88rem] flex-col items-center justify-center px-4 pb-12 pt-8 text-center sm:min-h-[calc(100svh-6rem)] sm:px-6 sm:pb-12 sm:pt-14 lg:-mt-40 lg:min-h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[11rem] lg:pr-8 lg:pt-28 lg:text-left xl:-mt-44 xl:pl-[13rem] xl:pr-12"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-[#f5d68c] sm:gap-4 sm:text-base sm:tracking-[0.45em]"
+              className="flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.28em] text-[#f5d68c] sm:gap-4 sm:text-base sm:tracking-[0.45em] lg:justify-start"
             >
-              <span className="h-px w-10 bg-[#f5d68c]/70" />
+              <span className="h-px w-8 bg-[#f5d68c]/70 sm:w-10" />
               Elite Companionship
             </motion.p>
             <motion.h1
@@ -313,7 +313,7 @@ export default function Home() {
                   transition: { staggerChildren: 0.08, delayChildren: 0.15 },
                 },
               }}
-              className="mt-6 max-w-3xl text-3xl font-semibold leading-[1.05] text-white sm:text-6xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
+              className="mt-5 max-w-[12ch] text-[2.4rem] font-semibold leading-[0.95] text-white sm:mt-6 sm:max-w-3xl sm:text-6xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {heroHeadline.map((word) => (
@@ -335,8 +335,8 @@ export default function Home() {
                       <span className="inline-block bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">
                         {word}
                       </span>
-                      <span className="absolute -bottom-2 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a]" />
-                      <span className="absolute -right-6 top-0 h-3 w-3 rounded-full bg-[#f090a1]" />
+                      <span className="absolute -bottom-1.5 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] sm:-bottom-2" />
+                      <span className="absolute -right-3 top-0 h-2.5 w-2.5 rounded-full bg-[#f090a1] sm:-right-6 sm:h-3 sm:w-3" />
                     </span>
                   ) : (
                     word
@@ -348,7 +348,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-4 max-w-xl text-sm leading-[1.2] text-white/70 sm:mt-5 sm:text-xl sm:leading-[1.25] lg:text-xl"
+              className="mt-4 max-w-md text-sm leading-relaxed text-white/70 sm:mt-5 sm:max-w-xl sm:text-xl sm:leading-[1.25] lg:text-xl"
             >
               {heroSubheadline}
             </motion.p>
@@ -356,9 +356,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-6 flex flex-wrap gap-4 sm:mt-8"
+              className="mt-6 flex w-full flex-wrap justify-center gap-3 sm:mt-8 lg:justify-start"
             >
-              <Link href="/girls" className="group relative overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
+              <Link href="/girls" className="group relative inline-flex min-w-[15rem] justify-center overflow-hidden rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_22px_38px_rgba(245,179,92,0.4)] transition sm:min-w-0 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
                 <span className="relative z-10">Discover More -</span>
                 <span className="absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100">
                   <span className="absolute inset-0 scale-0 rounded-full bg-white/30 blur-xl transition duration-700 group-hover:scale-150" />
@@ -368,7 +368,7 @@ export default function Home() {
           </motion.div>
         </section>
 
-        <section ref={lifestyleRef} className="relative z-10 overflow-hidden bg-[#060a11] py-14 sm:py-16 lg:py-20">
+        <section ref={lifestyleRef} className="relative z-10 overflow-hidden bg-[#060a11] py-12 sm:py-16 lg:py-20">
           <div className="pointer-events-none absolute -left-32 top-0 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.18),_rgba(245,214,140,0)_72%)] blur-2xl" />
           <div className="pointer-events-none absolute -right-24 top-16 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(212,106,122,0.14),_rgba(212,106,122,0)_75%)] blur-2xl" />
           <div className="relative mx-auto grid w-full max-w-[88rem] items-center gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.25fr] lg:gap-10">
@@ -379,21 +379,21 @@ export default function Home() {
               viewport={{ once: true, amount: 0.4 }}
               className="mx-auto max-w-[42rem] text-center lg:mx-0 lg:text-left"
             >
-              <p className="font-cinzel text-4xl uppercase tracking-[0.22em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
+              <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
                  VIP Premium superior
               </p>
 
-              <p className="mt-6 max-w-2xl text-base leading-relaxed text-white/72 sm:text-[1.05rem] lg:text-lg">
+              <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/72 sm:mt-6 sm:text-[1.05rem] lg:text-lg">
                 Discover Hot Barecelona&apos;s Top Premium VIP profiles, carefully selected for those who value exclusivity, elegance, and high standards. These six premium VIP companions represent the finest in style, confidence, and professionalism. Verified, discreet, and in high demand, they offer a truly luxury experience for clients seeking quality, privacy, and unforgettable moments in Barcelona.
               </p>
-              <div className="mt-6 flex items-center justify-center gap-4 text-[11px] uppercase tracking-[0.36em] text-white/58 lg:justify-start">
+              <div className="mt-5 flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.28em] text-white/58 sm:text-[11px] sm:tracking-[0.36em] lg:justify-start">
                 <span className="h-px w-14 bg-white/28" />
                 Limited Availability
               </div>
             </motion.div>
 
             <motion.div style={{ y: lifestyleY }} className="w-full">
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
                 {premiumVipProfilesSafe.map((profile, index) => {
                   const isFallback = profile.id.startsWith("vip-fallback-");
                   const card = (
@@ -407,7 +407,7 @@ export default function Home() {
                       }}
                       viewport={{ once: true, amount: 0.25 }}
                       whileHover={{ y: -6 }}
-                      className="group relative aspect-[3/4.65] overflow-hidden rounded-[26px] border border-white/15 bg-[#11141b] shadow-[0_24px_48px_rgba(0,0,0,0.45)]"
+                      className="group relative mx-auto aspect-[3/4.2] w-full max-w-[22rem] overflow-hidden rounded-[26px] border border-white/15 bg-[#11141b] shadow-[0_24px_48px_rgba(0,0,0,0.45)] sm:max-w-none sm:aspect-[3/4.65]"
                     >
                       <Image
                         src={profile.image ?? premiumVipFallbackImages[index % premiumVipFallbackImages.length]}
@@ -423,11 +423,11 @@ export default function Home() {
                         <div className="inline-flex items-center rounded-full border border-[#f5d68c]/30 bg-black/45 px-3 py-1 text-[9px] uppercase tracking-[0.28em] text-[#f5d68c]">
                           Top Premium VIP
                         </div>
-                        <p className="mt-3 text-lg font-semibold text-white sm:text-2xl">
+                        <p className="mt-3 text-xl font-semibold text-white sm:text-2xl">
                           {profile.name}
                           {profile.age ? `, ${profile.age}` : ""}
                         </p>
-                        <div className="mt-1 flex items-center gap-2 text-[11px] uppercase tracking-[0.26em] text-white/68 sm:text-sm">
+                        <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/68 sm:text-sm sm:tracking-[0.26em]">
                           <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
                           {profile.location || "Barcelona"}
                         </div>
@@ -454,7 +454,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 bg-[#1b1b1b] py-8">
+        <section className="relative z-10 bg-[#1b1b1b] py-6 sm:py-8">
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="grid gap-4 md:grid-cols-3">
               {[
@@ -464,7 +464,7 @@ export default function Home() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#232323] px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                  className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#232323] px-4 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.35)] sm:gap-4 sm:px-6"
                 >
                   <span
                     className={`flex h-12 w-12 items-center justify-center rounded-xl ${item.accent} text-white shadow-[0_8px_18px_rgba(0,0,0,0.35)]`}
@@ -511,7 +511,7 @@ export default function Home() {
                     )}
                   </span>
                   <span
-                    className="text-lg font-semibold text-white"
+                    className="text-base font-semibold text-white sm:text-lg"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
                     {item.label}
@@ -522,9 +522,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 flex flex-col justify-center bg-[#0c0d10] py-16 lg:min-h-screen">
+        <section className="relative z-10 flex flex-col justify-center bg-[#0c0d10] py-14 lg:min-h-screen">
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
-            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div className="flex flex-col items-start gap-5 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -532,16 +532,16 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.4 }}
                 className="max-w-2xl text-left"
               >
-                <p className="font-cinzel text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
+                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
                   Banner premium superior
                 </p>
                 
-                <p className="mt-3 text-lg text-white/60 sm:mt-4 sm:text-base lg:text-lg">
+                  <p className="mt-3 text-sm leading-relaxed text-white/60 sm:mt-4 sm:text-base lg:text-lg">
                   Explore our Top Premium banner showcasing exclusive VIP profiles, luxury services, verified companions, and premium experiences designed for elite clients.
                 </p>
               </motion.div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 self-end sm:self-auto">
                 <button
                   type="button"
                   onClick={() => scrollPremiumBanner("left")}
@@ -579,14 +579,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="relative mt-12">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[#0c0d10] to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[#0c0d10] to-transparent" />
+          <div className="relative mt-8 sm:mt-12">
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#0c0d10] to-transparent sm:w-12" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#0c0d10] to-transparent sm:w-12" />
             <div
               ref={premiumBannerScrollerRef}
-              className="no-scrollbar snap-x snap-mandatory overflow-x-auto scroll-smooth px-6 pb-2"
+              className="no-scrollbar snap-x snap-mandatory overflow-x-auto scroll-smooth px-4 pb-2 sm:px-6"
             >
-              <div className="flex w-max gap-6 pr-6">
+              <div className="flex w-max gap-4 pr-4 sm:gap-6 sm:pr-6">
                 {prestigeSlider.map((src, index) => (
                 <motion.div
                   key={`${src}-${index}`}
@@ -594,12 +594,12 @@ export default function Home() {
                   whileTap={{ scale: 0.985 }}
                   className="snap-start"
                 >
-                  <div className="group relative h-[320px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
+                  <div className="group relative h-[280px] w-[200px] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
                     <Image src={src} alt="Premium showcase" fill className="object-cover" />
                     <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
-                    <span className="pointer-events-none absolute bottom-6 left-6 text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/80">
+                    <span className="pointer-events-none absolute bottom-5 left-5 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/80 sm:bottom-6 sm:left-6 sm:text-[11px] sm:tracking-[0.35em]">
                       Private Edition
                     </span>
                   </div>
@@ -610,14 +610,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 bg-[#0b0c10] pb-24 pt-12">
+        <section className="relative z-10 bg-[#0b0c10] pb-20 pt-12 sm:pb-24">
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                <p className="font-cinzel text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
+                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
                   Premium superior
                 </p>
-                <p className="mt-4 w-full text-base text-white/75 sm:mt-5 sm:text-lg lg:text-xl">
+                  <p className="mt-4 w-full text-sm leading-relaxed text-white/75 sm:mt-5 sm:text-lg lg:text-xl">
                   The Top Premium section features carefully selected profiles offering a refined, stylish, and high-quality experience. Designed for those who appreciate class, privacy, and professionalism, these premium profiles represent the perfect balance of elegance, discretion, and exclusivity.
                 </p>
               </div>
@@ -625,7 +625,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-12 space-y-6 overflow-hidden">
+          <div className="mt-8 space-y-4 overflow-hidden sm:mt-12 sm:space-y-6">
             {[
               { direction: 1, duration: 42 },
               { direction: -1, duration: 48 },
@@ -633,7 +633,7 @@ export default function Home() {
             ].map((row, rowIndex) => (
               <motion.div
                 key={`row-${rowIndex}`}
-                className="flex gap-6 px-6"
+                className="flex gap-3 px-4 sm:gap-6 sm:px-6"
                 animate={{
                   x: row.direction === 1 ? ["0%", "-50%"] : ["-50%", "0%"],
                 }}
@@ -650,7 +650,7 @@ export default function Home() {
                   <motion.div
                     key={`${src}-${rowIndex}-${index}`}
                     whileHover={{ scale: 1.03 }}
-                className="group relative h-[200px] w-[240px] flex-shrink-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition sm:h-[230px] sm:w-[300px] lg:h-[260px] lg:w-[380px]"
+                className="group relative h-[150px] w-[180px] flex-shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition sm:h-[230px] sm:w-[300px] lg:h-[260px] lg:w-[380px]"
               >
                     <Image
                       src={src}
@@ -670,7 +670,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative z-10 bg-[#0c0d10] py-16 sm:py-20">
+        <section className="relative z-10 bg-[#0c0d10] py-14 sm:py-20">
           <div className="mx-auto w-full max-w-[88rem] px-4 text-center sm:px-6">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -686,11 +686,11 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               viewport={{ once: true, amount: 0.4 }}
-              className="mt-4 text-xl font-semibold sm:mt-5 sm:text-3xl lg:text-4xl"
+              className="mt-4 text-lg font-semibold leading-tight sm:mt-5 sm:text-3xl lg:text-4xl"
             >
               Privacy-led service, held to the highest standards.
             </motion.h2>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
               {[
                 "Confidential service",
                 "Discreet communication",
@@ -703,7 +703,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                   viewport={{ once: true, amount: 0.4 }}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70"
+                  className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/70 sm:p-6"
                 >
                   <span className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#141519] text-[#f5d68c] shadow-[0_8px_18px_rgba(245,179,92,0.15)]">
                     <NavIcon path="M12 3l7 4v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4Z" />
@@ -726,13 +726,13 @@ export default function Home() {
               />
             </motion.div>
             <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(5,6,8,0.88)_20%,rgba(10,11,13,0.7)_60%,rgba(10,11,13,0.92)_95%)]" />
-            <div className="relative mx-auto flex min-h-[55vh] w-full max-w-[88rem] flex-col items-center justify-center px-4 py-20 text-center sm:min-h-[60vh] sm:px-6 sm:py-24">
+            <div className="relative mx-auto flex min-h-[50vh] w-full max-w-[88rem] flex-col items-center justify-center px-4 py-16 text-center sm:min-h-[60vh] sm:px-6 sm:py-24">
               <motion.h2
                 initial={{ opacity: 0, y: 26 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="text-2xl font-semibold sm:text-3xl lg:text-5xl"
+                className="text-xl font-semibold leading-tight sm:text-3xl lg:text-5xl"
               >
                 Ready to explore Barcelona in confidence and style?
               </motion.h2>
@@ -741,7 +741,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="mt-4 max-w-xl text-sm text-white/70 sm:text-base lg:text-lg"
+                className="mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base lg:text-lg"
               >
                 Discover an elite circle of companions for private, curated
                 experiences.
@@ -751,7 +751,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 viewport={{ once: true, amount: 0.4 }}
-                className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.3em]"
+                className="mt-6 inline-flex min-w-[14rem] justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:mt-8 sm:min-w-0 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.3em]"
               >
                 View Profiles
               </motion.button>
@@ -763,10 +763,10 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                <p className="font-cinzel text-2xl uppercase tracking-[0.2em] text-[#f5d68c] sm:text-3xl sm:tracking-[0.24em] lg:text-4xl lg:tracking-[0.28em]">
+                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-3xl sm:tracking-[0.24em] lg:text-4xl lg:tracking-[0.28em]">
                 New Comers-Latest Addition
                 </p>
-                <p className="mt-5 mb-4 max-w-4xl text-base text-white/75 sm:mt-6 sm:mb-5 sm:text-lg lg:text-xl">
+                  <p className="mb-4 mt-4 max-w-4xl text-sm leading-relaxed text-white/75 sm:mb-5 sm:mt-6 sm:text-lg lg:text-xl">
                   Discover our newest arrivals featuring fresh faces, verified profiles, and exciting premium experiences, carefully curated for style, quality, and discretion.
                 </p>
               </div>
@@ -800,7 +800,7 @@ export default function Home() {
                     <button
                       type="button"
                       aria-label="Save profile"
-                      className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
+                      className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c] sm:right-4 sm:top-4 sm:h-10 sm:w-10"
                     >
                       <svg
                         viewBox="0 0 24 24"
@@ -813,7 +813,7 @@ export default function Home() {
                       </svg>
                     </button>
 
-                    <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                       <p className="text-[10px] uppercase tracking-[0.35em] text-white/60">
                         New
                       </p>
@@ -835,7 +835,7 @@ export default function Home() {
                           {profile.location}
                         </div>
                       )}
-                      <div className="mt-3 flex items-center justify-between">
+                      <div className="mt-3 flex items-center justify-between gap-3">
                         <div className="inline-flex items-center gap-1 text-xs text-[#f5d68c]">
                           <svg
                             viewBox="0 0 24 24"
@@ -846,7 +846,7 @@ export default function Home() {
                           </svg>
                           4.7
                         </div>
-                        <span className="translate-y-2 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                        <span className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-black opacity-100 transition duration-500 sm:translate-y-2 sm:opacity-0 sm:tracking-[0.3em] sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                           View Profile
                         </span>
                       </div>

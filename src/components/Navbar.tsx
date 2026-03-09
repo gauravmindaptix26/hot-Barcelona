@@ -39,15 +39,15 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="relative z-20 -mt-3 sm:-mt-4 lg:-mt-5">
-      <nav className="mx-auto flex w-full max-w-[88rem] items-start justify-between px-4 py-0 sm:px-6 lg:py-1">
+    <header className="relative z-20 lg:-mt-5">
+      <nav className="mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-3 sm:px-6 sm:py-4 lg:items-start lg:py-1">
         <div className="flex items-center">
           <Link
             href="/"
             aria-label="Go to home"
-            className="block -ml-16 -mt-24 sm:-ml-18 sm:-mt-24 lg:-ml-28 lg:-mt-36"
+            className="block -ml-1 -mt-1 sm:-ml-2 sm:-mt-2 lg:-ml-28 lg:-mt-36"
           >
-            <div className="relative h-[340px] w-[340px] sm:h-[420px] sm:w-[420px] lg:h-[580px] lg:w-[580px]">
+            <div className="relative h-[4.5rem] w-[4.5rem] sm:h-24 sm:w-24 lg:h-[580px] lg:w-[580px]">
               <Image
                 src="/images/added%20logo.png"
                 alt="Hot Barcelona"
@@ -83,7 +83,7 @@ export default function Navbar() {
           })}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 lg:mt-24 lg:gap-3 xl:mt-28">
+        <div className="flex items-center gap-1.5 sm:gap-3 lg:mt-24 lg:gap-3 xl:mt-28">
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/registro-escorts"
@@ -93,19 +93,12 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <button
-            type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden"
-            aria-label="Search"
-          >
-            <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
-          </button>
-          <div className="lg:hidden">
+          <div className="shrink-0 lg:hidden">
             <LanguageSwitcher compact />
           </div>
           {session?.user && (
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-transparent text-[11px] font-semibold leading-none tracking-normal text-[#f5d68c] lg:hidden"
+              className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#f5d68c]/40 bg-black/25 text-[11px] font-semibold leading-none tracking-normal text-[#f5d68c] backdrop-blur lg:hidden"
             >
               {getUserInitial(session.user.name, session.user.email)}
             </span>
@@ -198,7 +191,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 bg-black/35 text-white/90 shadow-[0_14px_32px_rgba(0,0,0,0.5)] backdrop-blur transition hover:bg-black/70 lg:hidden"
             aria-label="Open menu"
           >
             <NavIcon path="M4 7h16M4 12h16M4 17h16" />
@@ -207,8 +200,23 @@ export default function Navbar() {
       </nav>
 
       {isMenuOpen && (
-        <div className="mx-auto w-full max-w-[88rem] px-4 pb-4 sm:px-6 lg:hidden">
+        <div className="mx-auto w-full max-w-[88rem] px-3 pb-4 sm:px-6 lg:hidden">
           <div className="rounded-[24px] border border-white/10 bg-[#0b0c10]/95 p-4 shadow-[0_18px_40px_rgba(0,0,0,0.5)] backdrop-blur">
+            <div className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#f5d68c]">
+                  Hot Barcelona
+                </p>
+                <p className="mt-1 text-xs text-white/60">Quick navigation</p>
+              </div>
+              <Link
+                href="/registro-escorts"
+                className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-black"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Advertise
+              </Link>
+            </div>
             <div className="grid gap-2">
               {navItems.map((item) => (
                 <Link
@@ -220,13 +228,6 @@ export default function Navbar() {
                   {item.label}
                 </Link>
               ))}
-              <Link
-                href="/registro-escorts"
-                className="rounded-2xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.35)] transition"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Advertise
-              </Link>
               {session?.user ? (
                 <>
                   {session.user.isAdmin && (
