@@ -534,7 +534,7 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.4 }}
                 className="max-w-2xl text-left"
               >
-                  <p className="font-cinzel whitespace-nowrap text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
+                  <p className="font-cinzel text-[1.45rem] leading-tight uppercase tracking-[0.12em] text-[#f5d68c] sm:whitespace-nowrap sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
                    Banner premium superior
                   </p>
                 

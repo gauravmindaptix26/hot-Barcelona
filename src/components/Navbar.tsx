@@ -58,7 +58,7 @@ export default function Navbar({
             }`}
           >
             <div
-              className={`relative h-[7.25rem] w-[7.25rem] sm:h-[7.5rem] sm:w-[7.5rem] ${
+              className={`relative h-[7.75rem] w-[7.75rem] sm:h-[8rem] sm:w-[8rem] ${
                 compactDesktop ? "lg:h-28 lg:w-28" : "lg:h-[580px] lg:w-[580px]"
               }`}
             >
@@ -69,8 +69,8 @@ export default function Navbar({
                 height={2000}
                 sizes={
                   compactDesktop
-                    ? "(max-width: 639px) 7.25rem, (max-width: 1023px) 7.5rem, 7rem"
-                    : "(max-width: 639px) 7.25rem, (max-width: 1023px) 7.5rem, 580px"
+                    ? "(max-width: 639px) 7.75rem, (max-width: 1023px) 8rem, 7rem"
+                    : "(max-width: 639px) 7.75rem, (max-width: 1023px) 8rem, 580px"
                 }
                 priority
                 className="h-full w-full object-contain object-top"

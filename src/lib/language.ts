@@ -16,7 +16,7 @@ export const SITE_LANGUAGES = [
 
 export type SiteLanguage = (typeof SITE_LANGUAGES)[number]["code"];
 
-export const DEFAULT_SITE_LANGUAGE: SiteLanguage = "es";
+export const DEFAULT_SITE_LANGUAGE: SiteLanguage = "en";
 export const SUPPORTED_LANGUAGE_CODES = SITE_LANGUAGES.map((item) => item.code);
 const SUPPORTED_LANGUAGE_SET = new Set<string>(SUPPORTED_LANGUAGE_CODES);
 

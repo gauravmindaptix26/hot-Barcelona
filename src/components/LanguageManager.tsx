@@ -53,7 +53,7 @@ const mountGoogleTranslate = () => {
     autoDisplay: boolean;
     layout?: unknown;
   } = {
-    pageLanguage: "auto",
+    pageLanguage: "en",
     includedLanguages: SUPPORTED_LANGUAGE_CODES.join(","),
     autoDisplay: false,
   };

@@ -16,6 +16,7 @@ const premiumCategoryFilters = [
   { value: "Premium superior", label: "PREMIUM SUPERIOR" },
   { value: "TOP PREMIUM STANDARD", label: "TOP PREMIUM STANDARD" },
 ] as const;
+const PAGE_SIZE = 20;
 const normalizePremiumCategory = (value: string | null | undefined) =>
   typeof value === "string"
     ? value.replace(/\s+/g, " ").trim().toUpperCase().replace("TOP PREMIUM TOP", "PREMIUM SUPERIOR")
@@ -313,6 +314,25 @@ const splitValueIntoTags = (value: string) => {
   if (tags.length < 2 || tags.length > 8) return [];
   return tags;
 };
+const buildPagination = (currentPage: number, totalPages: number) => {
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pages = new Set<number>([1, totalPages, currentPage]);
+  if (currentPage > 1) pages.add(currentPage - 1);
+  if (currentPage < totalPages) pages.add(currentPage + 1);
+
+  return Array.from(pages)
+    .sort((a, b) => a - b)
+    .flatMap((page, index, array) => {
+      const previous = array[index - 1];
+      if (previous && page - previous > 1) {
+        return ["ellipsis", page] as const;
+      }
+      return [page] as const;
+    });
+};
 
 export default function GirlsClient({
   initialProfiles,
@@ -322,12 +342,27 @@ export default function GirlsClient({
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
   const searchParams = useSearchParams();
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
+  const hasActiveFilters = Boolean(activeFilter || activeCategory);
+
+  const scrollToResults = () => {
+    window.setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  };
+
+  const resetFilters = () => {
+    setActiveFilter(null);
+    setActiveCategory(null);
+    setCurrentPage(1);
+  };
 
   const displayProfiles = useMemo(() => {
     let nextProfiles = liveProfiles;
@@ -342,6 +377,16 @@ export default function GirlsClient({
 
     return nextProfiles;
   }, [activeCategory, activeFilter, liveProfiles]);
+  const totalPages = Math.max(1, Math.ceil(displayProfiles.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const visibleProfiles = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
+    return displayProfiles.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [displayProfiles, safeCurrentPage]);
+  const paginationItems = useMemo(
+    () => buildPagination(safeCurrentPage, totalPages),
+    [safeCurrentPage, totalPages]
+  );
 
   const selectedProfile = useMemo(
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
@@ -435,16 +480,17 @@ export default function GirlsClient({
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="mt-6 rounded-3xl border border-white/10 bg-white/5 px-4 py-3 shadow-[0_18px_38px_rgba(0,0,0,0.35)] backdrop-blur sm:mt-8 sm:px-6 sm:py-4"
             >
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setActiveFilter(null);
-                    setActiveCategory(null);
-                  }}
-                  className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/80 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
+                  onClick={resetFilters}
+                  className={`flex w-full items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-[10px] uppercase tracking-[0.3em] transition sm:w-auto sm:text-xs sm:tracking-[0.35em] ${
+                    hasActiveFilters
+                      ? "border-[#f5d68c]/60 bg-[#f5d68c]/10 text-[#f5d68c]"
+                      : "border-white/15 bg-black/40 text-white/80 hover:text-white"
+                  }`}
                 >
-                  Filters
+                  All Profiles
                   <NavIcon path="M4 6h16M7 12h10M10 18h4" />
                 </button>
                 {filters.map((filter) => {
@@ -456,6 +502,7 @@ export default function GirlsClient({
                       onClick={() => {
                         setActiveCategory(null);
                         setActiveFilter(isActive ? null : filter);
+                        setCurrentPage(1);
                       }}
                       className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
                         isActive
@@ -467,7 +514,7 @@ export default function GirlsClient({
                     </button>
                   );
                 })}
-                <span className="ml-2 text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-xs sm:tracking-[0.3em]">
+                <span className="text-center text-[10px] uppercase tracking-[0.28em] text-white/50 sm:ml-auto sm:text-left sm:text-xs sm:tracking-[0.3em]">
                   {displayProfiles.length} profiles
                 </span>
               </div>
@@ -485,6 +532,7 @@ export default function GirlsClient({
                       onClick={() => {
                         setActiveFilter(null);
                         setActiveCategory(isActive ? null : category.value);
+                        setCurrentPage(1);
                       }}
                       className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
                         isActive
@@ -506,15 +554,15 @@ export default function GirlsClient({
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+        <section ref={resultsRef} className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
           <motion.div
-            key={`grid-${activeFilter ?? "all"}-${activeCategory ?? "all"}`}
+            key={`grid-${activeFilter ?? "all"}-${activeCategory ?? "all"}-${safeCurrentPage}`}
             variants={gridVariants}
             initial="hidden"
             animate="show"
             className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {displayProfiles.map((profile) => (
+            {visibleProfiles.map((profile) => (
               <motion.div
                 key={profile.id}
                 role="button"
@@ -597,9 +645,64 @@ export default function GirlsClient({
               Infinite discovery
               <span className="h-px w-12 bg-white/20" />
             </div>
-            <button className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]">
-              Load More
-            </button>
+            {totalPages > 1 && (
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((page) => Math.max(1, page - 1));
+                    scrollToResults();
+                  }}
+                  disabled={safeCurrentPage === 1}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/75 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35 sm:px-5 sm:text-xs"
+                >
+                  Prev
+                </button>
+                {paginationItems.map((item, index) =>
+                  item === "ellipsis" ? (
+                    <span
+                      key={`ellipsis-${index}`}
+                      className="px-1 text-sm text-white/35"
+                    >
+                      ...
+                    </span>
+                  ) : (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(item);
+                        scrollToResults();
+                      }}
+                      className={`h-10 min-w-10 rounded-full border px-3 text-[10px] font-semibold uppercase tracking-[0.2em] transition sm:text-xs ${
+                        safeCurrentPage === item
+                          ? "border-[#f5d68c]/60 bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] text-black"
+                          : "border-white/10 bg-white/5 text-white/75 hover:text-white"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  )
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentPage((page) => Math.min(totalPages, page + 1));
+                    scrollToResults();
+                  }}
+                  disabled={safeCurrentPage === totalPages}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/75 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-35 sm:px-5 sm:text-xs"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+            {displayProfiles.length > 0 && (
+              <p className="text-center text-[10px] uppercase tracking-[0.28em] text-white/45 sm:text-xs">
+                Showing {(safeCurrentPage - 1) * PAGE_SIZE + 1}-
+                {Math.min(safeCurrentPage * PAGE_SIZE, displayProfiles.length)} of {displayProfiles.length}
+              </p>
+            )}
             <Link
               href="/"
               className="text-[10px] uppercase tracking-[0.3em] text-white/50 transition hover:text-white sm:text-xs sm:tracking-[0.35em]"
