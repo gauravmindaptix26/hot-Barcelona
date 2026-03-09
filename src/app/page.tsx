@@ -272,7 +272,7 @@ export default function Home() {
             mouseX.set(x);
             mouseY.set(y);
           }}
-          className="relative min-h-[100svh] overflow-hidden"
+          className="relative min-h-[100svh] overflow-x-hidden"
         >
           <motion.div
             initial={{ opacity: 0, scale: 1.06 }}
@@ -293,7 +293,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto -mt-32 flex h-full w-full max-w-[88rem] flex-col justify-start pb-10 pl-20 pr-4 pt-16 sm:-mt-36 sm:pb-12 sm:pl-28 sm:pr-6 sm:pt-20 lg:-mt-40 lg:pb-16 lg:pl-36 lg:pt-24"
+            className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] w-full max-w-[88rem] flex-col justify-center px-4 pb-10 pt-28 sm:min-h-[calc(100svh-6rem)] sm:px-6 sm:pb-12 sm:pt-32 lg:min-h-[calc(100svh-7rem)] lg:pb-16 lg:pl-[18rem] lg:pr-8 lg:pt-36 xl:pl-[22rem] xl:pr-12"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -332,7 +332,7 @@ export default function Home() {
                 >
                   {word === "Desire" ? (
                     <span className="relative inline-flex items-center">
-                      <span className="bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] bg-clip-text text-transparent">
+                      <span className="inline-block bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a] bg-clip-text text-transparent [-webkit-text-fill-color:transparent]">
                         {word}
                       </span>
                       <span className="absolute -bottom-2 left-0 h-[3px] w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f090a1] to-[#d46a7a]" />
@@ -532,7 +532,7 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.4 }}
                 className="max-w-2xl text-left"
               >
-                <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
+                <p className="font-cinzel text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
                   Banner premium superior
                 </p>
                 
@@ -614,7 +614,7 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
+                <p className="font-cinzel text-2xl uppercase tracking-[0.16em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
                   Premium superior
                 </p>
                 <p className="mt-4 w-full text-base text-white/75 sm:mt-5 sm:text-lg lg:text-xl">
@@ -763,7 +763,7 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                <p className="font-cinzel whitespace-nowrap text-2xl uppercase tracking-[0.2em] text-[#f5d68c] sm:text-3xl sm:tracking-[0.24em] lg:text-4xl lg:tracking-[0.28em]">
+                <p className="font-cinzel text-2xl uppercase tracking-[0.2em] text-[#f5d68c] sm:text-3xl sm:tracking-[0.24em] lg:text-4xl lg:tracking-[0.28em]">
                 New Comers-Latest Addition
                 </p>
                 <p className="mt-5 mb-4 max-w-4xl text-base text-white/75 sm:mt-6 sm:mb-5 sm:text-lg lg:text-xl">

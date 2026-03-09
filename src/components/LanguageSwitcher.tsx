@@ -85,14 +85,12 @@ export default function LanguageSwitcher({
 
       {isOpen && (
         <div
-          className={`absolute z-50 mt-2 w-56 max-h-[50svh] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl ${
-            compact ? "right-0" : "left-1/2 -translate-x-1/2"
-          }`}
+          className="absolute right-0 z-50 mt-2 w-56 max-h-[calc(100svh-5rem)] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
         >
           <div className="mb-1 px-2 py-1 text-[10px] uppercase tracking-[0.28em] text-white/45">
             Languages
           </div>
-          <div className="grid max-h-[calc(50svh-2.25rem)] gap-1 overflow-y-auto pr-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="grid max-h-[calc(100svh-8rem)] gap-1 overflow-y-auto overscroll-contain pr-1">
             {SITE_LANGUAGES.map((item) => {
               const isActive = item.code === language;
               return (
