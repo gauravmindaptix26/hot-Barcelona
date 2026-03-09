@@ -272,7 +272,7 @@ export default function Home() {
             mouseX.set(x);
             mouseY.set(y);
           }}
-          className="relative min-h-[100svh] overflow-x-hidden"
+          className="relative h-[100svh] overflow-hidden"
         >
           <motion.div
             initial={{ opacity: 0, scale: 1.06 }}
@@ -293,7 +293,7 @@ export default function Home() {
 
           <motion.div
             style={{ scale: heroScale, opacity: heroFade, x: driftX, y: driftY }}
-            className="relative z-10 mx-auto flex min-h-[calc(100svh-4.5rem)] w-full max-w-[88rem] flex-col items-center justify-center px-4 pb-12 pt-8 text-center sm:min-h-[calc(100svh-6rem)] sm:px-6 sm:pb-12 sm:pt-14 lg:-mt-40 lg:min-h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[11rem] lg:pr-8 lg:pt-28 lg:text-left xl:-mt-44 xl:pl-[13rem] xl:pr-12"
+            className="relative z-10 mx-auto flex h-[calc(100svh-4.5rem)] w-full max-w-[88rem] flex-col items-center justify-center px-4 pb-8 pt-6 text-center sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-12 lg:-mt-40 lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[11rem] lg:pr-8 lg:pt-28 lg:text-left xl:-mt-44 xl:pl-[13rem] xl:pr-12"
           >
             <motion.p
               initial={{ opacity: 0, y: 18 }}
@@ -532,9 +532,9 @@ export default function Home() {
                 viewport={{ once: true, amount: 0.4 }}
                 className="max-w-2xl text-left"
               >
-                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-                  Banner premium superior
-                </p>
+                  <p className="font-cinzel whitespace-nowrap text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
+                   Banner premium superior
+                  </p>
                 
                   <p className="mt-3 text-sm leading-relaxed text-white/60 sm:mt-4 sm:text-base lg:text-lg">
                   Explore our Top Premium banner showcasing exclusive VIP profiles, luxury services, verified companions, and premium experiences designed for elite clients.
@@ -614,9 +614,9 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-4xl sm:tracking-[0.32em] lg:text-5xl">
-                  Premium superior
-                </p>
+                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
+                   Premium superior
+                  </p>
                   <p className="mt-4 w-full text-sm leading-relaxed text-white/75 sm:mt-5 sm:text-lg lg:text-xl">
                   The Top Premium section features carefully selected profiles offering a refined, stylish, and high-quality experience. Designed for those who appreciate class, privacy, and professionalism, these premium profiles represent the perfect balance of elegance, discretion, and exclusivity.
                 </p>
@@ -763,7 +763,7 @@ export default function Home() {
           <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <div className="w-full">
-                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.12em] text-[#f5d68c] sm:text-3xl sm:tracking-[0.24em] lg:text-4xl lg:tracking-[0.28em]">
+                  <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
                 New Comers-Latest Addition
                 </p>
                   <p className="mb-4 mt-4 max-w-4xl text-sm leading-relaxed text-white/75 sm:mb-5 sm:mt-6 sm:text-lg lg:text-xl">
