@@ -1,11 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import NavIcon from "./NavIcon";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+
+const LanguageSwitcher = dynamic(() => import("./LanguageSwitcher"), {
+  ssr: false,
+});
 
 const navItems = [
   { label: "Girls", href: "/girls" },
@@ -21,8 +25,10 @@ const getUserInitial = (name?: string | null, email?: string | null) => {
 
 export default function Navbar({
   compactDesktop = false,
+  logoPriority = false,
 }: {
   compactDesktop?: boolean;
+  logoPriority?: boolean;
 }) {
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -72,7 +78,9 @@ export default function Navbar({
                     ? "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 7rem"
                     : "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 580px"
                 }
-                priority
+                priority={logoPriority}
+                loading={logoPriority ? undefined : "lazy"}
+                fetchPriority={logoPriority ? "high" : "low"}
                 className="h-full w-full object-contain object-top"
               />
             </div>
@@ -121,7 +129,9 @@ export default function Navbar({
           </div>
 
           <div className="shrink-0 lg:hidden">
-            <LanguageSwitcher compact />
+            <div className="min-h-9 min-w-[5.5rem]">
+              <LanguageSwitcher compact />
+            </div>
           </div>
           {session?.user && (
             <span
@@ -139,7 +149,9 @@ export default function Navbar({
               <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
             </button>
             <div className="h-5 w-px bg-white/15" />
-            <LanguageSwitcher />
+            <div className="min-h-10 min-w-[6rem]">
+              <LanguageSwitcher />
+            </div>
             <div className="h-5 w-px bg-white/15" />
             <button
               type="button"

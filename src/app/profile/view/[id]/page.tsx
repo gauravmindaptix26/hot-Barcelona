@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth";
 import { redirect, notFound } from "next/navigation";
 import Image from "next/image";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
 import ProfileReviews from "@/components/ProfileReviews";
@@ -12,7 +11,7 @@ export default async function ProfileViewPage({
 }: {
   params: { id: string };
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user) {
     redirect("/login");
   }
@@ -64,7 +63,13 @@ export default async function ProfileViewPage({
                 key={image._id.toString()}
                 className="relative h-32 overflow-hidden rounded-2xl border border-white/10 sm:h-40"
               >
-                <Image src={image.url} alt="Profile" fill className="object-cover" />
+                <Image
+                  src={image.url}
+                  alt="Profile"
+                  fill
+                  sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
+                  className="object-cover"
+                />
               </div>
             ))}
           </div>

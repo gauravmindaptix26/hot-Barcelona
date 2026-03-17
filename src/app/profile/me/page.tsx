@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ObjectId } from "mongodb";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import PageShell from "@/components/PageShell";
 
@@ -128,7 +127,7 @@ function pickLatest(girlsDoc: unknown, transDoc: unknown) {
 }
 
 export default async function ProfileMePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user) {
     redirect("/login");
   }
@@ -282,7 +281,13 @@ export default async function ProfileMePage() {
                       key={url}
                       className="relative h-40 overflow-hidden rounded-2xl border border-white/10"
                     >
-                      <Image src={url} alt="Ad profile" fill className="object-cover" />
+                      <Image
+                        src={url}
+                        alt="Ad profile"
+                        fill
+                        sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
+                        className="object-cover"
+                      />
                     </div>
                   ))}
                 </div>

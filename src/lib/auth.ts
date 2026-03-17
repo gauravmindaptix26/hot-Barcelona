@@ -1,8 +1,17 @@
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Session } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getDb } from "./db";
 import { isAdminEmail } from "./admin";
+
+export type AppSession = Session & {
+  user: NonNullable<Session["user"]> & {
+    id: string;
+    gender?: "female" | "male";
+    isAdmin?: boolean;
+  };
+};
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -70,3 +79,6 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+export const getAppServerSession = () =>
+  getServerSession(authOptions) as Promise<AppSession | null>;

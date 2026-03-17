@@ -3,6 +3,7 @@ import type { DocumentPageContent } from "@/components/DocumentPage";
 export const legalNoticeContent: DocumentPageContent = {
   label: "Legal Notice",
   title: "Legal Notice For Hot Barcelona",
+  contentClassName: "lg:-mt-24 xl:-mt-28",
   intro:
     "The following legal notice manifest the conditions of access and use of the HotBarcelona web portal, hereafter known as the WEB PORTAL.",
   summaryCards: [
@@ -71,16 +72,13 @@ export const legalNoticeContent: DocumentPageContent = {
       ],
     },
   ],
-  asideTitle: "Need Clarification Or A Manual Update?",
-  asideParagraphs: [
-    "Please make a space between each paragraph when the legal notice is reviewed or edited, as requested.",
-    "It can take time to write and edit legal text because the wording must be original and carefully adapted rather than copied directly.",
-  ],
 };
 
 export const privacyPolicyContent: DocumentPageContent = {
   label: "Privacy Policy",
   title: "Privacy Policy For Hot Barcelona",
+  titleClassName: "max-w-none text-[2rem] sm:text-[2.7rem] lg:text-[3.6rem]",
+  contentClassName: "lg:-mt-24 xl:-mt-28",
   intro:
     "This privacy policy explains in a clear way how information may be collected, stored, and used when users interact with the Hot Barcelona web portal.",
   summaryCards: [

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -104,14 +103,14 @@ export async function GET(req: Request) {
     );
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   const summary = await buildReviewSummary(profileId, profileType, session?.user?.id);
 
   return NextResponse.json(summary);
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user?.id || !session.user.email) {
     return NextResponse.json(
       { error: "Login required to post a review." },

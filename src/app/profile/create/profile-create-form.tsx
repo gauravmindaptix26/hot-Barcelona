@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { createOrUpdateProfile } from "./actions";
 import Link from "next/link";
@@ -268,10 +269,12 @@ export default function ProfileCreateForm({
                     key={item.id}
                     className="relative h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/50 sm:h-48"
                   >
-                    <img
+                    <Image
                       src={item.url}
                       alt="Profile preview"
-                      className="h-full w-full object-cover"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 42vw, 18vw"
+                      className="object-cover"
                     />
                     <button
                       type="button"

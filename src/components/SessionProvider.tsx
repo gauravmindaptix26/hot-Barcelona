@@ -7,5 +7,9 @@ export default function SessionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  return <NextAuthProvider>{children}</NextAuthProvider>;
+  return (
+    <NextAuthProvider refetchInterval={0} refetchOnWindowFocus={false} refetchWhenOffline={false}>
+      {children}
+    </NextAuthProvider>
+  );
 }

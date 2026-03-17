@@ -9,7 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-space);
-  --font-mono: var(--font-jetbrains);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   --font-display: var(--font-playfair);
 }
 
@@ -97,4 +97,9 @@ html {
 .goog-text-highlight {
   background-color: transparent !important;
   box-shadow: none !important;
+}
+
+.deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
 }

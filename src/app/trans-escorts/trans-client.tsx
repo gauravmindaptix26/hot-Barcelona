@@ -1,13 +1,15 @@
 ﻿"use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
-import ProfileReviews from "../../components/ProfileReviews";
+
+const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
 const filters = ["Age 20-60", "Barcelona"] as const;
 const premiumCategoryFilters = [
@@ -779,7 +781,7 @@ export default function TransClient({
                     src={selectedProfile.image}
                     alt={selectedProfile.name}
                     fill
-                    priority
+                    sizes="(max-width: 640px) 100vw, 80vw"
                     className="object-cover"
                   />
                 ) : (
@@ -973,6 +975,7 @@ export default function TransClient({
                           src={src}
                           alt={`${selectedProfile.name} gallery`}
                           fill
+                          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
                           className="object-cover transition duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />

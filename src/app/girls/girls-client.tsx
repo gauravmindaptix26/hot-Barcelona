@@ -1,13 +1,15 @@
 ﻿"use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
-import ProfileReviews from "../../components/ProfileReviews";
+
+const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
 const filters = ["Age 20-60", "Barcelona"] as const;
 const premiumCategoryFilters = [
@@ -453,7 +455,7 @@ export default function GirlsClient({
       <main className="relative z-10">
         <section className="relative overflow-hidden pb-10 pt-0 sm:pb-12 sm:pt-0">
           <Navbar />
-          <div className="mx-auto mt-2 w-full max-w-6xl px-4 sm:mt-4 sm:px-6">
+          <div className="mx-auto -mt-10 w-full max-w-6xl px-4 sm:-mt-12 sm:px-6 lg:-mt-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -534,7 +536,7 @@ export default function GirlsClient({
                         setActiveCategory(isActive ? null : category.value);
                         setCurrentPage(1);
                       }}
-                      className={`whitespace-nowrap rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.28em] transition sm:text-xs sm:tracking-[0.3em] ${
+                      className={`max-w-full rounded-full border px-4 py-2 text-center text-[10px] uppercase leading-snug tracking-[0.22em] whitespace-normal break-words transition sm:text-xs sm:tracking-[0.26em] ${
                         isActive
                           ? "border-[#f5d68c]/60 bg-[#f5d68c]/10 text-[#f5d68c]"
                           : "border-white/10 bg-black/30 text-white/60 hover:text-white"
@@ -603,7 +605,7 @@ export default function GirlsClient({
 
                   <div className="absolute inset-x-0 bottom-0 px-5 pb-3 pt-4">
                     <div className="mb-2 flex items-center justify-end">
-                      <span className="translate-y-1 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                      <span className="max-w-full translate-y-1 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.22em] text-black opacity-0 transition duration-500 whitespace-normal break-words group-hover:translate-y-0 group-hover:opacity-100">
                         View Profile
                       </span>
                     </div>
@@ -628,7 +630,7 @@ export default function GirlsClient({
                         )}
                       </div>
                       {hasPremiumPlan(profile.premiumPlan) && (
-                        <div className="inline-flex max-w-full self-start whitespace-nowrap rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur sm:text-[11px] sm:tracking-[0.24em]">
+                        <div className="inline-flex max-w-full self-start rounded-2xl border border-[#f5d68c]/35 bg-black/70 px-4 py-2.5 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.16em] whitespace-normal break-words text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] backdrop-blur sm:text-[11px] sm:tracking-[0.2em]">
                           {formatPremiumPlanLabel(profile.premiumPlan)}
                         </div>
                       )}
@@ -751,7 +753,7 @@ export default function GirlsClient({
                     src={selectedProfile.image}
                     alt={selectedProfile.name}
                     fill
-                    priority
+                    sizes="(max-width: 640px) 100vw, 80vw"
                     className="object-cover"
                   />
                 ) : (
@@ -788,7 +790,7 @@ export default function GirlsClient({
                       </div>
                     )}
                     {hasPremiumPlan(selectedProfile.premiumPlan) && (
-                      <div className="mt-3 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.18em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:mt-4 sm:text-[11px] sm:tracking-[0.24em]">
+                      <div className="mt-3 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.16em] whitespace-normal break-words text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:mt-4 sm:text-[11px] sm:tracking-[0.2em]">
                         {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
                         {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
                       </div>

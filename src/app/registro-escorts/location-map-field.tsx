@@ -73,7 +73,8 @@ export default function LocationMapField({ initialValue = "" }: Props) {
             src={mapSrc}
             className="absolute inset-0 h-full w-full"
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+            referrerPolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-[0.3em] text-white/40">

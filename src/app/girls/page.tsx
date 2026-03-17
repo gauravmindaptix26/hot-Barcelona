@@ -174,39 +174,6 @@ const buildAvailability = (
   };
 };
 
-const buildAbout = (params: {
-  name: string;
-  age: number;
-  location: string;
-  description: string;
-  nationality: string;
-  services: string[];
-  rates: string[];
-}) => {
-  if (params.description) return params.description;
-
-  const chunks: string[] = [];
-  if (params.nationality) chunks.push(`Nationality: ${params.nationality}`);
-  if (params.services.length) {
-    chunks.push(`Services: ${params.services.slice(0, 5).join(", ")}`);
-  }
-  if (params.rates.length) chunks.push(`Rates: ${params.rates.join(" | ")}`);
-
-  const heading = [
-    params.name,
-    params.age > 0 ? `${params.age}` : "",
-    params.location ? `in ${params.location}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const body = chunks.join(". ");
-  if (heading && body) return `${heading}. ${body}.`;
-  if (body) return `${body}.`;
-  if (heading) return `${heading}.`;
-  return "Profile details will be updated soon.";
-};
-
 export default async function GirlsPage() {
   const db = await getDb();
   const items = await db

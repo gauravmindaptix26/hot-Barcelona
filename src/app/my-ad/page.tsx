@@ -1,9 +1,8 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
 import Image from "next/image";
 import Link from "next/link";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import PageShell from "@/components/PageShell";
 
@@ -26,7 +25,7 @@ type AdDoc = {
 };
 
 export default async function MyAdPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user?.id) {
     redirect("/login");
   }
@@ -124,7 +123,13 @@ export default async function MyAdPage() {
                     key={url}
                     className="relative h-40 overflow-hidden rounded-2xl border border-white/10"
                   >
-                    <Image src={url} alt="Ad" fill className="object-cover" />
+                    <Image
+                      src={url}
+                      alt="Ad"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
+                      className="object-cover"
+                    />
                   </div>
                 ))}
               </div>

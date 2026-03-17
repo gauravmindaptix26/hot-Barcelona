@@ -1,7 +1,6 @@
 "use server";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { profileSchema } from "@/lib/validators";
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
@@ -28,7 +27,7 @@ export async function createOrUpdateProfile(
   },
   formData: FormData
 ) {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user) {
     return { ok: false, error: "Unauthorized" };
   }

@@ -1,8 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 import { ObjectId } from "mongodb";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import RegistroSubmit from "./registro-submit";
 import GenderToggle from "./gender-toggle";
@@ -498,7 +497,7 @@ const scheduleOptions = [
 ];
 
 export default async function RegistroEscortsPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   let initialGender: "girl" | "trans" = "girl";
   let initialName = "";
   let initialAge: number | null = null;
@@ -584,11 +583,12 @@ export default async function RegistroEscortsPage() {
 
           <div className="relative min-h-[240px] overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.4)] sm:min-h-[360px]">
             <Image
-              src="/images/Frau in Body.jpg"
-              alt="Registration"
-              fill
-              className="object-cover"
-            />
+                src="/images/Frau in Body.jpg"
+                alt="Registration"
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
             <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,11,13,0.65),rgba(10,11,13,0)_55%)]" />
           </div>
         </section>
@@ -664,11 +664,12 @@ export default async function RegistroEscortsPage() {
 
               <div className="relative min-h-[220px] overflow-hidden rounded-[26px] border border-white/10 sm:min-h-[360px]">
                 <Image
-                  src="/images/hot10.webp"
-                  alt="Registration preview"
-                  fill
-                  className="object-cover"
-                />
+                    src="/images/hot10.webp"
+                    alt="Registration preview"
+                    fill
+                    sizes="(max-width: 1024px) 88vw, 24vw"
+                    className="object-cover"
+                  />
               </div>
             </div>
           </div>

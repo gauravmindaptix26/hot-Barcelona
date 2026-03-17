@@ -1,7 +1,7 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
   DEFAULT_SITE_LANGUAGE,
@@ -125,15 +125,268 @@ const hideTranslateFloatingWidgets = () => {
   });
 };
 
+const TRANSLATION_REFRESH_DELAYS = [0, 260, 900];
+const TRANSLATION_REFRESH_COOLDOWN_MS = 1600;
+const ATTRIBUTE_TRANSLATION_APPLY_DELAY_MS = 220;
+const ATTRIBUTE_BUFFER_ID = "hb_translate_attribute_buffer";
+const TRANSLATABLE_ATTRIBUTES = ["placeholder", "aria-label", "title"] as const;
+
+type TranslatableAttribute = (typeof TRANSLATABLE_ATTRIBUTES)[number];
+
+const getAttributeSourceKey = (attribute: TranslatableAttribute) =>
+  `data-hb-translate-source-${attribute}`;
+
+const isTranslationUiNode = (node: Node | null) => {
+  let current: Node | null = node;
+
+  while (current) {
+    if (current instanceof HTMLElement) {
+      if (current.id === "google_translate_element") {
+        return true;
+      }
+
+      const className = current.className;
+      if (typeof className === "string") {
+        const classes = className.split(/\s+/);
+        if (
+          classes.some(
+            (value) =>
+              value === "skiptranslate" ||
+              value.startsWith("goog-") ||
+              value.startsWith("VIpgJd-")
+          )
+        ) {
+          return true;
+        }
+      }
+    }
+
+    current = current.parentNode;
+  }
+
+  return false;
+};
+
+const hasMeaningfulText = (node: Node) => {
+  if (isTranslationUiNode(node)) {
+    return false;
+  }
+
+  if (node.nodeType === Node.TEXT_NODE) {
+    return Boolean(node.textContent?.trim());
+  }
+
+  if (!(node instanceof HTMLElement)) {
+    return false;
+  }
+
+  if (
+    node instanceof HTMLScriptElement ||
+    node instanceof HTMLStyleElement ||
+    node instanceof HTMLMetaElement ||
+    node.hidden
+  ) {
+    return false;
+  }
+
+  return Boolean(node.innerText?.trim() || node.textContent?.trim());
+};
+
+const hasMeaningfulMutation = (mutations: MutationRecord[]) =>
+  mutations.some((mutation) => {
+    if (mutation.type === "characterData") {
+      return hasMeaningfulText(mutation.target);
+    }
+
+    return Array.from(mutation.addedNodes).some((node) => hasMeaningfulText(node));
+  });
+
+const getAttributeBuffer = () => document.getElementById(ATTRIBUTE_BUFFER_ID) as HTMLDivElement | null;
+
+const ensureAttributeBuffer = () => {
+  const existing = getAttributeBuffer();
+  if (existing) {
+    return existing;
+  }
+
+  const container = document.createElement("div");
+  container.id = ATTRIBUTE_BUFFER_ID;
+  container.setAttribute("aria-hidden", "true");
+  container.style.position = "fixed";
+  container.style.left = "-99999px";
+  container.style.top = "0";
+  container.style.width = "1px";
+  container.style.height = "1px";
+  container.style.opacity = "0";
+  container.style.pointerEvents = "none";
+  container.style.overflow = "hidden";
+  container.style.whiteSpace = "pre-wrap";
+  document.body.appendChild(container);
+  return container;
+};
+
+const clearAttributeBuffer = () => {
+  getAttributeBuffer()?.replaceChildren();
+};
+
+const restoreSourceAttributes = () => {
+  const selector = TRANSLATABLE_ATTRIBUTES.map(
+    (attribute) => `[${getAttributeSourceKey(attribute)}]`
+  ).join(",");
+
+  document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+    TRANSLATABLE_ATTRIBUTES.forEach((attribute) => {
+      const source = element.getAttribute(getAttributeSourceKey(attribute));
+      if (source !== null) {
+        element.setAttribute(attribute, source);
+      }
+    });
+  });
+};
+
+const collectTranslatableAttributeEntries = () => {
+  const selector = TRANSLATABLE_ATTRIBUTES.map((attribute) => `[${attribute}]`).join(",");
+  const entries: Array<{
+    attribute: TranslatableAttribute;
+    element: HTMLElement;
+    source: string;
+  }> = [];
+
+  document.querySelectorAll<HTMLElement>(selector).forEach((element) => {
+    if (isTranslationUiNode(element)) {
+      return;
+    }
+
+    TRANSLATABLE_ATTRIBUTES.forEach((attribute) => {
+      const currentValue = element.getAttribute(attribute);
+      if (!currentValue?.trim()) {
+        return;
+      }
+
+      const sourceKey = getAttributeSourceKey(attribute);
+      if (!element.hasAttribute(sourceKey)) {
+        element.setAttribute(sourceKey, currentValue);
+      }
+
+      const sourceValue = element.getAttribute(sourceKey)?.trim();
+      if (!sourceValue) {
+        return;
+      }
+
+      entries.push({
+        attribute,
+        element,
+        source: sourceValue,
+      });
+    });
+  });
+
+  return entries;
+};
+
+const seedAttributeBuffer = (texts: string[]) => {
+  const container = ensureAttributeBuffer();
+  container.replaceChildren();
+
+  texts.forEach((text, index) => {
+    const item = document.createElement("span");
+    item.setAttribute("data-hb-translate-buffer-key", String(index));
+    item.textContent = text;
+    container.appendChild(item);
+  });
+
+  return container;
+};
+
+const applyTranslatedAttributesFromBuffer = (
+  entries: Array<{
+    attribute: TranslatableAttribute;
+    element: HTMLElement;
+    source: string;
+  }>
+) => {
+  const container = getAttributeBuffer();
+  if (!container) {
+    return;
+  }
+
+  const translatedTexts = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-hb-translate-buffer-key]")
+  ).map((element) => element.innerText.trim() || element.textContent?.trim() || "");
+
+  const uniqueSources = Array.from(new Set(entries.map((entry) => entry.source)));
+  const translatedMap = new Map<string, string>();
+
+  uniqueSources.forEach((source, index) => {
+    const translated = translatedTexts[index];
+    translatedMap.set(source, translated || source);
+  });
+
+  entries.forEach((entry) => {
+    entry.element.setAttribute(
+      entry.attribute,
+      translatedMap.get(entry.source) ?? entry.source
+    );
+  });
+};
+
 export default function LanguageManager() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchKey = searchParams?.toString() ?? "";
+  const refreshTimersRef = useRef<number[]>([]);
+  const lastRefreshAtRef = useRef(0);
   const [shouldLoadScript, setShouldLoadScript] = useState(() => {
     if (typeof window === "undefined") {
       return false;
     }
     return readStoredLanguage() !== DEFAULT_SITE_LANGUAGE;
+  });
+
+  const clearRefreshTimers = useEffectEvent(() => {
+    refreshTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    refreshTimersRef.current = [];
+  });
+
+  const refreshActiveTranslation = useEffectEvent((force = false) => {
+    const preferredLanguage = readStoredLanguage();
+
+    if (preferredLanguage === DEFAULT_SITE_LANGUAGE) {
+      clearRefreshTimers();
+      restoreSourceAttributes();
+      clearAttributeBuffer();
+      return;
+    }
+
+    const now = Date.now();
+    if (!force && now - lastRefreshAtRef.current < TRANSLATION_REFRESH_COOLDOWN_MS) {
+      return;
+    }
+
+    lastRefreshAtRef.current = now;
+    clearRefreshTimers();
+
+    const attributeEntries = collectTranslatableAttributeEntries();
+    if (attributeEntries.length > 0) {
+      seedAttributeBuffer(Array.from(new Set(attributeEntries.map((entry) => entry.source))));
+    } else {
+      clearAttributeBuffer();
+    }
+
+    refreshTimersRef.current = TRANSLATION_REFRESH_DELAYS.map((delay) =>
+      window.setTimeout(() => {
+        setSiteLanguage(preferredLanguage, { persist: false, reload: false });
+        hideGoogleBanner();
+        hideTranslateFloatingWidgets();
+
+        if (attributeEntries.length > 0) {
+          const attributeTimer = window.setTimeout(() => {
+            applyTranslatedAttributesFromBuffer(attributeEntries);
+          }, ATTRIBUTE_TRANSLATION_APPLY_DELAY_MS);
+          refreshTimersRef.current.push(attributeTimer);
+        }
+      }, delay)
+    );
   });
 
   useEffect(() => {
@@ -161,12 +414,15 @@ export default function LanguageManager() {
     hideTranslateFloatingWidgets();
 
     let frame = 0;
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver((mutations) => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         hideGoogleBanner();
         hideTranslateFloatingWidgets();
+        if (hasMeaningfulMutation(mutations)) {
+          refreshActiveTranslation();
+        }
       });
     });
 
@@ -198,6 +454,7 @@ export default function LanguageManager() {
       setSiteLanguage(preferredLanguage, { persist: true, reload: false });
       hideGoogleBanner();
       hideTranslateFloatingWidgets();
+      refreshActiveTranslation(true);
     };
 
     if (window.google?.translate?.TranslateElement) {
@@ -206,24 +463,17 @@ export default function LanguageManager() {
   }, [shouldLoadScript]);
 
   useEffect(() => {
-    const preferredLanguage = readStoredLanguage();
-
-    if (preferredLanguage === DEFAULT_SITE_LANGUAGE) {
-      return;
-    }
-
-    const timers = [120, 420, 900].map((delay) =>
-      window.setTimeout(() => {
-        setSiteLanguage(preferredLanguage, { persist: false, reload: false });
-        hideGoogleBanner();
-        hideTranslateFloatingWidgets();
-      }, delay)
-    );
-
+    refreshActiveTranslation(true);
     return () => {
-      timers.forEach((timer) => window.clearTimeout(timer));
+      clearRefreshTimers();
     };
   }, [pathname, searchKey]);
+
+  useEffect(() => {
+    return () => {
+      clearRefreshTimers();
+    };
+  }, []);
 
   return (
     <>

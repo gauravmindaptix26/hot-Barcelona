@@ -57,10 +57,5 @@ export async function sendPasswordResetEmail(params: {
   }
 
   // Dev fallback when no email service is configured.
-  console.info("[password-reset] Send this link to user:", {
-    toEmail,
-    resetUrl,
-  });
-
   return { sent: false, mode: "debug" as const };
 }

@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import PageShell from "@/components/PageShell";
 import PasswordChangeForm from "./password-change-form";
 
 export default async function AccountPasswordPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user) {
     redirect("/login");
   }

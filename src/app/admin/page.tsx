@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { getDb } from "@/lib/db";
 import AdminClient from "./AdminClient";
@@ -55,7 +54,7 @@ const normalizeFormFields = (value: unknown): PersistedFormFields => {
 };
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user?.email) {
     redirect("/login");
   }

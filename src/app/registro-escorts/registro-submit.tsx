@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -434,10 +435,12 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
                 key={item.id}
                 className="relative h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/50"
               >
-                <img
+                <Image
                   src={item.url}
                   alt="Upload preview"
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 640px) 88vw, (max-width: 1024px) 42vw, 18vw"
+                  className="object-cover"
                 />
                 <button
                   type="button"

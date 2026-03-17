@@ -1,12 +1,11 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { ObjectId } from "mongodb";
 import ProfileCreateForm from "./profile-create-form";
 
 export default async function ProfileCreatePage() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user) {
     redirect("/login");
   }

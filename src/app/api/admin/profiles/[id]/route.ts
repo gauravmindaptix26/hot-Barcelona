@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { ObjectId } from "mongodb";
 import crypto from "crypto";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
 import {
@@ -14,7 +13,7 @@ const allowedCollections = new Set(["girls", "trans"]);
 const allowedActions = new Set(["accept", "reject"]);
 
 async function assertAdmin() {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user?.email || !isAdminEmail(session.user.email)) {
     return null;
   }

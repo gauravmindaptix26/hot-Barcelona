@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { ObjectId } from "mongodb";
-import { authOptions } from "@/lib/auth";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -19,7 +18,7 @@ const changePasswordSchema = z
   });
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getAppServerSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }

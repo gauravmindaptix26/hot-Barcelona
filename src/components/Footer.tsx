@@ -30,7 +30,7 @@ export default function Footer() {
 
   return (
     <>
-      <section className="relative bg-[#100b13] px-4 pb-4 pt-7 text-white sm:px-6 sm:pt-8">
+      <section className="deferred-section relative bg-[#100b13] px-4 pb-4 pt-7 text-white sm:px-6 sm:pt-8">
         <div className="mx-auto w-full max-w-[88rem]">
           <div className="rounded-2xl border border-[#f5d68c]/25 bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-4 shadow-[0_16px_44px_rgba(0,0,0,0.38)] backdrop-blur-sm sm:p-6">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#f5d68c]/35 bg-[#f5d68c]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]">
@@ -46,7 +46,7 @@ export default function Footer() {
         </div>
       </section>
 
-      <footer className="relative z-10 bg-[#151018] text-white">
+      <footer className="deferred-section relative z-10 bg-[#151018] text-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr_1fr]">
@@ -128,7 +128,13 @@ export default function Footer() {
               <div className="mt-6 grid grid-cols-3 gap-4">
                 {instagramImages.map((src) => (
                   <div key={src} className="relative aspect-square overflow-hidden rounded-2xl border border-white/10">
-                    <Image src={src} alt="Instagram preview" fill className="object-cover" />
+                    <Image
+                      src={src}
+                      alt="Instagram preview"
+                      fill
+                      sizes="(max-width: 640px) 28vw, (max-width: 1024px) 18vw, 10vw"
+                      className="object-cover"
+                    />
                   </div>
                 ))}
               </div>

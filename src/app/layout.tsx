@@ -1,16 +1,15 @@
-import type { Metadata } from "next";
-import Script from "next/script";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import {
   Cinzel,
-  JetBrains_Mono,
   Playfair_Display,
   Space_Grotesk,
 } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
 import AgeCheckMount from "../components/AgeCheckMount";
-import LanguageManager from "../components/LanguageManager";
+import LanguageBootstrap from "../components/LanguageBootstrap";
+import LanguageManagerMount from "../components/LanguageManagerMount";
 import Footer from "../components/Footer";
 
 const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -32,12 +31,6 @@ const playfairDisplay = Playfair_Display({
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
   subsets: ["latin"],
   display: "swap",
 });
@@ -67,7 +60,7 @@ export const metadata: Metadata = {
     siteName: siteTitle,
     title: siteTitle,
     description: siteDescription,
-    locale: "es_ES",
+    locale: "en_US",
     images: [
       {
         url: "/images/added%20logo.png",
@@ -101,43 +94,29 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0a0b0d",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} ${jetBrainsMono.variable} antialiased`}
+        className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} antialiased`}
       >
-        <Script id="hb-language-init" strategy="beforeInteractive">
-          {`
-            (function () {
-              try {
-                var key = "hb_site_language";
-                var stored = localStorage.getItem(key);
-                var supported = ["es", "en", "de", "fr", "it", "nl", "pt", "zh-CN", "ru", "ja", "da", "sv", "no"];
-                var lang = supported.indexOf(stored) >= 0 ? stored : "es";
-                if (!stored) {
-                  localStorage.setItem(key, lang);
-                }
-                var value = "/auto/" + lang;
-                document.cookie = "googtrans=" + value + ";path=/;max-age=31536000";
-                document.cookie = "googtrans=" + value + ";path=/";
-              } catch (error) {
-                document.cookie = "googtrans=/auto/es;path=/;max-age=31536000";
-                document.cookie = "googtrans=/auto/es;path=/";
-              }
-            })();
-          `}
-        </Script>
         <SessionProvider>
           {children}
           <Footer />
           <AgeCheckMount />
+          <LanguageBootstrap />
           <Suspense fallback={null}>
-            <LanguageManager />
+            <LanguageManagerMount />
           </Suspense>
         </SessionProvider>
       </body>
