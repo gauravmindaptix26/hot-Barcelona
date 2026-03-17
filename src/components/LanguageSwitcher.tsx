@@ -90,7 +90,7 @@ export default function LanguageSwitcher({
           <div className="mb-1 px-2 py-1 text-[10px] uppercase tracking-[0.28em] text-white/45">
             Languages
           </div>
-          <div className="grid max-h-[calc(100svh-8rem)] gap-1 overflow-y-auto overscroll-contain pr-1">
+          <div className="no-scrollbar grid max-h-[18rem] gap-1 overflow-y-auto overscroll-contain px-0.5 pb-0.5">
             {SITE_LANGUAGES.map((item) => {
               const isActive = item.code === language;
               return (
