@@ -23,6 +23,7 @@ const SUPPORTED_LANGUAGE_SET = new Set<string>(SUPPORTED_LANGUAGE_CODES);
 const STORAGE_KEY = "hb_site_language";
 const LANGUAGE_CHANGE_EVENT = "hb-language-change";
 export const TRANSLATION_SCRIPT_REQUEST_EVENT = "hb-translation-script-request";
+export const TRANSLATION_REFRESH_REQUEST_EVENT = "hb-translation-refresh-request";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 const normalizeLanguage = (value: string | null | undefined): SiteLanguage =>
@@ -133,4 +134,13 @@ export const setSiteLanguage = (
       window.location.reload();
     }, 120);
   }
+};
+
+export const requestTranslationRefresh = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event(TRANSLATION_SCRIPT_REQUEST_EVENT));
+  window.dispatchEvent(new Event(TRANSLATION_REFRESH_REQUEST_EVENT));
 };

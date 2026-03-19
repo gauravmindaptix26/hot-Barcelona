@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import { requestTranslationRefresh } from "@/lib/language";
 
 const Footer = dynamic(() => import("./Footer"));
 
@@ -36,6 +37,14 @@ export default function FooterMount() {
     return () => {
       observer.disconnect();
     };
+  }, [shouldRender]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      return;
+    }
+
+    requestTranslationRefresh();
   }, [shouldRender]);
 
   return (

@@ -8,6 +8,7 @@ import {
   readStoredLanguage,
   setSiteLanguage,
   SUPPORTED_LANGUAGE_CODES,
+  TRANSLATION_REFRESH_REQUEST_EVENT,
   TRANSLATION_SCRIPT_REQUEST_EVENT,
 } from "@/lib/language";
 
@@ -399,11 +400,22 @@ export default function LanguageManager() {
       setShouldLoadScript(true);
     };
 
+    const handleRefreshRequest = () => {
+      if (!shouldLoadScript) {
+        setShouldLoadScript(true);
+        return;
+      }
+
+      refreshActiveTranslation(true);
+    };
+
     window.addEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleScriptRequest);
+    window.addEventListener(TRANSLATION_REFRESH_REQUEST_EVENT, handleRefreshRequest);
     return () => {
       window.removeEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleScriptRequest);
+      window.removeEventListener(TRANSLATION_REFRESH_REQUEST_EVENT, handleRefreshRequest);
     };
-  }, []);
+  }, [shouldLoadScript]);
 
   useEffect(() => {
     if (!shouldLoadScript) {

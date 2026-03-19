@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { requestTranslationRefresh } from "@/lib/language";
 import Navbar from "./Navbar";
 
 export type DocumentSection = {
@@ -30,6 +32,10 @@ export default function DocumentPage({
 }: {
   content: DocumentPageContent;
 }) {
+  useEffect(() => {
+    requestTranslationRefresh();
+  }, [content.title]);
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#090a0d] text-white">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.18),_rgba(9,10,13,0)_62%)]" />
