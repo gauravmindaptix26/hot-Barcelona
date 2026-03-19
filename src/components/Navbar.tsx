@@ -60,12 +60,16 @@ export default function Navbar({
               href="/"
               aria-label="Go to home"
               className={`block -ml-6 -mt-6 sm:-ml-5 sm:-mt-5 ${
-                compactDesktop ? "lg:ml-0 lg:mt-0" : "lg:-ml-28 lg:-mt-36"
+                compactDesktop
+                  ? "lg:ml-0 lg:mt-0"
+                  : "lg:-ml-28 lg:-mt-36"
               }`}
             >
             <div
               className={`relative h-[13.5rem] w-[13.5rem] sm:h-[14rem] sm:w-[14rem] ${
-                compactDesktop ? "lg:h-28 lg:w-28" : "lg:h-[580px] lg:w-[580px]"
+                compactDesktop
+                  ? "lg:h-28 lg:w-28"
+                  : "lg:h-[580px] lg:w-[580px]"
               }`}
             >
               <Image
@@ -78,6 +82,7 @@ export default function Navbar({
                     ? "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 7rem"
                     : "(max-width: 639px) 13.5rem, (max-width: 1023px) 14rem, 580px"
                 }
+                quality={72}
                 priority={logoPriority}
                 loading={logoPriority ? undefined : "lazy"}
                 fetchPriority={logoPriority ? "high" : "low"}
@@ -145,7 +150,11 @@ export default function Navbar({
             ref={accountRef}
             className="relative hidden items-center gap-3 rounded-full border border-white/20 bg-black/40 px-4 py-2.5 text-white/90 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:flex"
           >
-            <button className="rounded-full p-2 transition hover:bg-black/60">
+            <button
+              type="button"
+              aria-label="Search profiles"
+              className="rounded-full p-2 transition hover:bg-black/60"
+            >
               <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
             </button>
             <div className="h-5 w-px bg-white/15" />
@@ -156,6 +165,8 @@ export default function Navbar({
             <button
               type="button"
               onClick={() => setIsAccountOpen((prev) => !prev)}
+              aria-label={session?.user ? "Open account menu" : "Open account options"}
+              aria-expanded={isAccountOpen}
               className="rounded-full p-2 transition hover:bg-black/60"
             >
               {session?.user ? (

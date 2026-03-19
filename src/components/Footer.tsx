@@ -31,7 +31,7 @@ export default function Footer() {
   return (
     <>
       <section className="deferred-section relative bg-[#100b13] px-4 pb-4 pt-7 text-white sm:px-6 sm:pt-8">
-        <div className="mx-auto w-full max-w-[88rem]">
+        <div className="mx-auto w-full max-w-[80rem]">
           <div className="rounded-2xl border border-[#f5d68c]/25 bg-[linear-gradient(160deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-4 shadow-[0_16px_44px_rgba(0,0,0,0.38)] backdrop-blur-sm sm:p-6">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-[#f5d68c]/35 bg-[#f5d68c]/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]">
               Aviso Importante
@@ -48,7 +48,7 @@ export default function Footer() {
 
       <footer className="deferred-section relative z-10 bg-[#151018] text-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
+        <div className="relative z-10 mx-auto w-full max-w-[80rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr_1fr]">
             <div>
               <div className="flex items-center gap-3">
@@ -66,12 +66,14 @@ export default function Footer() {
                 Catalonia, Spain
               </p>
               <div className="mt-5 space-y-2 text-lg text-white/70">
-                <p>+34 620 112 889</p>
+                <p>+34 622363966</p>
                 <p>support@hotbarcelona.com</p>
               </div>
               <div className="mt-7 flex w-full max-w-[28rem] items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">
                 <input
                   type="email"
+                  aria-label="Email address"
+                  autoComplete="email"
                   placeholder="Enter email address"
                   className="w-full bg-transparent text-lg text-white/80 placeholder:text-white/40 focus:outline-none"
                 />
@@ -133,6 +135,7 @@ export default function Footer() {
                       alt="Instagram preview"
                       fill
                       sizes="(max-width: 640px) 28vw, (max-width: 1024px) 18vw, 10vw"
+                      quality={68}
                       className="object-cover"
                     />
                   </div>

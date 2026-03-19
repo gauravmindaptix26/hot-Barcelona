@@ -1,10 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
+  getClientLanguageSnapshot,
+  getServerLanguageSnapshot,
   DEFAULT_SITE_LANGUAGE,
-  readStoredLanguage,
+  subscribeToLanguageChange,
   TRANSLATION_SCRIPT_REQUEST_EVENT,
 } from "@/lib/language";
 
@@ -13,17 +15,16 @@ const LanguageManager = dynamic(() => import("./LanguageManager"), {
 });
 
 export default function LanguageManagerMount() {
-  const [shouldRender, setShouldRender] = useState(() => {
-    try {
-      return readStoredLanguage() !== DEFAULT_SITE_LANGUAGE;
-    } catch {
-      return false;
-    }
-  });
+  const [shouldRenderOnRequest, setShouldRenderOnRequest] = useState(false);
+  const language = useSyncExternalStore(
+    subscribeToLanguageChange,
+    getClientLanguageSnapshot,
+    getServerLanguageSnapshot
+  );
 
   useEffect(() => {
     const handleRequest = () => {
-      setShouldRender(true);
+      setShouldRenderOnRequest(true);
     };
 
     window.addEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleRequest);
@@ -31,6 +32,9 @@ export default function LanguageManagerMount() {
       window.removeEventListener(TRANSLATION_SCRIPT_REQUEST_EVENT, handleRequest);
     };
   }, []);
+
+  const shouldRender =
+    shouldRenderOnRequest || language !== DEFAULT_SITE_LANGUAGE;
 
   return shouldRender ? <LanguageManager /> : null;
 }

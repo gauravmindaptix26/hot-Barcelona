@@ -10,7 +10,7 @@ import SessionProvider from "../components/SessionProvider";
 import AgeCheckMount from "../components/AgeCheckMount";
 import LanguageBootstrap from "../components/LanguageBootstrap";
 import LanguageManagerMount from "../components/LanguageManagerMount";
-import Footer from "../components/Footer";
+import FooterMount from "../components/FooterMount";
 
 const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 const siteTitle = "Hot Barcelona";
@@ -27,12 +27,14 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 const cinzel = Cinzel({
   variable: "--font-cinzel",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -112,7 +114,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           {children}
-          <Footer />
+          <FooterMount />
           <AgeCheckMount />
           <LanguageBootstrap />
           <Suspense fallback={null}>

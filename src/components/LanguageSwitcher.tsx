@@ -15,6 +15,7 @@ export default function LanguageSwitcher({
 }: {
   compact?: boolean;
 }) {
+  const menuId = "language-switcher-menu";
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const language = useSyncExternalStore(
@@ -53,6 +54,8 @@ export default function LanguageSwitcher({
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="Change language"
+        aria-haspopup="menu"
+        aria-controls={menuId}
         aria-expanded={isOpen}
         className={`flex items-center gap-2 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-white shadow-[0_12px_26px_rgba(0,0,0,0.4)] backdrop-blur-md transition hover:bg-black/60 ${
           compact ? "h-9 min-w-[5.5rem]" : "h-10 min-w-[6rem]"
@@ -85,6 +88,8 @@ export default function LanguageSwitcher({
 
       {isOpen && (
         <div
+          id={menuId}
+          role="menu"
           className="absolute right-0 z-50 mt-2 w-56 max-h-[calc(100svh-5rem)] overflow-hidden rounded-2xl border border-white/10 bg-[#0b0c10]/95 p-2 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
         >
           <div className="mb-1 px-2 py-1 text-[10px] uppercase tracking-[0.28em] text-white/45">
@@ -98,6 +103,8 @@ export default function LanguageSwitcher({
                   key={item.code}
                   type="button"
                   onClick={() => selectLanguage(item.code)}
+                  role="menuitemradio"
+                  aria-checked={isActive}
                   className={`flex items-center justify-between rounded-xl px-3 py-2 text-left transition ${
                     isActive
                       ? "border border-[#f5d68c]/35 bg-[#f5d68c]/10 text-white"

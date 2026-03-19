@@ -80,72 +80,69 @@ export const privacyPolicyContent: DocumentPageContent = {
   titleClassName: "max-w-none text-[2rem] sm:text-[2.7rem] lg:text-[3.6rem]",
   contentClassName: "lg:-mt-24 xl:-mt-28",
   intro:
-    "This privacy policy explains in a clear way how information may be collected, stored, and used when users interact with the Hot Barcelona web portal.",
+    "The following privacy policy notice manifest the conditions of the handling of the content, the access and use of its topics of the HotBarcelona web portal, hereafter known as the WEB PORTAL.",
   summaryCards: [
-    { label: "Support", value: "support@hotbarcelona.com" },
-    { label: "Audience", value: "Adults 18+ only" },
-    { label: "Scope", value: "Portal, contact, account, and profile flows" },
+    { label: "Holder", value: "HL Publication 2026 SL" },
+    { label: "Phone", value: "+34 622363966" },
+    { label: "Mail", value: "support@hotbarcelona.com" },
   ],
   sections: [
     {
-      eyebrow: "Controller",
-      title: "Who Manages The Portal",
+      eyebrow: "Liability And Contact",
+      title: "Holder Information",
       paragraphs: [
-        "The web portal is operated by HL Publication 2026 SL. For privacy-related questions, requests, or updates, users may contact support@hotbarcelona.com.",
+        "This web portal is the property of HL Publication 2026 SL, hereafter known as the HOLDER, with the following contact information:",
+        "The user of the WEB PORTAL can correspond with the responsible company, the HOLDER, of the WEB PORTAL by forwarding a mail to the above-mentioned e-mail address.",
+      ],
+      list: [
+        "Phone: +34 622363966",
+        "Mail: support@hotbarcelona.com",
       ],
     },
     {
-      title: "What Information May Be Collected",
+      title: "Protection Of Personal Data",
       paragraphs: [
-        "Depending on how the portal is used, the site may process contact details, account information, submitted profile details, communication records, technical browser data, and other data necessary to operate the platform.",
-        "When users contact the portal or create or manage listings, the information entered into forms may be stored for service, moderation, safety, and support purposes.",
+        "The security policy of private data known as any personal data received through any activity on the WEB PORTAL, either from USERS browsing activity and/or from ADVERTISER publication of services, is clearly protected by the WEB PORTAL and its HOLDER applicating current legislation with appropriate actions and required procedures insuring the protection of any personal data according to the law.",
+        "These mandatory procedures averts any external illegal abuse by 3rd parties of the mentioned personal data, and in any case the USER and/or ADVERTISER has the right to amend or simply delete their data by contacting the responsible company of the WEB PORTAL, the HOLDER, on the above mentioned e-mail address.",
       ],
     },
     {
-      title: "How Information Is Used",
+      title: "Acceptance And Confidentiality",
       paragraphs: [
-        "Information may be used to operate the portal, manage user access, review submitted listings, respond to support requests, improve reliability, prevent abuse, and comply with legal obligations.",
-        "The portal may also use technical information to maintain security, monitor performance, and resolve operational errors.",
+        "Note that the USER and/or ADVERTISER gives implied tacit acceptance to the WEB PORTAL hence HOLDER, by operating as either USER and/or ADVERTISER, to the utilization of the provided private data.",
+        "The WEB PORTAL maintains at any moment an absolute prudence, secretiveness and discretion in the acceptance and gathering of the USER's and/or ADVERTISER's personal data and will no matter what never forward the information to any other 3rd party and the HOLDER has embraced appropriate restricted and professional administrative safeguards precautions to ensure integrity and safety with implementation of the lawful regulation on the protection of personal data.",
       ],
     },
     {
-      title: "Cookies And Local Storage",
+      title: "Use Of The Web Portal",
       paragraphs: [
-        "The portal may use cookies, session storage, and local storage to support language preferences, session behavior, login flows, age-gate checks, and other essential site features.",
-        "These tools are used to improve usability and keep the portal functioning consistently across visits and devices.",
+        "The USER as well as the ADVERTISER can only browse the WEB PORTAL or make use of the same, in total accordance with prevailing legislation, and by the WEB PORTAL established general conditions and use of the same.",
+        "Any violation of these aspect and terms the WEB PORTAL hence HOLDER maintain the absolute right to cancel access and to delete any illegal activity on its site and disclaims none whatsoever any legal or moral responsibility in cases of illegal use of the WEB PORTAL.",
       ],
     },
     {
-      title: "Third-Party Services",
+      title: "External Illegal Access",
       paragraphs: [
-        "Some technical functions may rely on third-party providers, such as image hosting, authentication, analytics, or translation-related tools where applicable.",
-        "When such services are used, data may be processed only to the extent necessary to provide the relevant function.",
+        "In situation of external abuse and illegal access, cyber-attacks, hacking and/or any other illegal unlicensed access and alike, to the WEB PORTAL's administrative and alike systems, the same, hence the HOLDER, will not be hold accountable for any issues caused in relation to misuse of personal data and other personal information if obtained from such illegal actions.",
+        "The same is understood if USER and/or ADVERTISER creates a space for the abuse of personal information of any kind as result of gross negligence, carelessness in relation to the handling, protection and safety of aspects as personal passwords, personal data and other personal information.",
       ],
     },
     {
-      title: "Retention And Security",
+      title: "Illegal Replication And Transfer",
       paragraphs: [
-        "Information is retained only for as long as reasonably necessary for portal operation, support, moderation, legal obligations, and dispute handling.",
-        "Reasonable technical and organizational measures are used to protect stored information, although no online system can guarantee absolute security.",
+        "Any illegal activity such as misuse, replication, redistribution or any other type of transference of published topics hereunder text, web design, images, personal data and information in any way, shape, or form with an eye on illegal use, and/or be these actions injuring 3. persons are strictly forbidden by law.",
       ],
     },
     {
-      title: "User Rights",
+      title: "Accuracy Of Information",
       paragraphs: [
-        "Users may request access, correction, or deletion of their personal information where applicable, subject to legal, operational, and verification requirements.",
-        "Privacy-related requests should be sent to support@hotbarcelona.com so they can be reviewed and handled appropriately.",
-      ],
-    },
-    {
-      title: "Age Restriction",
-      paragraphs: [
-        "This portal is strictly intended for adults aged 18 and above. Minors must not access or use the platform, and no data should knowingly be submitted by minors.",
+        "USER and/or ADVERTISER are totally accountable and responsible for exactness and correctness of their personal facts and details disclaimed on the WEB PORTAL and are obligated and responsible to notify and advise only completely truthful information.",
       ],
     },
   ],
   asideTitle: "Privacy Requests And Support",
   asideParagraphs: [
-    "If a user needs a correction, deletion request, or clarification about how data is handled, the support team can review the request through the official contact address.",
-    "This privacy policy may be updated when portal features, operational processes, or legal requirements change.",
+    "The USER and/or ADVERTISER may request amendment or deletion of personal data by contacting the HOLDER through support@hotbarcelona.com.",
+    "Paragraph spacing on this page is intentionally preserved for readability so the policy text appears clearly section by section.",
   ],
 };

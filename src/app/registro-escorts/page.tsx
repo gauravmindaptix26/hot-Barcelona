@@ -536,7 +536,7 @@ export default async function RegistroEscortsPage() {
 
       <main className="relative z-10">
         <Navbar />
-        <section className="mx-auto -mt-4 grid w-full max-w-6xl gap-8 px-4 pb-10 pt-2 sm:-mt-8 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-3 lg:-mt-20 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mx-auto -mt-4 grid w-full max-w-6xl gap-8 px-4 pb-10 pt-2 sm:-mt-8 sm:gap-10 sm:px-6 sm:pb-14 sm:pt-3 lg:-mt-10 lg:grid-cols-[1.05fr_0.95fr] xl:-mt-12">
           <div className="space-y-6">
             <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
               Registration Studio

@@ -1,5 +1,3 @@
-"use client";
-
 export default function NavIcon({ path }: { path: string }) {
   return (
     <svg

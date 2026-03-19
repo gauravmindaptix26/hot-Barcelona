@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import NavIcon from "../NavIcon";
 
 const premiumVipFallbackImages = [
@@ -147,6 +147,7 @@ export default function HomeDeferredSections() {
   const lifestyleRef = useRef<HTMLDivElement | null>(null);
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const premiumBannerScrollerRef = useRef<HTMLDivElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
   const [latestProfiles, setLatestProfiles] =
     useState<LatestProfile[]>(fallbackProfiles);
   const [premiumVipProfiles, setPremiumVipProfiles] =
@@ -285,9 +286,13 @@ export default function HomeDeferredSections() {
         <div className="pointer-events-none absolute -right-24 top-16 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(212,106,122,0.14),_rgba(212,106,122,0)_75%)] blur-2xl" />
         <div className="relative mx-auto grid w-full max-w-[88rem] items-center gap-8 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.25fr] lg:gap-10">
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -40 }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, x: 0 }}
+            transition={
+              shouldReduceMotion
+                ? undefined
+                : { duration: 1, ease: [0.16, 1, 0.3, 1] }
+            }
             viewport={{ once: true, amount: 0.4 }}
             className="mx-auto max-w-[42rem] text-center lg:mx-0 lg:text-left"
           >
@@ -308,21 +313,25 @@ export default function HomeDeferredSections() {
             </div>
           </motion.div>
 
-          <motion.div style={{ y: lifestyleY }} className="w-full">
+          <motion.div style={shouldReduceMotion ? undefined : { y: lifestyleY }} className="w-full">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
               {premiumVipProfilesSafe.map((profile, index) => {
                 const isFallback = profile.id.startsWith("vip-fallback-");
                 const card = (
                   <motion.div
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: index * 0.08,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+                    whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                    transition={
+                      shouldReduceMotion
+                        ? undefined
+                        : {
+                            duration: 0.8,
+                            delay: index * 0.08,
+                            ease: [0.16, 1, 0.3, 1],
+                          }
+                    }
                     viewport={{ once: true, amount: 0.25 }}
-                    whileHover={{ y: -6 }}
+                    whileHover={shouldReduceMotion ? undefined : { y: -6 }}
                     className="group relative mx-auto aspect-[3/4.2] w-full max-w-[22rem] overflow-hidden rounded-[26px] border border-white/15 bg-[#11141b] shadow-[0_24px_48px_rgba(0,0,0,0.45)] sm:max-w-none sm:aspect-[3/4.65]"
                   >
                     <Image
@@ -335,6 +344,7 @@ export default function HomeDeferredSections() {
                       alt={profile.name}
                       fill
                       sizes="(max-width: 640px) 88vw, (max-width: 1279px) 42vw, 28vw"
+                      quality={70}
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,14,0.18)_8%,rgba(8,10,14,0.88)_100%)]" />
@@ -513,8 +523,8 @@ export default function HomeDeferredSections() {
               {prestigeSlider.map((src, index) => (
                 <motion.div
                   key={`${src}-${index}`}
-                  whileHover={{ y: -6 }}
-                  whileTap={{ scale: 0.985 }}
+                  whileHover={shouldReduceMotion ? undefined : { y: -6 }}
+                  whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
                   className="snap-start"
                 >
                   <div className="group relative h-[280px] w-[200px] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
@@ -524,6 +534,7 @@ export default function HomeDeferredSections() {
                       alt="Premium showcase"
                       fill
                       sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"
+                      quality={68}
                       className="object-cover"
                     />
                     <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
@@ -566,20 +577,28 @@ export default function HomeDeferredSections() {
             <motion.div
               key={`row-${rowIndex}`}
               className="flex gap-3 px-4 sm:gap-6 sm:px-6"
-              animate={{
-                x: row.direction === 1 ? ["0%", "-50%"] : ["-50%", "0%"],
-              }}
-              transition={{
-                duration: row.duration,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
+              animate={
+                shouldReduceMotion
+                  ? undefined
+                  : {
+                      x: row.direction === 1 ? ["0%", "-50%"] : ["-50%", "0%"],
+                    }
+              }
+              transition={
+                shouldReduceMotion
+                  ? undefined
+                  : {
+                      duration: row.duration,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                    }
+              }
             >
               {[...infiniteVisualsRows[rowIndex], ...infiniteVisualsRows[rowIndex]].map(
                 (src, index) => (
                   <motion.div
                     key={`${src}-${rowIndex}-${index}`}
-                    whileHover={{ scale: 1.03 }}
+                    whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
                     className="group relative h-[150px] w-[180px] flex-shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition sm:h-[230px] sm:w-[300px] lg:h-[260px] lg:w-[380px]"
                   >
                     <Image
@@ -587,6 +606,7 @@ export default function HomeDeferredSections() {
                       alt="Luxury gallery"
                       fill
                       sizes="(max-width: 640px) 180px, (max-width: 1024px) 300px, 380px"
+                      quality={66}
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-70 transition group-hover:opacity-90" />
@@ -649,12 +669,13 @@ export default function HomeDeferredSections() {
 
       <section ref={ctaRef} className="deferred-section relative z-10">
         <div className="relative overflow-hidden">
-          <motion.div style={{ y: ctaY }} className="absolute inset-0">
+          <motion.div style={shouldReduceMotion ? undefined : { y: ctaY }} className="absolute inset-0">
             <Image
               src="/images/Frauen%20in%20Limousine.jpeg"
               alt="Evening elegance"
               fill
               sizes="100vw"
+              quality={70}
               className="object-cover object-center"
             />
           </motion.div>
@@ -679,15 +700,24 @@ export default function HomeDeferredSections() {
               Discover an elite circle of companions for private, curated
               experiences.
             </motion.p>
-            <motion.button
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={
+                shouldReduceMotion
+                  ? undefined
+                  : { duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }
+              }
               viewport={{ once: true, amount: 0.4 }}
-              className="mt-6 inline-flex min-w-[14rem] justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:mt-8 sm:min-w-0 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.3em]"
             >
-              View Profiles
-            </motion.button>
+              <Link
+                href="/girls"
+                aria-label="View profiles"
+                className="mt-6 inline-flex min-w-[14rem] justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.3)] transition hover:brightness-110 sm:mt-8 sm:min-w-0 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.3em]"
+              >
+                View Profiles
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -713,16 +743,20 @@ export default function HomeDeferredSections() {
             const card = (
               <motion.div
                 key={profile.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: index * 0.08,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
+                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        duration: 0.8,
+                        delay: index * 0.08,
+                        ease: [0.16, 1, 0.3, 1],
+                      }
+                }
                 viewport={{ once: true, amount: 0.35 }}
                 className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)]"
-                whileHover={{ y: -6 }}
+                whileHover={shouldReduceMotion ? undefined : { y: -6 }}
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   <Image
@@ -730,13 +764,13 @@ export default function HomeDeferredSections() {
                     alt={profile.name}
                     fill
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 24vw"
+                    quality={70}
                     className="object-cover transition duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_15%,rgba(10,11,13,0.75)_100%)] opacity-80 transition duration-500 group-hover:opacity-90" />
-                  <button
-                    type="button"
-                    aria-label="Save profile"
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c] sm:right-4 sm:top-4 sm:h-10 sm:w-10"
+                  <span
+                    aria-hidden="true"
+                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -747,7 +781,7 @@ export default function HomeDeferredSections() {
                     >
                       <path d="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
                     </svg>
-                  </button>
+                  </span>
 
                   <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                     <p className="text-[10px] uppercase tracking-[0.35em] text-white/60">
