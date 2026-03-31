@@ -101,9 +101,9 @@ export default function DocumentPage({
               {content.title}
             </h2>
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+            <div className="mt-8 columns-1 gap-6 lg:columns-2">
               {content.sections.map((section) => (
-                <article key={section.title} className="min-w-0">
+                <article key={section.title} className="mb-6 min-w-0 break-inside-avoid">
                   {section.eyebrow ? (
                     <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
                       {section.eyebrow}

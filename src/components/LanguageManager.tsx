@@ -199,6 +199,28 @@ const hasMeaningfulMutation = (mutations: MutationRecord[]) =>
       return hasMeaningfulText(mutation.target);
     }
 
+    if (mutation.type === "attributes") {
+      if (!(mutation.target instanceof HTMLElement)) {
+        return false;
+      }
+
+      if (isTranslationUiNode(mutation.target)) {
+        return false;
+      }
+
+      if (!mutation.attributeName) {
+        return false;
+      }
+
+      if (
+        !TRANSLATABLE_ATTRIBUTES.includes(mutation.attributeName as TranslatableAttribute)
+      ) {
+        return false;
+      }
+
+      return Boolean(mutation.target.getAttribute(mutation.attributeName)?.trim());
+    }
+
     return Array.from(mutation.addedNodes).some((node) => hasMeaningfulText(node));
   });
 
@@ -439,6 +461,9 @@ export default function LanguageManager() {
     });
 
     observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: [...TRANSLATABLE_ATTRIBUTES],
+      characterData: true,
       childList: true,
       subtree: true,
     });

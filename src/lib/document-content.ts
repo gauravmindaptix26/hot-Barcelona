@@ -38,6 +38,13 @@ export const legalNoticeContent: DocumentPageContent = {
       ],
     },
     {
+      title: "Cookies And Similar Technologies",
+      paragraphs: [
+        "The WEB PORTAL uses limited cookies and similar browser-side storage technologies strictly for functional and operational purposes. These technologies may include authentication and session cookies for secure account access, a functional language cookie used by the translation interface, sessionStorage for the temporary 18+ age confirmation during the current browser session, and localStorage for language preference and temporary advertiser profile recovery features.",
+        "No advertising or analytics scripts were identified in the current codebase reviewed for the WEB PORTAL. The USER may manage cookies and site storage through browser settings, although disabling them may affect login persistence, translation features, age-check continuity or certain temporary convenience functions.",
+      ],
+    },
+    {
       title: "Rights And Ownership",
       paragraphs: [
         "All rights, including copyrights to the WEB PORTAL and its topics, pertain to the HOLDER of the site, who has obtained the equivalent utilization rights from advertisers and authors, who are therefore legally and morally protected by law.",
