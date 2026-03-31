@@ -5,7 +5,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   getClientLanguageSnapshot,
   getServerLanguageSnapshot,
-  DEFAULT_SITE_LANGUAGE,
+  SOURCE_SITE_LANGUAGE,
   subscribeToLanguageChange,
   TRANSLATION_SCRIPT_REQUEST_EVENT,
 } from "@/lib/language";
@@ -34,7 +34,7 @@ export default function LanguageManagerMount() {
   }, []);
 
   const shouldRender =
-    shouldRenderOnRequest || language !== DEFAULT_SITE_LANGUAGE;
+    shouldRenderOnRequest || language !== SOURCE_SITE_LANGUAGE;
 
   return shouldRender ? <LanguageManager /> : null;
 }

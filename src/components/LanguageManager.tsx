@@ -4,7 +4,7 @@ import Script from "next/script";
 import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
-  DEFAULT_SITE_LANGUAGE,
+  SOURCE_SITE_LANGUAGE,
   readStoredLanguage,
   setSiteLanguage,
   SUPPORTED_LANGUAGE_CODES,
@@ -54,7 +54,7 @@ const mountGoogleTranslate = () => {
     autoDisplay: boolean;
     layout?: unknown;
   } = {
-    pageLanguage: "en",
+    pageLanguage: SOURCE_SITE_LANGUAGE,
     includedLanguages: SUPPORTED_LANGUAGE_CODES.join(","),
     autoDisplay: false,
   };
@@ -363,7 +363,7 @@ export default function LanguageManager() {
     if (typeof window === "undefined") {
       return false;
     }
-    return readStoredLanguage() !== DEFAULT_SITE_LANGUAGE;
+    return readStoredLanguage() !== SOURCE_SITE_LANGUAGE;
   });
 
   const clearRefreshTimers = useEffectEvent(() => {
@@ -374,7 +374,7 @@ export default function LanguageManager() {
   const refreshActiveTranslation = useEffectEvent((force = false) => {
     const preferredLanguage = readStoredLanguage();
 
-    if (preferredLanguage === DEFAULT_SITE_LANGUAGE) {
+    if (preferredLanguage === SOURCE_SITE_LANGUAGE) {
       clearRefreshTimers();
       restoreSourceAttributes();
       clearAttributeBuffer();
