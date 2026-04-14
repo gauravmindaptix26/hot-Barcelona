@@ -3,7 +3,6 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -356,7 +355,6 @@ export default function GirlsClient({
   const modalRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
-  const searchParams = useSearchParams();
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
   const hasActiveFilters = Boolean(activeFilter || activeCategory);
@@ -419,7 +417,7 @@ export default function GirlsClient({
       return;
     }
 
-    const requestedProfile = searchParams?.get("profile");
+    const requestedProfile = new URLSearchParams(window.location.search).get("profile");
     if (!requestedProfile) {
       didApplyQueryProfileRef.current = true;
       return;
@@ -438,7 +436,7 @@ export default function GirlsClient({
     }
 
     didApplyQueryProfileRef.current = true;
-  }, [liveProfiles, searchParams]);
+  }, [liveProfiles]);
 
   // Dynamic only: no localStorage fallback.
 
@@ -472,7 +470,10 @@ export default function GirlsClient({
         );
 
         if (!response.ok) {
-          setSelectedProfileWhatsappHref(null);
+          setSelectedProfileWhatsapp({
+            profileId: selectedProfile.id,
+            href: null,
+          });
           return;
         }
 
