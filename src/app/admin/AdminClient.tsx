@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 type PersistedFormFields = Record<string, string | string[]>;
@@ -350,6 +350,10 @@ export default function AdminClient({ girls, trans }: Props) {
         .sort(([a], [b]) => a.localeCompare(b)),
     [editForm.formFields]
   );
+  const editingItem = useMemo(
+    () => items[activeTab].find((item) => item._id === editingId) ?? null,
+    [items, activeTab, editingId]
+  );
 
   const checklistStatus = useMemo(() => {
     return advertiseFieldChecklist.map((section) => ({
@@ -608,6 +612,26 @@ export default function AdminClient({ girls, trans }: Props) {
         ? "border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
         : "border-rose-300/30 bg-rose-500/10 text-rose-200";
 
+  useEffect(() => {
+    if (!editingId) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !isSavingEdit) {
+        cancelEdit();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [editingId, isSavingEdit]);
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-4 sm:px-6 sm:pt-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -780,349 +804,6 @@ export default function AdminClient({ girls, trans }: Props) {
                 </button>
               </div>
 
-              {editingId === item._id && (
-                <div className="mt-5 space-y-5 rounded-[24px] border border-[#f5d68c]/20 bg-[linear-gradient(145deg,rgba(245,214,140,0.08),rgba(10,11,13,0.92)_40%)] p-4 sm:p-5">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs">
-                        Structured Edit
-                      </p>
-                      <h3 className="mt-2 text-lg font-semibold text-white">
-                        Admin profile editor
-                      </h3>
-                    </div>
-                    <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
-                      {Object.keys(editForm.formFields).length} form fields
-                    </span>
-                  </div>
-
-                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                    <div className="mb-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                        Core Profile
-                      </p>
-                      <p className="mt-1 text-sm text-white/55">
-                        Main document fields used by listings and public cards.
-                      </p>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                      <label className="space-y-2 xl:col-span-2">
-                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                          Display Name
-                        </span>
-                        <input
-                          value={editForm.name}
-                          onChange={(event) =>
-                            setEditForm((prev) => ({ ...prev, name: event.target.value }))
-                          }
-                          placeholder="Name"
-                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                        />
-                      </label>
-                      <label className="space-y-2">
-                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                          Age
-                        </span>
-                        <input
-                          type="number"
-                          min={18}
-                          max={80}
-                          value={editForm.age}
-                          onChange={(event) =>
-                            setEditForm((prev) => ({ ...prev, age: event.target.value }))
-                          }
-                          placeholder="Age"
-                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                        />
-                      </label>
-                      <label className="space-y-2 xl:col-span-2">
-                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                          Location
-                        </span>
-                        <input
-                          value={editForm.location}
-                          onChange={(event) =>
-                            setEditForm((prev) => ({ ...prev, location: event.target.value }))
-                          }
-                          placeholder="Location"
-                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                        />
-                      </label>
-                      <label className="space-y-2 xl:col-span-2">
-                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                          Email
-                        </span>
-                        <input
-                          type="email"
-                          value={editForm.email}
-                          onChange={(event) =>
-                            setEditForm((prev) => ({ ...prev, email: event.target.value }))
-                          }
-                          placeholder="Email"
-                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                        />
-                      </label>
-                      <label className="space-y-2">
-                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                          Gender
-                        </span>
-                        <select
-                          value={editForm.gender}
-                          onChange={(event) =>
-                            setEditForm((prev) => ({ ...prev, gender: event.target.value }))
-                          }
-                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                        >
-                          <option value="">Select gender</option>
-                          <option value="girl">girl</option>
-                          <option value="trans">trans</option>
-                        </select>
-                      </label>
-                    </div>
-                  </section>
-
-                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                    <div className="mb-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                        Advertise Checklist
-                      </p>
-                      <p className="mt-1 text-sm text-white/55">
-                        Same workflow fields as the advertise form. Admin can quickly verify what is present.
-                      </p>
-                    </div>
-                    <div className="grid gap-4 xl:grid-cols-2">
-                      {checklistStatus.map((section) => (
-                        <div
-                          key={section.title}
-                          className="rounded-2xl border border-white/10 bg-black/35 p-4"
-                        >
-                          <p className="text-[10px] uppercase tracking-[0.24em] text-white/65">
-                            {section.title}
-                          </p>
-                          <div className="mt-3 grid gap-2">
-                            {section.fields.map((field) => (
-                              <div
-                                key={field.key}
-                                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/35 px-3 py-2"
-                              >
-                                <span className="text-sm text-white/80">{field.label}</span>
-                                <span
-                                  className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] ${
-                                    field.filled
-                                      ? "border border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
-                                      : "border border-amber-300/30 bg-amber-500/10 text-amber-200"
-                                  }`}
-                                >
-                                  {field.note}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-
-                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                    <div className="mb-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                        Images
-                      </p>
-                      <p className="mt-1 text-sm text-white/55">
-                        Keep one image URL per line. Minimum one image is required.
-                      </p>
-                    </div>
-                    <textarea
-                      value={editForm.imagesText}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          imagesText: event.target.value,
-                        }))
-                      }
-                      rows={4}
-                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                  </section>
-
-                  {formSectionConfigs.map((section) => (
-                    <section
-                      key={section.id}
-                      className="rounded-2xl border border-white/10 bg-black/25 p-4"
-                    >
-                      <div className="mb-4">
-                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                          {section.title}
-                        </p>
-                        <p className="mt-1 text-sm text-white/55">{section.description}</p>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {section.fields.map((field) => (
-                          <label
-                            key={field.key}
-                            className={`space-y-2 ${"fullWidth" in field && field.fullWidth ? "sm:col-span-2" : ""}`}
-                          >
-                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                              {fieldLabels[field.key] ?? humanizeFieldKey(field.key)}
-                            </span>
-
-                            {field.type === "textarea" ? (
-                              <textarea
-                                value={readStringField(editForm.formFields, field.key)}
-                                onChange={(event) =>
-                                  updateFormField(field.key, event.target.value)
-                                }
-                                rows={field.rows ?? 3}
-                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                              />
-                            ) : field.type === "list" ? (
-                              <textarea
-                                value={readArrayField(editForm.formFields, field.key).join("\n")}
-                                onChange={(event) =>
-                                  updateFormField(field.key, parseListInput(event.target.value))
-                                }
-                                rows={field.rows ?? 4}
-                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                              />
-                            ) : (
-                              <input
-                                value={readStringField(editForm.formFields, field.key)}
-                                onChange={(event) =>
-                                  updateFormField(field.key, event.target.value)
-                                }
-                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                              />
-                            )}
-                          </label>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-
-                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                    <div className="mb-4">
-                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                        Weekly Schedule
-                      </p>
-                      <p className="mt-1 text-sm text-white/55">
-                        Start and end time for each day. Use Rest when unavailable.
-                      </p>
-                    </div>
-                    <div className="space-y-3">
-                      {scheduleDays.map((day) => (
-                        <div
-                          key={day}
-                          className="grid gap-3 rounded-2xl border border-white/10 bg-black/35 p-3 md:grid-cols-[140px_1fr_1fr]"
-                        >
-                          <div className="flex items-center text-sm font-medium text-white/80">
-                            {day}
-                          </div>
-                          <label className="space-y-2">
-                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-                              Start
-                            </span>
-                            <select
-                              value={
-                                readStringField(editForm.formFields, `schedule-${day}-start`) ||
-                                "Rest"
-                              }
-                              onChange={(event) =>
-                                updateFormField(`schedule-${day}-start`, event.target.value)
-                              }
-                              className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              {scheduleOptions.map((option) => (
-                                <option key={`${day}-start-${option}`} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <label className="space-y-2">
-                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-                              End
-                            </span>
-                            <select
-                              value={
-                                readStringField(editForm.formFields, `schedule-${day}-end`) ||
-                                "Rest"
-                              }
-                              onChange={(event) =>
-                                updateFormField(`schedule-${day}-end`, event.target.value)
-                              }
-                              className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                            >
-                              {scheduleOptions.map((option) => (
-                                <option key={`${day}-end-${option}`} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-
-                  {otherFieldEntries.length > 0 && (
-                    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
-                      <div className="mb-4">
-                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
-                          Other Fields
-                        </p>
-                        <p className="mt-1 text-sm text-white/55">
-                          Extra saved keys that are not part of the main structured layout.
-                        </p>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {otherFieldEntries.map(([key, value]) => (
-                          <label key={key} className="space-y-2">
-                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
-                              {humanizeFieldKey(key)}
-                            </span>
-                            {Array.isArray(value) ? (
-                              <textarea
-                                value={value.join("\n")}
-                                onChange={(event) =>
-                                  updateFormField(key, parseListInput(event.target.value))
-                                }
-                                rows={4}
-                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                              />
-                            ) : (
-                              <input
-                                value={value}
-                                onChange={(event) => updateFormField(key, event.target.value)}
-                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                              />
-                            )}
-                          </label>
-                        ))}
-                      </div>
-                    </section>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
-                    <button
-                      type="button"
-                      onClick={handleSaveEdit}
-                      disabled={isSavingEdit}
-                      className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {isSavingEdit ? "Saving..." : "Save Changes"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={cancelEdit}
-                      disabled={isSavingEdit}
-                      className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white/70 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         ))}
@@ -1131,6 +812,381 @@ export default function AdminClient({ girls, trans }: Props) {
       {activeItems.length === 0 && (
         <div className="mt-12 rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-sm text-white/60">
           No profiles found in this category.
+        </div>
+      )}
+
+      {editingId && editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6">
+          <button
+            type="button"
+            aria-label="Close editor"
+            onClick={() => {
+              if (!isSavingEdit) {
+                cancelEdit();
+              }
+            }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          />
+
+          <div
+            className="relative z-10 max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-[28px] border border-[#f5d68c]/20 bg-[#0c0d10] p-4 shadow-[0_28px_80px_rgba(0,0,0,0.55)] sm:p-6"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-5 flex flex-col gap-3 border-b border-white/10 pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs">
+                  Structured Edit
+                </p>
+                <h3 className="mt-2 break-words text-xl font-semibold text-white sm:text-2xl">
+                  Edit {editingItem.name || "profile"}
+                </h3>
+                <p className="mt-1 text-sm text-white/55">
+                  Changes save directly to the profile data used on the public pages.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
+                  {Object.keys(editForm.formFields).length} form fields
+                </span>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  disabled={isSavingEdit}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div className="mb-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                    Core Profile
+                  </p>
+                  <p className="mt-1 text-sm text-white/55">
+                    Main document fields used by listings and public cards.
+                  </p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  <label className="space-y-2 xl:col-span-2">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                      Display Name
+                    </span>
+                    <input
+                      value={editForm.name}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, name: event.target.value }))
+                      }
+                      placeholder="Name"
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                      Age
+                    </span>
+                    <input
+                      type="number"
+                      min={18}
+                      max={80}
+                      value={editForm.age}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, age: event.target.value }))
+                      }
+                      placeholder="Age"
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </label>
+                  <label className="space-y-2 xl:col-span-2">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                      Location
+                    </span>
+                    <input
+                      value={editForm.location}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, location: event.target.value }))
+                      }
+                      placeholder="Location"
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </label>
+                  <label className="space-y-2 xl:col-span-2">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                      Email
+                    </span>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, email: event.target.value }))
+                      }
+                      placeholder="Email"
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    />
+                  </label>
+                  <label className="space-y-2">
+                    <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                      Gender
+                    </span>
+                    <select
+                      value={editForm.gender}
+                      onChange={(event) =>
+                        setEditForm((prev) => ({ ...prev, gender: event.target.value }))
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                    >
+                      <option value="">Select gender</option>
+                      <option value="girl">girl</option>
+                      <option value="trans">trans</option>
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div className="mb-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                    Advertise Checklist
+                  </p>
+                  <p className="mt-1 text-sm text-white/55">
+                    Same workflow fields as the advertise form. Admin can quickly verify what is present.
+                  </p>
+                </div>
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {checklistStatus.map((section) => (
+                    <div
+                      key={section.title}
+                      className="rounded-2xl border border-white/10 bg-black/35 p-4"
+                    >
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-white/65">
+                        {section.title}
+                      </p>
+                      <div className="mt-3 grid gap-2">
+                        {section.fields.map((field) => (
+                          <div
+                            key={field.key}
+                            className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/35 px-3 py-2"
+                          >
+                            <span className="text-sm text-white/80">{field.label}</span>
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] ${
+                                field.filled
+                                  ? "border border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
+                                  : "border border-amber-300/30 bg-amber-500/10 text-amber-200"
+                              }`}
+                            >
+                              {field.note}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div className="mb-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                    Images
+                  </p>
+                  <p className="mt-1 text-sm text-white/55">
+                    Keep one image URL per line. Minimum one image is required.
+                  </p>
+                </div>
+                <textarea
+                  value={editForm.imagesText}
+                  onChange={(event) =>
+                    setEditForm((prev) => ({
+                      ...prev,
+                      imagesText: event.target.value,
+                    }))
+                  }
+                  rows={4}
+                  className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                />
+              </section>
+
+              {formSectionConfigs.map((section) => (
+                <section
+                  key={section.id}
+                  className="rounded-2xl border border-white/10 bg-black/25 p-4"
+                >
+                  <div className="mb-4">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                      {section.title}
+                    </p>
+                    <p className="mt-1 text-sm text-white/55">{section.description}</p>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {section.fields.map((field) => (
+                      <label
+                        key={field.key}
+                        className={`space-y-2 ${"fullWidth" in field && field.fullWidth ? "sm:col-span-2" : ""}`}
+                      >
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          {fieldLabels[field.key] ?? humanizeFieldKey(field.key)}
+                        </span>
+
+                        {field.type === "textarea" ? (
+                          <textarea
+                            value={readStringField(editForm.formFields, field.key)}
+                            onChange={(event) =>
+                              updateFormField(field.key, event.target.value)
+                            }
+                            rows={field.rows ?? 3}
+                            className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                          />
+                        ) : field.type === "list" ? (
+                          <textarea
+                            value={readArrayField(editForm.formFields, field.key).join("\n")}
+                            onChange={(event) =>
+                              updateFormField(field.key, parseListInput(event.target.value))
+                            }
+                            rows={field.rows ?? 4}
+                            className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                          />
+                        ) : (
+                          <input
+                            value={readStringField(editForm.formFields, field.key)}
+                            onChange={(event) =>
+                              updateFormField(field.key, event.target.value)
+                            }
+                            className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                          />
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+              <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                <div className="mb-4">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                    Weekly Schedule
+                  </p>
+                  <p className="mt-1 text-sm text-white/55">
+                    Start and end time for each day. Use Rest when unavailable.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {scheduleDays.map((day) => (
+                    <div
+                      key={day}
+                      className="grid gap-3 rounded-2xl border border-white/10 bg-black/35 p-3 md:grid-cols-[140px_1fr_1fr]"
+                    >
+                      <div className="flex items-center text-sm font-medium text-white/80">
+                        {day}
+                      </div>
+                      <label className="space-y-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+                          Start
+                        </span>
+                        <select
+                          value={
+                            readStringField(editForm.formFields, `schedule-${day}-start`) ||
+                            "Rest"
+                          }
+                          onChange={(event) =>
+                            updateFormField(`schedule-${day}-start`, event.target.value)
+                          }
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                        >
+                          {scheduleOptions.map((option) => (
+                            <option key={`${day}-start-${option}`} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="space-y-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+                          End
+                        </span>
+                        <select
+                          value={
+                            readStringField(editForm.formFields, `schedule-${day}-end`) ||
+                            "Rest"
+                          }
+                          onChange={(event) =>
+                            updateFormField(`schedule-${day}-end`, event.target.value)
+                          }
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                        >
+                          {scheduleOptions.map((option) => (
+                            <option key={`${day}-end-${option}`} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {otherFieldEntries.length > 0 && (
+                <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                  <div className="mb-4">
+                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                      Other Fields
+                    </p>
+                    <p className="mt-1 text-sm text-white/55">
+                      Extra saved keys that are not part of the main structured layout.
+                    </p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {otherFieldEntries.map(([key, value]) => (
+                      <label key={key} className="space-y-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          {humanizeFieldKey(key)}
+                        </span>
+                        {Array.isArray(value) ? (
+                          <textarea
+                            value={value.join("\n")}
+                            onChange={(event) =>
+                              updateFormField(key, parseListInput(event.target.value))
+                            }
+                            rows={4}
+                            className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                          />
+                        ) : (
+                          <input
+                            value={value}
+                            onChange={(event) => updateFormField(key, event.target.value)}
+                            className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                          />
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              <div className="sticky bottom-0 flex flex-wrap items-center gap-3 border-t border-white/10 bg-[#0c0d10]/95 pt-4 backdrop-blur">
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={isSavingEdit}
+                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isSavingEdit ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  disabled={isSavingEdit}
+                  className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white/70 transition hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
