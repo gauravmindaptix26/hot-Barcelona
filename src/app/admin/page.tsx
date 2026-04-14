@@ -64,16 +64,29 @@ export default async function AdminPage() {
   }
 
   const db = await getDb();
+  const adminProjection = {
+    projection: {
+      name: 1,
+      age: 1,
+      location: 1,
+      email: 1,
+      gender: 1,
+      images: 1,
+      formFields: 1,
+      createdAt: 1,
+      approvalStatus: 1,
+    },
+  } as const;
   const [girls, trans] = await Promise.all([
     db
       .collection("girls")
-      .find({})
+      .find({}, adminProjection)
       .sort({ createdAt: -1 })
       .limit(50)
       .toArray(),
     db
       .collection("trans")
-      .find({})
+      .find({}, adminProjection)
       .sort({ createdAt: -1 })
       .limit(50)
       .toArray(),

@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -61,7 +61,7 @@ export default function LoginPage() {
               const callbackUrl =
                 requestedCallback && requestedCallback.startsWith("/")
                   ? requestedCallback
-                  : "/post-login";
+                  : undefined;
 
               const result = await signIn("credentials", {
                 email,
@@ -76,7 +76,21 @@ export default function LoginPage() {
                 return;
               }
 
-              router.replace(callbackUrl);
+              if (callbackUrl) {
+                router.replace(callbackUrl);
+                setIsSubmitting(false);
+                return;
+              }
+
+              const session = await getSession();
+              const target =
+                session?.user?.isAdmin
+                  ? "/admin"
+                  : session?.user?.gender === "female"
+                    ? "/profile/me"
+                    : "/my-ad";
+
+              router.replace(target);
               setIsSubmitting(false);
             }}
           >
