@@ -1,5 +1,10 @@
 import GirlsClient from "./girls-client";
 import { getDb } from "@/lib/db";
+import { getAppServerSession } from "@/lib/auth";
+import {
+  buildWhatsAppHrefFromFields,
+  stripPrivateContactFields,
+} from "@/lib/profile-contact";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -175,6 +180,8 @@ const buildAvailability = (
 };
 
 export default async function GirlsPage() {
+  const session = await getAppServerSession();
+  const canViewWhatsapp = Boolean(session?.user?.id);
   const db = await getDb();
   const items = await db
     .collection("girls")
@@ -206,6 +213,7 @@ export default async function GirlsPage() {
 
   const initialProfiles = sortedItems.map((item) => {
     const formFields = readFormFields(item.formFields);
+    const publicFormFields = stripPrivateContactFields(formFields);
     const images = Array.isArray(item.images)
       ? item.images.filter(
           (image): image is string =>
@@ -253,6 +261,9 @@ export default async function GirlsPage() {
       readSubscriptionDuration(formFields.subscriptionDuration) ??
       readSubscriptionDuration(readItemValue(item, "subscriptionDuration")) ??
       readSubscriptionDuration(readItemValue(item, "premiumDuration"));
+    const whatsappHref = canViewWhatsapp
+      ? buildWhatsAppHrefFromFields(formFields)
+      : null;
 
     const profileServices = uniqueStrings([
       ...services,
@@ -299,7 +310,8 @@ export default async function GirlsPage() {
       gallery: images,
       premiumPlan,
       premiumDuration,
-      formFields,
+      whatsappHref,
+      formFields: publicFormFields,
     };
   });
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../../components/Navbar";
@@ -57,6 +58,7 @@ type Profile = {
   gallery: string[];
   premiumPlan?: string | null;
   premiumDuration?: string | null;
+  whatsappHref?: string | null;
   formFields: Record<string, unknown>;
 };
 
@@ -341,6 +343,7 @@ export default function GirlsClient({
 }: {
   initialProfiles: Profile[];
 }) {
+  const { data: session } = useSession();
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -803,6 +806,18 @@ export default function GirlsClient({
                         {selectedProfile.gallery.length} photos
                       </span>
                     </div>
+                    {session?.user && selectedProfile.whatsappHref && (
+                      <a
+                        href={selectedProfile.whatsappHref}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`Open WhatsApp chat for ${selectedProfile.name}`}
+                        className="mt-3 inline-flex items-center gap-2.5 rounded-full border border-[#25D366]/45 bg-[#25D366]/12 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7df0a9] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/20 sm:mt-4 sm:px-5 sm:text-xs sm:tracking-[0.22em]"
+                      >
+                        <NavIcon path="M20.5 11.8A8.5 8.5 0 1 0 6.2 18L3.5 20.5 6.9 19A8.5 8.5 0 0 0 20.5 11.8ZM9.1 7.8c.2-.4.4-.4.6-.4h.5c.1 0 .4 0 .6.5.2.5.8 2 .9 2.2.1.2.1.4 0 .6-.1.2-.2.4-.4.6-.2.2-.3.4-.5.5-.2.1-.4.3-.2.7.2.4.8 1.3 1.8 2.1 1.2 1 2.1 1.3 2.5 1.5.4.2.6.2.8-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.6.8 1.9 1 .3.2.5.2.5.4s-.1 1-.4 1.4c-.3.4-1.7 1.3-2.4 1.4-.6.1-1.3.2-4.2-1.1-3.2-1.4-5.3-4.9-5.5-5.1-.2-.2-1.3-1.8-1.3-3.4 0-1.6.8-2.4 1.1-2.8Z" />
+                        WhatsApp
+                      </a>
+                    )}
                   </div>
                   {hasRatingData(selectedProfile) && (
                     <div className="flex w-full flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-4 py-3 sm:w-auto sm:px-6 sm:py-4">

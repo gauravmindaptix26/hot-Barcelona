@@ -27,6 +27,273 @@ type Props = {
 
 type TabKey = "girls" | "trans";
 
+type EditFormState = {
+  name: string;
+  age: string;
+  location: string;
+  email: string;
+  gender: string;
+  imagesText: string;
+  formFields: PersistedFormFields;
+};
+
+const scheduleDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+
+const scheduleOptions = [
+  "Rest",
+  "08:00",
+  "09:00",
+  "10:00",
+  "11:00",
+  "12:00",
+  "13:00",
+  "14:00",
+  "15:00",
+  "16:00",
+  "17:00",
+  "18:00",
+  "19:00",
+  "20:00",
+  "21:00",
+  "22:00",
+] as const;
+
+const knownFormFieldKeys = new Set([
+  "stageName",
+  "phone",
+  "nationality",
+  "descriptionText",
+  "address",
+  "mapConfirmation",
+  "servicesOffered",
+  "physicalAttributes",
+  "attentionLevel",
+  "specialFilters",
+  "languages",
+  "rate20",
+  "rate30",
+  "rate45",
+  "rate60",
+  "subscriptionPlan",
+  "subscriptionDuration",
+  "paymentMethod",
+  "featuredBanner",
+  ...scheduleDays.flatMap((day) => [`schedule-${day}-start`, `schedule-${day}-end`]),
+]);
+
+const fieldLabels: Record<string, string> = {
+  stageName: "Stage Name",
+  phone: "Phone Number",
+  nationality: "Nationality",
+  descriptionText: "Description",
+  address: "Address",
+  mapConfirmation: "Map Confirmation",
+  servicesOffered: "Services Offered",
+  physicalAttributes: "Physical Attributes",
+  attentionLevel: "Attention Level",
+  specialFilters: "Special Filters",
+  languages: "Languages",
+  rate20: "Rate 20 Min",
+  rate30: "Rate 30 Min",
+  rate45: "Rate 45 Min",
+  rate60: "Rate 60 Min",
+  subscriptionPlan: "Subscription Plan",
+  subscriptionDuration: "Subscription Duration",
+  paymentMethod: "Payment Method",
+  featuredBanner: "Featured Banner",
+};
+
+const advertiseFieldChecklist = [
+  {
+    title: "Step 1",
+    fields: [
+      { key: "gender", label: "Gender", source: "core" as const },
+      { key: "stageName", label: "Stage Name", source: "form" as const },
+      { key: "email", label: "Email", source: "core" as const },
+      { key: "password", label: "Password", source: "special" as const },
+      { key: "phone", label: "Phone Number", source: "form" as const },
+      { key: "age", label: "Age", source: "core" as const },
+    ],
+  },
+  {
+    title: "Step 2",
+    fields: [
+      { key: "nationality", label: "Nationality", source: "form" as const },
+      { key: "servicesOffered", label: "Services Offered", source: "form" as const },
+      { key: "physicalAttributes", label: "Physical Attributes", source: "form" as const },
+      { key: "attentionLevel", label: "Attention Level", source: "form" as const },
+      { key: "specialFilters", label: "Special Filters", source: "form" as const },
+      { key: "languages", label: "Languages", source: "form" as const },
+    ],
+  },
+  {
+    title: "Step 3",
+    fields: [
+      { key: "rate20", label: "Rate 20", source: "form" as const },
+      { key: "rate30", label: "Rate 30", source: "form" as const },
+      { key: "rate45", label: "Rate 45", source: "form" as const },
+      { key: "rate60", label: "Rate 60", source: "form" as const },
+    ],
+  },
+  {
+    title: "Step 4",
+    fields: scheduleDays.flatMap((day) => [
+      { key: `schedule-${day}-start`, label: `${day} Start`, source: "form" as const },
+      { key: `schedule-${day}-end`, label: `${day} End`, source: "form" as const },
+    ]),
+  },
+  {
+    title: "Step 5",
+    fields: [
+      { key: "address", label: "Address", source: "form" as const },
+      { key: "mapConfirmation", label: "Map Confirmation", source: "form" as const },
+    ],
+  },
+  {
+    title: "Step 6",
+    fields: [
+      { key: "subscriptionPlan", label: "Subscription Plan", source: "form" as const },
+      { key: "subscriptionDuration", label: "Subscription Duration", source: "form" as const },
+      { key: "paymentMethod", label: "Payment Method", source: "form" as const },
+      { key: "featuredBanner", label: "Featured Banner", source: "form" as const },
+    ],
+  },
+] as const;
+
+const createEmptyEditForm = (): EditFormState => ({
+  name: "",
+  age: "",
+  location: "",
+  email: "",
+  gender: "",
+  imagesText: "",
+  formFields: {},
+});
+
+const cloneFormFields = (formFields: PersistedFormFields): PersistedFormFields =>
+  Object.fromEntries(
+    Object.entries(formFields).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? [...value] : value,
+    ])
+  );
+
+const parseListInput = (value: string) =>
+  Array.from(
+    new Set(
+      value
+        .split(/\r?\n|,/)
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  );
+
+const normalizeFormFields = (fields: PersistedFormFields): PersistedFormFields => {
+  const next: PersistedFormFields = {};
+
+  for (const [key, value] of Object.entries(fields)) {
+    if (Array.isArray(value)) {
+      const normalized = Array.from(
+        new Set(value.map((item) => item.trim()).filter(Boolean))
+      );
+      if (normalized.length > 0) {
+        next[key] = normalized;
+      }
+      continue;
+    }
+
+    const normalized = value.trim();
+    if (normalized) {
+      next[key] = normalized;
+    }
+  }
+
+  return next;
+};
+
+const readStringField = (fields: PersistedFormFields, key: string) => {
+  const value = fields[key];
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) return value[0] ?? "";
+  return "";
+};
+
+const readArrayField = (fields: PersistedFormFields, key: string) => {
+  const value = fields[key];
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string" && value.trim()) return [value.trim()];
+  return [];
+};
+
+const humanizeFieldKey = (value: string) =>
+  value
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const hasValue = (value: string | string[] | null | undefined) =>
+  Array.isArray(value) ? value.length > 0 : typeof value === "string" ? value.trim().length > 0 : false;
+
+const formSectionConfigs = [
+  {
+    id: "identity",
+    title: "Identity & Contact",
+    description: "Core profile identity fields shown in the ad workflow.",
+    fields: [
+      { key: "stageName", type: "text" as const },
+      { key: "phone", type: "text" as const },
+      { key: "nationality", type: "text" as const },
+    ],
+  },
+  {
+    id: "description",
+    title: "Description & Location",
+    description: "Profile copy and address fields.",
+    fields: [
+      { key: "descriptionText", type: "textarea" as const, rows: 4, fullWidth: true },
+      { key: "address", type: "textarea" as const, rows: 3, fullWidth: true },
+      { key: "mapConfirmation", type: "text" as const },
+    ],
+  },
+  {
+    id: "services",
+    title: "Services & Filters",
+    description: "Multi-value fields. Use one item per line or comma-separated.",
+    fields: [
+      { key: "servicesOffered", type: "list" as const, rows: 4 },
+      { key: "physicalAttributes", type: "list" as const, rows: 4 },
+      { key: "attentionLevel", type: "list" as const, rows: 4 },
+      { key: "specialFilters", type: "list" as const, rows: 4 },
+      { key: "languages", type: "list" as const, rows: 4 },
+    ],
+  },
+  {
+    id: "rates",
+    title: "Rates & Plan",
+    description: "Pricing, subscription, and payment fields.",
+    fields: [
+      { key: "rate20", type: "text" as const },
+      { key: "rate30", type: "text" as const },
+      { key: "rate45", type: "text" as const },
+      { key: "rate60", type: "text" as const },
+      { key: "subscriptionPlan", type: "text" as const },
+      { key: "subscriptionDuration", type: "text" as const },
+      { key: "paymentMethod", type: "textarea" as const, rows: 3 },
+      { key: "featuredBanner", type: "text" as const },
+    ],
+  },
+] as const;
+
 export default function AdminClient({ girls, trans }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("girls");
   const [items, setItems] = useState<Record<TabKey, ProfileItem[]>>({
@@ -36,15 +303,7 @@ export default function AdminClient({ girls, trans }: Props) {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editForm, setEditForm] = useState({
-    name: "",
-    age: "",
-    location: "",
-    email: "",
-    gender: "",
-    imagesText: "",
-    formFieldsJson: "{}",
-  });
+  const [editForm, setEditForm] = useState<EditFormState>(createEmptyEditForm);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -83,6 +342,75 @@ export default function AdminClient({ girls, trans }: Props) {
       >
     );
   }, [activeItems]);
+
+  const otherFieldEntries = useMemo(
+    () =>
+      Object.entries(editForm.formFields)
+        .filter(([key]) => !knownFormFieldKeys.has(key))
+        .sort(([a], [b]) => a.localeCompare(b)),
+    [editForm.formFields]
+  );
+
+  const checklistStatus = useMemo(() => {
+    return advertiseFieldChecklist.map((section) => ({
+      ...section,
+      fields: section.fields.map((field) => {
+        if (field.source === "special") {
+          return {
+            ...field,
+            filled: true,
+            note: "Stored securely as hash",
+          };
+        }
+
+        const value =
+          field.source === "core"
+            ? field.key === "gender"
+              ? editForm.gender
+              : field.key === "email"
+                ? editForm.email
+                : field.key === "age"
+                  ? editForm.age
+                  : ""
+            : editForm.formFields[field.key];
+
+        return {
+          ...field,
+          filled: hasValue(value),
+          note: hasValue(value) ? "Filled" : "Empty",
+        };
+      }),
+    }));
+  }, [editForm.email, editForm.formFields, editForm.age, editForm.gender]);
+
+  const updateFormField = (key: string, value: string | string[]) => {
+    setEditForm((prev) => {
+      const nextFormFields = { ...prev.formFields };
+
+      if (Array.isArray(value)) {
+        const normalized = Array.from(
+          new Set(value.map((item) => item.trim()).filter(Boolean))
+        );
+        if (normalized.length > 0) {
+          nextFormFields[key] = normalized;
+        } else {
+          delete nextFormFields[key];
+        }
+      } else {
+        const normalized = value.trim();
+        if (normalized) {
+          nextFormFields[key] = normalized;
+        } else {
+          delete nextFormFields[key];
+        }
+      }
+
+      return {
+        ...prev,
+        formFields: nextFormFields,
+      };
+    });
+  };
 
   const handleDelete = async (id: string) => {
     const ok = confirm("Are you sure you want to delete this profile?");
@@ -156,7 +484,7 @@ export default function AdminClient({ girls, trans }: Props) {
       email: item.email,
       gender: item.gender,
       imagesText: item.images.join("\n"),
-      formFieldsJson: JSON.stringify(item.formFields ?? {}, null, 2),
+      formFields: cloneFormFields(item.formFields ?? {}),
     });
     setError("");
   };
@@ -164,6 +492,7 @@ export default function AdminClient({ girls, trans }: Props) {
   const cancelEdit = () => {
     setEditingId(null);
     setIsSavingEdit(false);
+    setEditForm(createEmptyEditForm());
   };
 
   const handleSaveEdit = async () => {
@@ -174,7 +503,7 @@ export default function AdminClient({ girls, trans }: Props) {
       .split(/\r?\n/)
       .map((item) => item.trim())
       .filter(Boolean);
-    let parsedFormFields: unknown = {};
+    const normalizedFormFields = normalizeFormFields(editForm.formFields);
 
     if (!editForm.name.trim() || !editForm.location.trim() || !Number.isFinite(age)) {
       setError("Name, age, and location are required.");
@@ -182,17 +511,6 @@ export default function AdminClient({ girls, trans }: Props) {
     }
     if (images.length < 1) {
       setError("At least 1 image URL is required.");
-      return;
-    }
-    try {
-      const parsed = JSON.parse(editForm.formFieldsJson || "{}") as unknown;
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        setError("Form fields JSON must be a valid object.");
-        return;
-      }
-      parsedFormFields = parsed;
-    } catch {
-      setError("Form fields JSON is invalid.");
       return;
     }
 
@@ -212,7 +530,7 @@ export default function AdminClient({ girls, trans }: Props) {
             email: editForm.email.trim().toLowerCase(),
             gender: editForm.gender.trim().toLowerCase(),
             images,
-            formFields: parsedFormFields,
+            formFields: normalizedFormFields,
           }),
         }
       );
@@ -268,6 +586,7 @@ export default function AdminClient({ girls, trans }: Props) {
         ),
       }));
       setEditingId(null);
+      setEditForm(createEmptyEditForm());
     } catch {
       setError("Failed to update profile.");
     } finally {
@@ -406,8 +725,7 @@ export default function AdminClient({ girls, trans }: Props) {
               <div className="flex flex-col gap-1 text-xs text-white/50 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
                 <span>{item.createdAtLabel ?? "No date"}</span>
                 <span className="break-words">
-                  {item.images.length} photos •{" "}
-                  {Object.keys(item.formFields ?? {}).length} fields
+                  {item.images.length} photos / {Object.keys(item.formFields ?? {}).length} fields
                 </span>
               </div>
 
@@ -463,61 +781,157 @@ export default function AdminClient({ girls, trans }: Props) {
               </div>
 
               {editingId === item._id && (
-                <div className="mt-4 space-y-3 rounded-2xl border border-white/10 bg-black/30 p-4">
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    <input
-                      value={editForm.name}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({ ...prev, name: event.target.value }))
-                      }
-                      placeholder="Name"
-                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                    <input
-                      type="number"
-                      min={18}
-                      max={80}
-                      value={editForm.age}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({ ...prev, age: event.target.value }))
-                      }
-                      placeholder="Age"
-                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                    <input
-                      value={editForm.location}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({ ...prev, location: event.target.value }))
-                      }
-                      placeholder="Location"
-                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                    <input
-                      type="email"
-                      value={editForm.email}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({ ...prev, email: event.target.value }))
-                      }
-                      placeholder="Email"
-                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                    <select
-                      value={editForm.gender}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({ ...prev, gender: event.target.value }))
-                      }
-                      className="rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
-                    >
-                      <option value="">Select gender</option>
-                      <option value="girl">girl</option>
-                      <option value="trans">trans</option>
-                    </select>
+                <div className="mt-5 space-y-5 rounded-[24px] border border-[#f5d68c]/20 bg-[linear-gradient(145deg,rgba(245,214,140,0.08),rgba(10,11,13,0.92)_40%)] p-4 sm:p-5">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs">
+                        Structured Edit
+                      </p>
+                      <h3 className="mt-2 text-lg font-semibold text-white">
+                        Admin profile editor
+                      </h3>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
+                      {Object.keys(editForm.formFields).length} form fields
+                    </span>
                   </div>
 
-                  <div>
-                    <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-white/50">
-                      Images (one URL per line)
-                    </p>
+                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                    <div className="mb-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                        Core Profile
+                      </p>
+                      <p className="mt-1 text-sm text-white/55">
+                        Main document fields used by listings and public cards.
+                      </p>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                      <label className="space-y-2 xl:col-span-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          Display Name
+                        </span>
+                        <input
+                          value={editForm.name}
+                          onChange={(event) =>
+                            setEditForm((prev) => ({ ...prev, name: event.target.value }))
+                          }
+                          placeholder="Name"
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                        />
+                      </label>
+                      <label className="space-y-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          Age
+                        </span>
+                        <input
+                          type="number"
+                          min={18}
+                          max={80}
+                          value={editForm.age}
+                          onChange={(event) =>
+                            setEditForm((prev) => ({ ...prev, age: event.target.value }))
+                          }
+                          placeholder="Age"
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                        />
+                      </label>
+                      <label className="space-y-2 xl:col-span-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          Location
+                        </span>
+                        <input
+                          value={editForm.location}
+                          onChange={(event) =>
+                            setEditForm((prev) => ({ ...prev, location: event.target.value }))
+                          }
+                          placeholder="Location"
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                        />
+                      </label>
+                      <label className="space-y-2 xl:col-span-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          Email
+                        </span>
+                        <input
+                          type="email"
+                          value={editForm.email}
+                          onChange={(event) =>
+                            setEditForm((prev) => ({ ...prev, email: event.target.value }))
+                          }
+                          placeholder="Email"
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                        />
+                      </label>
+                      <label className="space-y-2">
+                        <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                          Gender
+                        </span>
+                        <select
+                          value={editForm.gender}
+                          onChange={(event) =>
+                            setEditForm((prev) => ({ ...prev, gender: event.target.value }))
+                          }
+                          className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                        >
+                          <option value="">Select gender</option>
+                          <option value="girl">girl</option>
+                          <option value="trans">trans</option>
+                        </select>
+                      </label>
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                    <div className="mb-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                        Advertise Checklist
+                      </p>
+                      <p className="mt-1 text-sm text-white/55">
+                        Same workflow fields as the advertise form. Admin can quickly verify what is present.
+                      </p>
+                    </div>
+                    <div className="grid gap-4 xl:grid-cols-2">
+                      {checklistStatus.map((section) => (
+                        <div
+                          key={section.title}
+                          className="rounded-2xl border border-white/10 bg-black/35 p-4"
+                        >
+                          <p className="text-[10px] uppercase tracking-[0.24em] text-white/65">
+                            {section.title}
+                          </p>
+                          <div className="mt-3 grid gap-2">
+                            {section.fields.map((field) => (
+                              <div
+                                key={field.key}
+                                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/35 px-3 py-2"
+                              >
+                                <span className="text-sm text-white/80">{field.label}</span>
+                                <span
+                                  className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.18em] ${
+                                    field.filled
+                                      ? "border border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
+                                      : "border border-amber-300/30 bg-amber-500/10 text-amber-200"
+                                  }`}
+                                >
+                                  {field.note}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                    <div className="mb-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                        Images
+                      </p>
+                      <p className="mt-1 text-sm text-white/55">
+                        Keep one image URL per line. Minimum one image is required.
+                      </p>
+                    </div>
                     <textarea
                       value={editForm.imagesText}
                       onChange={(event) =>
@@ -529,26 +943,167 @@ export default function AdminClient({ girls, trans }: Props) {
                       rows={4}
                       className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                     />
-                  </div>
+                  </section>
 
-                  <div>
-                    <p className="mb-2 text-[10px] uppercase tracking-[0.25em] text-white/50">
-                      All form fields JSON (admin full edit)
-                    </p>
-                    <textarea
-                      value={editForm.formFieldsJson}
-                      onChange={(event) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          formFieldsJson: event.target.value,
-                        }))
-                      }
-                      rows={10}
-                      className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 font-mono text-xs text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                    />
-                  </div>
+                  {formSectionConfigs.map((section) => (
+                    <section
+                      key={section.id}
+                      className="rounded-2xl border border-white/10 bg-black/25 p-4"
+                    >
+                      <div className="mb-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                          {section.title}
+                        </p>
+                        <p className="mt-1 text-sm text-white/55">{section.description}</p>
+                      </div>
 
-                  <div className="flex flex-wrap items-center gap-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {section.fields.map((field) => (
+                          <label
+                            key={field.key}
+                            className={`space-y-2 ${"fullWidth" in field && field.fullWidth ? "sm:col-span-2" : ""}`}
+                          >
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                              {fieldLabels[field.key] ?? humanizeFieldKey(field.key)}
+                            </span>
+
+                            {field.type === "textarea" ? (
+                              <textarea
+                                value={readStringField(editForm.formFields, field.key)}
+                                onChange={(event) =>
+                                  updateFormField(field.key, event.target.value)
+                                }
+                                rows={field.rows ?? 3}
+                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                            ) : field.type === "list" ? (
+                              <textarea
+                                value={readArrayField(editForm.formFields, field.key).join("\n")}
+                                onChange={(event) =>
+                                  updateFormField(field.key, parseListInput(event.target.value))
+                                }
+                                rows={field.rows ?? 4}
+                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                            ) : (
+                              <input
+                                value={readStringField(editForm.formFields, field.key)}
+                                onChange={(event) =>
+                                  updateFormField(field.key, event.target.value)
+                                }
+                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+
+                  <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                    <div className="mb-4">
+                      <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                        Weekly Schedule
+                      </p>
+                      <p className="mt-1 text-sm text-white/55">
+                        Start and end time for each day. Use Rest when unavailable.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      {scheduleDays.map((day) => (
+                        <div
+                          key={day}
+                          className="grid gap-3 rounded-2xl border border-white/10 bg-black/35 p-3 md:grid-cols-[140px_1fr_1fr]"
+                        >
+                          <div className="flex items-center text-sm font-medium text-white/80">
+                            {day}
+                          </div>
+                          <label className="space-y-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+                              Start
+                            </span>
+                            <select
+                              value={
+                                readStringField(editForm.formFields, `schedule-${day}-start`) ||
+                                "Rest"
+                              }
+                              onChange={(event) =>
+                                updateFormField(`schedule-${day}-start`, event.target.value)
+                              }
+                              className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                            >
+                              {scheduleOptions.map((option) => (
+                                <option key={`${day}-start-${option}`} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="space-y-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+                              End
+                            </span>
+                            <select
+                              value={
+                                readStringField(editForm.formFields, `schedule-${day}-end`) ||
+                                "Rest"
+                              }
+                              onChange={(event) =>
+                                updateFormField(`schedule-${day}-end`, event.target.value)
+                              }
+                              className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                            >
+                              {scheduleOptions.map((option) => (
+                                <option key={`${day}-end-${option}`} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {otherFieldEntries.length > 0 && (
+                    <section className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                      <div className="mb-4">
+                        <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs">
+                          Other Fields
+                        </p>
+                        <p className="mt-1 text-sm text-white/55">
+                          Extra saved keys that are not part of the main structured layout.
+                        </p>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {otherFieldEntries.map(([key, value]) => (
+                          <label key={key} className="space-y-2">
+                            <span className="text-[10px] uppercase tracking-[0.22em] text-white/50">
+                              {humanizeFieldKey(key)}
+                            </span>
+                            {Array.isArray(value) ? (
+                              <textarea
+                                value={value.join("\n")}
+                                onChange={(event) =>
+                                  updateFormField(key, parseListInput(event.target.value))
+                                }
+                                rows={4}
+                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                            ) : (
+                              <input
+                                value={value}
+                                onChange={(event) => updateFormField(key, event.target.value)}
+                                className="w-full rounded-xl border border-white/10 bg-black/50 px-3 py-2 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-3 pt-1">
                     <button
                       type="button"
                       onClick={handleSaveEdit}
