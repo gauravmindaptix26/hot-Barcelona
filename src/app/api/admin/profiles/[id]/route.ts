@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { ObjectId } from "mongodb";
 import crypto from "crypto";
 import { getAppServerSession } from "@/lib/auth";
@@ -98,6 +99,7 @@ export async function DELETE(
   if (images.length > 0 || imagePublicIds.length > 0) {
     await deleteFromCloudinary(images, imagePublicIds);
   }
+  revalidateProfilePages();
 
   return NextResponse.json({ ok: true });
 }
@@ -152,6 +154,7 @@ export async function PATCH(
   if (!result) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  revalidateProfilePages();
 
   return NextResponse.json({
     ok: true,
@@ -172,6 +175,16 @@ type AdminProfileUpdatePayload = {
 };
 
 type PersistedFormFields = Record<string, string | string[]>;
+
+function revalidateProfilePages() {
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath("/girls");
+  revalidatePath("/trans-escorts");
+  revalidatePath("/profile/me");
+  revalidatePath("/registro-escorts");
+  revalidatePath("/my-ad");
+}
 
 const sanitizeText = (value: unknown) =>
   typeof value === "string" ? value.trim() : "";
@@ -218,6 +231,42 @@ const sanitizeFormFields = (input: unknown): PersistedFormFields => {
   return fields;
 };
 
+const syncCanonicalFormFields = ({
+  formFields,
+  name,
+  age,
+  location,
+  email,
+  gender,
+}: {
+  formFields: PersistedFormFields;
+  name: string;
+  age: number;
+  location: string;
+  email: string;
+  gender: string;
+}): PersistedFormFields => {
+  const next: PersistedFormFields = { ...formFields };
+
+  next.stageName = name;
+  next.age = String(age);
+  next.address = location;
+
+  if (email) {
+    next.email = email;
+  } else {
+    delete next.email;
+  }
+
+  if (gender) {
+    next.gender = gender;
+  } else {
+    delete next.gender;
+  }
+
+  return next;
+};
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -250,7 +299,14 @@ export async function PUT(
   const gender = sanitizeGender(payload.gender);
   const age = Number(payload.age);
   const images = sanitizeImages(payload.images);
-  const formFields = sanitizeFormFields(payload.formFields);
+  const formFields = syncCanonicalFormFields({
+    formFields: sanitizeFormFields(payload.formFields),
+    name,
+    age,
+    location,
+    email,
+    gender,
+  });
   const imagePublicIds = deriveCloudinaryPublicIds(images);
 
   if (!name || !location || !Number.isFinite(age)) {
@@ -298,6 +354,7 @@ export async function PUT(
   if (!result) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+  revalidateProfilePages();
 
   return NextResponse.json({
     ok: true,
