@@ -348,6 +348,10 @@ export default function TransClient({
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedProfileWhatsapp, setSelectedProfileWhatsapp] = useState<{
+    profileId: string;
+    href: string | null;
+  } | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
@@ -446,6 +450,49 @@ export default function TransClient({
       document.body.style.overflow = "";
     };
   }, [selectedProfile]);
+
+  useEffect(() => {
+    if (!selectedProfile || !session?.user) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const profileId = toDatabaseId(selectedProfile.id);
+
+    const loadWhatsappHref = async () => {
+      try {
+        const response = await fetch(
+          `/api/profile-contact?type=trans&id=${encodeURIComponent(profileId)}`,
+          {
+            signal: controller.signal,
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          setSelectedProfileWhatsappHref(null);
+          return;
+        }
+
+        const data = (await response.json()) as { whatsappHref?: string | null };
+        setSelectedProfileWhatsapp({
+          profileId: selectedProfile.id,
+          href: typeof data.whatsappHref === "string" ? data.whatsappHref : null,
+        });
+      } catch {
+        if (!controller.signal.aborted) {
+          setSelectedProfileWhatsapp({
+            profileId: selectedProfile.id,
+            href: null,
+          });
+        }
+      }
+    };
+
+    void loadWhatsappHref();
+
+    return () => controller.abort();
+  }, [selectedProfile, session?.user]);
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
@@ -834,9 +881,11 @@ export default function TransClient({
                         {selectedProfile.gallery.length} photos
                       </span>
                     </div>
-                    {session?.user && selectedProfile.whatsappHref && (
+                    {session?.user &&
+                      selectedProfileWhatsapp?.profileId === selectedProfile.id &&
+                      selectedProfileWhatsapp.href && (
                       <a
-                        href={selectedProfile.whatsappHref}
+                        href={selectedProfileWhatsapp.href}
                         target="_blank"
                         rel="noreferrer"
                         aria-label={`Open WhatsApp chat for ${selectedProfile.name}`}

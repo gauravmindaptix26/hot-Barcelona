@@ -13,21 +13,24 @@ export default function HomeDeferredMount() {
       return;
     }
 
-    const handleFirstScroll = () => {
-      setShouldRender(true);
-      window.removeEventListener("scroll", handleFirstScroll);
-      window.removeEventListener("touchstart", handleFirstScroll);
-      window.removeEventListener("wheel", handleFirstScroll);
-    };
+    let timeoutId: ReturnType<typeof window.setTimeout> | null = null;
+    let idleId: number | null = null;
 
-    window.addEventListener("scroll", handleFirstScroll, { passive: true });
-    window.addEventListener("touchstart", handleFirstScroll, { passive: true });
-    window.addEventListener("wheel", handleFirstScroll, { passive: true });
+    const loadDeferredSections = () => setShouldRender(true);
+
+    if ("requestIdleCallback" in window) {
+      idleId = window.requestIdleCallback(loadDeferredSections, { timeout: 1500 });
+    } else {
+      timeoutId = window.setTimeout(loadDeferredSections, 700);
+    }
 
     return () => {
-      window.removeEventListener("scroll", handleFirstScroll);
-      window.removeEventListener("touchstart", handleFirstScroll);
-      window.removeEventListener("wheel", handleFirstScroll);
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+      if (idleId !== null && "cancelIdleCallback" in window) {
+        window.cancelIdleCallback(idleId);
+      }
     };
   }, [shouldRender]);
 

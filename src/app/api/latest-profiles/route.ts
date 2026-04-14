@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 
+export const revalidate = 120;
+
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
@@ -45,6 +47,11 @@ export async function GET() {
       createdAt: profile.createdAt ?? null,
       gender: profile.gender ?? null,
       profileType,
-    }))
+    })),
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+      },
+    }
   );
 }

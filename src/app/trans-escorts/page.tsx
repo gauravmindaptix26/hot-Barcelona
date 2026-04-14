@@ -1,13 +1,8 @@
 import TransClient from "./trans-client";
 import { getDb } from "@/lib/db";
-import { getAppServerSession } from "@/lib/auth";
-import {
-  buildWhatsAppHrefFromFields,
-  stripPrivateContactFields,
-} from "@/lib/profile-contact";
+import { stripPrivateContactFields } from "@/lib/profile-contact";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 120;
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
@@ -180,8 +175,6 @@ const buildAvailability = (
 };
 
 export default async function TransPage() {
-  const session = await getAppServerSession();
-  const canViewWhatsapp = Boolean(session?.user?.id);
   const db = await getDb();
   const items = await db
     .collection("trans")
@@ -261,9 +254,6 @@ export default async function TransPage() {
       readSubscriptionDuration(formFields.subscriptionDuration) ??
       readSubscriptionDuration(readItemValue(item, "subscriptionDuration")) ??
       readSubscriptionDuration(readItemValue(item, "premiumDuration"));
-    const whatsappHref = canViewWhatsapp
-      ? buildWhatsAppHrefFromFields(formFields)
-      : null;
 
     const profileServices = uniqueStrings([
       ...services,
@@ -310,7 +300,6 @@ export default async function TransPage() {
       gallery: images,
       premiumPlan,
       premiumDuration,
-      whatsappHref,
       formFields: publicFormFields,
     };
   });
