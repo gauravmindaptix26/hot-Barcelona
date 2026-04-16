@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { requestTranslationRefresh } from "@/lib/language";
 import Navbar from "./Navbar";
 
@@ -26,6 +26,43 @@ export type DocumentPageContent = {
   asideTitle?: string;
   asideParagraphs?: string[];
 };
+
+const PHONE_VALUE_PATTERN = /^\+?[\d\s()-]{6,}$/;
+const PHONE_LIST_ITEM_PATTERN = /^(Phone:\s*)(.+)$/i;
+
+function buildPhoneHref(value: string) {
+  return `tel:${value.replace(/[^\d+]/g, "")}`;
+}
+
+function renderSummaryValue(label: string, value: string): ReactNode {
+  if (label.trim().toLowerCase() === "phone" && PHONE_VALUE_PATTERN.test(value.trim())) {
+    return (
+      <a href={buildPhoneHref(value)} className="underline decoration-white/25 underline-offset-4 hover:text-white">
+        {value}
+      </a>
+    );
+  }
+
+  return value;
+}
+
+function renderListItem(item: string): ReactNode {
+  const phoneMatch = item.match(PHONE_LIST_ITEM_PATTERN);
+
+  if (phoneMatch) {
+    const [, label, value] = phoneMatch;
+    return (
+      <>
+        {label}
+        <a href={buildPhoneHref(value)} className="underline decoration-white/25 underline-offset-4 hover:text-white">
+          {value}
+        </a>
+      </>
+    );
+  }
+
+  return item;
+}
 
 export default function DocumentPage({
   content,
@@ -82,7 +119,7 @@ export default function DocumentPage({
                       {item.label}
                     </p>
                     <p className="mt-2 break-words text-sm font-semibold leading-relaxed text-white/90">
-                      {item.value}
+                      {renderSummaryValue(item.label, item.value)}
                     </p>
                   </div>
                 ))}
@@ -127,7 +164,7 @@ export default function DocumentPage({
                       {section.list.map((item) => (
                         <li key={item} className="flex gap-3">
                           <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f5d68c]" />
-                          <span className="break-words">{item}</span>
+                          <span className="break-words">{renderListItem(item)}</span>
                         </li>
                       ))}
                     </ul>

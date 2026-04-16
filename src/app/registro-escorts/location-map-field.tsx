@@ -73,8 +73,8 @@ export default function LocationMapField({ initialValue = "" }: Props) {
 
   return (
     <div className="grid gap-3 sm:gap-4 md:grid-cols-[1fr_1.6fr] md:items-start">
-      <div className="flex min-h-[220px] w-full flex-col justify-between space-y-2 rounded-2xl border border-white/10 bg-black/40 p-3 sm:min-h-[260px] sm:p-4 md:min-h-[300px]">
-        <label className="text-xs uppercase tracking-[0.3em] text-white/50">
+      <div className="flex min-h-[220px] w-full flex-col justify-between space-y-3 rounded-[24px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.04),rgba(0,0,0,0.56))] p-4 sm:min-h-[260px] sm:p-5 md:min-h-[300px]">
+        <label className="text-sm font-medium uppercase tracking-[0.22em] text-white/55">
           Address
         </label>
         <input
@@ -83,15 +83,14 @@ export default function LocationMapField({ initialValue = "" }: Props) {
           value={value}
           onChange={(event) => setValue(event.target.value)}
           autoComplete="street-address"
-          className="h-12 w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none sm:h-14"
+          className="h-12 w-full rounded-[22px] border border-white/10 bg-black/60 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none sm:h-14"
         />
-        <p className="text-xs text-white/50">
-          {geoError ??
-            "We auto-fill your current location. Edit the address to update the map."}
+        <p className="text-sm leading-relaxed text-white/55">
+          {geoError ?? "We auto-fill your current location. Edit the address to update the map."}
         </p>
       </div>
 
-      <div className="relative h-full min-h-[220px] overflow-hidden rounded-2xl border border-white/10 bg-black/50 sm:min-h-[260px] md:min-h-[300px]">
+      <div className="relative h-full min-h-[220px] overflow-hidden rounded-[24px] border border-white/10 bg-black/50 shadow-[0_16px_34px_rgba(0,0,0,0.22)] sm:min-h-[260px] md:min-h-[300px]">
         {mapSrc ? (
           <iframe
             title="Map preview"
@@ -102,7 +101,7 @@ export default function LocationMapField({ initialValue = "" }: Props) {
             sandbox="allow-scripts allow-same-origin"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs uppercase tracking-[0.3em] text-white/40">
+          <div className="flex h-full w-full items-center justify-center text-sm uppercase tracking-[0.22em] text-white/40">
             Map preview
           </div>
         )}

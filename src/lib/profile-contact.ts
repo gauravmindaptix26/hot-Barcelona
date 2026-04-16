@@ -31,6 +31,13 @@ const readFirstStringValue = (value: unknown) => {
   return "";
 };
 
+const parseToggleValue = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+  if (["yes", "true", "1", "on"].includes(normalized)) return true;
+  if (["no", "false", "0", "off"].includes(normalized)) return false;
+  return null;
+};
+
 export const isPrivateContactField = (key: string) => {
   const normalized = normalizeFieldKey(key);
   if (privateContactFieldKeys.has(normalized)) return true;
@@ -72,6 +79,44 @@ const readContactValueByMatcher = (
   return "";
 };
 
+const readToggleValueByMatcher = (
+  fields: Record<string, unknown>,
+  matcher: (normalizedKey: string) => boolean
+) => {
+  for (const [key, value] of Object.entries(fields)) {
+    const normalized = normalizeFieldKey(key);
+    if (!matcher(normalized)) continue;
+
+    const firstValue = readFirstStringValue(value);
+    if (!firstValue) continue;
+
+    const parsed = parseToggleValue(firstValue);
+    if (parsed !== null) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const isWhatsAppEnabled = (fields: Record<string, unknown>) =>
+  readToggleValueByMatcher(
+    fields,
+    (normalized) =>
+      normalized === "whatsappenabled" ||
+      normalized === "whatsapptoggle" ||
+      normalized === "attendsbywhatsapp"
+  ) !== false;
+
+const isTelegramEnabled = (fields: Record<string, unknown>) =>
+  readToggleValueByMatcher(
+    fields,
+    (normalized) =>
+      normalized === "telegramenabled" ||
+      normalized === "telegramtoggle" ||
+      normalized === "attendsbytelegram"
+  ) !== false;
+
 export const extractPhoneValue = (fields: Record<string, unknown>) =>
   readContactValueByMatcher(
     fields,
@@ -86,14 +131,17 @@ export const extractPhoneValue = (fields: Record<string, unknown>) =>
       normalized.includes("mobile")
   );
 
-export const extractWhatsAppValue = (fields: Record<string, unknown>) =>
-  readContactValueByMatcher(
+export const extractWhatsAppValue = (fields: Record<string, unknown>) => {
+  if (!isWhatsAppEnabled(fields)) return "";
+
+  return readContactValueByMatcher(
     fields,
     (normalized) =>
       normalized === "whatsapp" ||
       normalized === "whatsappnumber" ||
       normalized.includes("whatsapp")
   );
+};
 
 export const extractContactPhone = (fields: Record<string, unknown>) => {
   return extractPhoneValue(fields) || extractWhatsAppValue(fields);
@@ -119,6 +167,8 @@ export const buildPhoneHrefFromFields = (fields: Record<string, unknown>) => {
 };
 
 export const buildWhatsAppHrefFromFields = (fields: Record<string, unknown>) => {
+  if (!isWhatsAppEnabled(fields)) return null;
+
   const contactPhone = extractWhatsAppValue(fields) || extractPhoneValue(fields);
   if (!contactPhone) return null;
 
@@ -129,6 +179,8 @@ export const buildWhatsAppHrefFromFields = (fields: Record<string, unknown>) => 
 };
 
 export const extractTelegramValue = (fields: Record<string, unknown>) => {
+  if (!isTelegramEnabled(fields)) return "";
+
   for (const [key, value] of Object.entries(fields)) {
     const normalized = normalizeFieldKey(key);
     if (!normalized.includes("telegram")) continue;
@@ -143,6 +195,8 @@ export const extractTelegramValue = (fields: Record<string, unknown>) => {
 };
 
 export const buildTelegramHrefFromFields = (fields: Record<string, unknown>) => {
+  if (!isTelegramEnabled(fields)) return null;
+
   const telegramValue = extractTelegramValue(fields);
   if (!telegramValue) return null;
 
@@ -159,3 +213,49 @@ export const buildTelegramHrefFromFields = (fields: Record<string, unknown>) => 
 
   return handle ? `https://t.me/${handle}` : null;
 };
+
+export const extractWebsiteValue = (fields: Record<string, unknown>) =>
+  readContactValueByMatcher(
+    fields,
+    (normalized) =>
+      normalized === "websiteurl" ||
+      normalized === "website" ||
+      normalized === "web" ||
+      normalized === "optionalwebsite"
+  );
+
+export const extractReferralValue = (fields: Record<string, unknown>) =>
+  readContactValueByMatcher(
+    fields,
+    (normalized) =>
+      normalized === "referralurl" ||
+      normalized === "referral" ||
+      normalized === "referidourl" ||
+      normalized === "referredby" ||
+      normalized === "referrallink"
+  );
+
+const normalizeExternalHref = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
+
+  if (/^[\w.-]+\.[a-z]{2,}(?:[/?#]|$)/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+
+  return null;
+};
+
+export const buildWebsiteHrefFromFields = (fields: Record<string, unknown>) =>
+  normalizeExternalHref(extractWebsiteValue(fields));
+
+export const buildReferralHrefFromFields = (fields: Record<string, unknown>) =>
+  normalizeExternalHref(extractReferralValue(fields));

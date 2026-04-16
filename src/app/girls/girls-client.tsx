@@ -103,6 +103,9 @@ const hiddenFormFieldKeys = new Set([
   "createdat",
   "updatedat",
   "resetpasswordtoken",
+  "descriptionhelp",
+  "whatsappenabled",
+  "telegramenabled",
 ]);
 const isVisibleFormField = (key: string) => {
   const normalized = key.toLowerCase().replace(/\s+/g, "");
@@ -374,6 +377,10 @@ export default function GirlsClient({
     whatsappHref: string | null;
     telegramHref: string | null;
     telegramLabel: string | null;
+    websiteHref: string | null;
+    websiteLabel: string | null;
+    referralHref: string | null;
+    referralLabel: string | null;
   } | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(initialFavoriteIds);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
@@ -606,7 +613,7 @@ export default function GirlsClient({
   }, [selectedProfile]);
 
   useEffect(() => {
-    if (!selectedProfile || !session?.user) {
+    if (!selectedProfile) {
       return;
     }
 
@@ -631,6 +638,10 @@ export default function GirlsClient({
             whatsappHref: null,
             telegramHref: null,
             telegramLabel: null,
+            websiteHref: null,
+            websiteLabel: null,
+            referralHref: null,
+            referralLabel: null,
           });
           return;
         }
@@ -641,6 +652,10 @@ export default function GirlsClient({
           whatsappHref?: string | null;
           telegramHref?: string | null;
           telegramLabel?: string | null;
+          websiteHref?: string | null;
+          websiteLabel?: string | null;
+          referralHref?: string | null;
+          referralLabel?: string | null;
         };
         setSelectedProfileContact({
           profileId: selectedProfile.id,
@@ -649,6 +664,10 @@ export default function GirlsClient({
           whatsappHref: typeof data.whatsappHref === "string" ? data.whatsappHref : null,
           telegramHref: typeof data.telegramHref === "string" ? data.telegramHref : null,
           telegramLabel: typeof data.telegramLabel === "string" ? data.telegramLabel : null,
+          websiteHref: typeof data.websiteHref === "string" ? data.websiteHref : null,
+          websiteLabel: typeof data.websiteLabel === "string" ? data.websiteLabel : null,
+          referralHref: typeof data.referralHref === "string" ? data.referralHref : null,
+          referralLabel: typeof data.referralLabel === "string" ? data.referralLabel : null,
         });
       } catch {
         if (!controller.signal.aborted) {
@@ -659,6 +678,10 @@ export default function GirlsClient({
             whatsappHref: null,
             telegramHref: null,
             telegramLabel: null,
+            websiteHref: null,
+            websiteLabel: null,
+            referralHref: null,
+            referralLabel: null,
           });
         }
       }
@@ -667,7 +690,7 @@ export default function GirlsClient({
     void loadProfileContact();
 
     return () => controller.abort();
-  }, [selectedProfile, session?.user]);
+  }, [selectedProfile]);
 
   const handleShare = async (profile: Profile) => {
     const shareUrl = `${window.location.origin}/girls?profile=${encodeURIComponent(
@@ -1128,6 +1151,10 @@ export default function GirlsClient({
                 whatsappHref={activeProfileContact?.whatsappHref ?? null}
                 telegramHref={activeProfileContact?.telegramHref ?? null}
                 telegramLabel={activeProfileContact?.telegramLabel ?? null}
+                websiteHref={activeProfileContact?.websiteHref ?? null}
+                websiteLabel={activeProfileContact?.websiteLabel ?? null}
+                referralHref={activeProfileContact?.referralHref ?? null}
+                referralLabel={activeProfileContact?.referralLabel ?? null}
                 isFavorite={favoriteIds.includes(selectedProfile.id)}
                 onToggleFavorite={() => toggleFavorite(selectedProfile.id)}
                 onShare={() => void handleShare(selectedProfile)}

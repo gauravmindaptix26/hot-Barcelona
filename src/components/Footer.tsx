@@ -66,7 +66,11 @@ export default function Footer() {
                 Catalonia, Spain
               </p>
               <div className="mt-5 space-y-2 text-lg text-white/70">
-                <p>+34 622363966</p>
+                <p>
+                  <a href="tel:621385161" className="underline decoration-white/25 underline-offset-4 hover:text-white">
+                    621 385161
+                  </a>
+                </p>
                 <p>support@hotbarcelona.com</p>
               </div>
               <div className="mt-7 flex w-full max-w-[28rem] items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">

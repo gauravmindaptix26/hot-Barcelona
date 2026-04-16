@@ -23,6 +23,10 @@ type Props = {
   whatsappHref?: string | null;
   telegramHref?: string | null;
   telegramLabel?: string | null;
+  websiteHref?: string | null;
+  websiteLabel?: string | null;
+  referralHref?: string | null;
+  referralLabel?: string | null;
   isFavorite: boolean;
   onToggleFavorite: () => void;
   onShare: () => void;
@@ -139,6 +143,46 @@ function TelegramBrandIcon() {
   );
 }
 
+function WebsiteIcon() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className="h-8 w-8 sm:h-9 sm:w-9">
+      <circle cx="16" cy="16" r="11" fill="none" stroke="#60a5fa" strokeWidth="2.1" />
+      <path
+        d="M5 16h22M16 5c2.8 2.8 4.4 6.8 4.4 11S18.8 24.2 16 27c-2.8-2.8-4.4-6.8-4.4-11S13.2 7.8 16 5Z"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function ReferralIcon() {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className="h-8 w-8 sm:h-9 sm:w-9">
+      <path
+        d="M13.1 18.9 10 22a4.2 4.2 0 1 1-5.9-5.9l3.8-3.8a4.2 4.2 0 0 1 5.9 0"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m18.9 13.1 3.1-3.1a4.2 4.2 0 1 1 5.9 5.9l-3.8 3.8a4.2 4.2 0 0 1-5.9 0"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="m12.5 19.5 7-7" fill="none" stroke="#f5d68c" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function HeartFilledIcon({ disabled = false, active = false }: { disabled?: boolean; active?: boolean }) {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true" className="h-8 w-8 sm:h-9 sm:w-9">
@@ -168,12 +212,22 @@ export default function ProfileActionBar({
   whatsappHref = null,
   telegramHref = null,
   telegramLabel = null,
+  websiteHref = null,
+  websiteLabel = null,
+  referralHref = null,
+  referralLabel = null,
   isFavorite,
   onToggleFavorite,
   onShare,
   shareFeedback = null,
 }: Props) {
-  const lockedHint = isAuthenticated ? null : "Sign in to unlock direct contact buttons.";
+  const hasDirectContact = Boolean(
+    phoneHref || whatsappHref || telegramHref || websiteHref || referralHref
+  );
+  const lockedHint =
+    !isAuthenticated && !hasDirectContact
+      ? "Inicia sesion para guardar favoritos y desbloquear mas acciones."
+      : null;
 
   return (
     <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(155deg,rgba(255,255,255,0.05),rgba(10,11,13,0.98)_42%)] p-4 sm:p-5">
@@ -195,7 +249,7 @@ export default function ProfileActionBar({
 
       {lockedHint && <p className="mt-3 text-sm text-white/50">{lockedHint}</p>}
 
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-5 lg:gap-3">
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 lg:gap-3">
         <ActionTile
           label="llamar"
           hint={phoneLabel ?? (isAuthenticated ? "Tocar para llamar" : "Se requiere iniciar sesión")}
@@ -222,6 +276,24 @@ export default function ProfileActionBar({
           disabled={!telegramHref}
           accentClassName={!telegramHref ? "" : "text-white"}
           iconShellClassName="border-[#229ED9]/15 bg-[#229ED9]/10"
+        />
+        <ActionTile
+          label="website"
+          hint={websiteLabel ?? (websiteHref ? "Abrir sitio web" : "Sitio web no guardado")}
+          icon={<WebsiteIcon />}
+          href={websiteHref}
+          disabled={!websiteHref}
+          accentClassName={!websiteHref ? "" : "text-white"}
+          iconShellClassName="border-[#60a5fa]/15 bg-[#60a5fa]/10"
+        />
+        <ActionTile
+          label="referido"
+          hint={referralLabel ?? (referralHref ? "Abrir enlace" : "Enlace no guardado")}
+          icon={<ReferralIcon />}
+          href={referralHref}
+          disabled={!referralHref}
+          accentClassName={!referralHref ? "" : "text-white"}
+          iconShellClassName="border-[#f5d68c]/15 bg-[#f5d68c]/10"
         />
         <ActionTile
           label="favoritos"

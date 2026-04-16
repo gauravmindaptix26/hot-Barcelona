@@ -9,6 +9,7 @@ import LocationMapField from "./location-map-field";
 import ProfileLoader from "./profile-loader";
 import ServicesMultiSelect from "./services-multi-select";
 import DescriptionHelper from "./description-helper";
+import ContactPreferences from "./contact-preferences";
 import SubscriptionSelector from "./subscription-selector";
 import Navbar from "../../components/Navbar";
 
@@ -16,12 +17,13 @@ const steps = [
   {
     number: "1",
     title: "Stage name, contacts, and description",
-    note: "Select gender, add your display name, email, phone, and a short bio.",
+    note: "Select gender, add your display name, contact channels, and a short bio.",
     fields: [
       "Stage name",
       "Email (not public)",
       "Password",
       "Phone number",
+      "WhatsApp / Telegram",
       "Your age for your ad",
     ],
   },
@@ -547,7 +549,7 @@ export default async function RegistroEscortsPage() {
               >
               Advertise in just 6 steps
             </h1>
-            <p className="text-sm text-white/70 sm:text-lg">
+            <p className="text-base text-white/70 sm:text-lg">
               Create a premium profile, manage your ad, and reach your audience
               with a modern, secure workflow.
             </p>
@@ -572,12 +574,12 @@ export default async function RegistroEscortsPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex min-h-[118px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-4 text-center text-white/70 sm:min-h-[134px] sm:px-4 sm:py-5"
+                  className="flex min-h-[124px] flex-col items-center justify-center gap-3 rounded-[24px] border border-white/10 bg-white/5 px-4 py-4 text-center text-white/70 sm:min-h-[140px] sm:px-5 sm:py-5"
                 >
                   <div className="flex h-10 w-10 items-center justify-center text-2xl sm:h-12 sm:w-12">
                     {item.icon}
                   </div>
-                  <div className="max-w-full text-[10px] font-medium leading-snug uppercase tracking-[0.14em] [overflow-wrap:anywhere] sm:text-xs sm:tracking-[0.22em]">
+                  <div className="max-w-full text-xs font-medium leading-snug uppercase tracking-[0.18em] [overflow-wrap:anywhere] sm:text-sm sm:tracking-[0.22em]">
                     {item.label}
                   </div>
                 </div>
@@ -625,43 +627,47 @@ export default async function RegistroEscortsPage() {
           <div className="rounded-[28px] border border-white/10 bg-[#0c0d10] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-10">
             <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1fr_1fr]">
               <div className="space-y-6">
-                <h2 className="text-xl font-semibold sm:text-3xl">
+                <h2 className="text-2xl font-semibold sm:text-4xl">
                   Step 1 — Start your profile
                 </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/8 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]">
+                    Premium Setup
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
+                    Editable Later
+                  </span>
+                  <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-white/55">
+                    Profile Safe
+                  </span>
+                </div>
+                <p className="max-w-2xl text-base leading-relaxed text-white/65 sm:text-lg">
+                  Everything in this step is saved with your advertiser profile. Contact channels only appear when you enable them, and optional fields can stay empty without causing any publish issue.
+                </p>
                 <GenderToggle initialGender={initialGender} />
                 <div className="grid gap-3">
                   <input
                     name="stageName"
                     placeholder="Name you use to publish"
                     defaultValue={initialName}
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="email"
                     type="email"
                     placeholder="Your email (not public)"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="password"
                     type="password"
                     placeholder="Password"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="phone"
                     placeholder="Phone number for your ad"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                  />
-                  <input
-                    name="whatsapp"
-                    placeholder="WhatsApp number for profile button"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-                  />
-                  <input
-                    name="telegramUsername"
-                    placeholder="Telegram username or t.me link (optional)"
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="age"
@@ -670,20 +676,69 @@ export default async function RegistroEscortsPage() {
                     max={80}
                     placeholder="Your age for your ad"
                     defaultValue={initialAge ?? ""}
-                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                 </div>
-                <DescriptionHelper />
               </div>
 
-              <div className="relative min-h-[220px] overflow-hidden rounded-[26px] border border-white/10 sm:min-h-[360px]">
-                <Image
-                    src="/images/hot10.webp"
-                    alt="Registration preview"
-                    fill
-                    sizes="(max-width: 1024px) 88vw, 24vw"
-                    className="object-cover"
-                  />
+              <div className="relative overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(165deg,rgba(255,255,255,0.07),rgba(10,11,13,0.96)_48%)] p-4 shadow-[0_28px_70px_rgba(0,0,0,0.4)] sm:p-5">
+                <div className="relative min-h-[240px] overflow-hidden rounded-[24px] border border-white/10 sm:min-h-[360px]">
+                  <Image
+                      src="/images/hot10.webp"
+                      alt="Registration preview"
+                      fill
+                      sizes="(max-width: 1024px) 88vw, 24vw"
+                      className="object-cover"
+                    />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.18),rgba(10,11,13,0.82))]" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="max-w-sm rounded-[24px] border border-white/10 bg-black/45 p-4 backdrop-blur-sm">
+                      <p className="text-[10px] uppercase tracking-[0.28em] text-[#f5d68c]">
+                        Profile Visibility
+                      </p>
+                      <p className="mt-2 text-xl font-semibold text-white sm:text-2xl">
+                        Save once. Show only what you want.
+                      </p>
+                      <p className="mt-2 text-base leading-relaxed text-white/68">
+                        Contact links and profile text stay connected and can be edited later.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {[
+                    {
+                      title: "Contact Control",
+                      copy: "Only enabled channels appear publicly.",
+                    },
+                    {
+                      title: "Profile Save",
+                      copy: "Form data saves to your profile automatically.",
+                    },
+                    {
+                      title: "Optional Safe",
+                      copy: "Website and referral are optional.",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.title}
+                      className="rounded-[24px] border border-white/10 bg-black/30 p-5"
+                    >
+                      <p className="text-base font-semibold uppercase tracking-[0.18em] text-white/82">
+                        {item.title}
+                      </p>
+                      <p className="mt-2.5 text-base leading-relaxed text-white/58">
+                        {item.copy}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 space-y-6">
+                <DescriptionHelper />
+                <ContactPreferences />
               </div>
             </div>
           </div>
@@ -705,14 +760,14 @@ export default async function RegistroEscortsPage() {
                       step.number === "5" ? "gap-2" : "gap-4 sm:gap-6"
                     }`}
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-base font-semibold sm:h-12 sm:w-12 sm:text-lg">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-lg font-semibold sm:h-14 sm:w-14 sm:text-xl">
                       {step.number}
                     </div>
                     <div className="w-full flex-1 space-y-3 min-w-0">
-                      <h3 className="text-base font-semibold sm:text-xl">
+                      <h3 className="text-lg font-semibold sm:text-2xl">
                         {step.title}
                       </h3>
-                      <p className="text-sm text-white/60">{step.note}</p>
+                      <p className="text-base leading-relaxed text-white/65">{step.note}</p>
                       <div className="grid gap-3 sm:grid-cols-2">
                         {step.fields.map((field) => {
                         if (step.number === "3" && field === "Rate 20 min") {
@@ -721,7 +776,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate20"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 20 min
@@ -741,7 +796,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate30"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 30 min
@@ -761,7 +816,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate45"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 45 min
@@ -781,7 +836,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="rate60"
                               defaultValue=""
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="" disabled>
                                 Select rate 60 min
@@ -798,13 +853,13 @@ export default async function RegistroEscortsPage() {
                         if (step.number === "2" && field === "Nationality") {
                           return (
                             <div key={field} className="space-y-2">
-                              <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                              <div className="text-sm font-medium uppercase tracking-[0.24em] text-white/58">
                                 Nationality
                               </div>
                               <select
                                 name="nationality"
                                 defaultValue=""
-                                className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                                className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                               >
                                 <option value="">
                                   Your nationality
@@ -883,7 +938,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="stageName"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -895,7 +950,7 @@ export default async function RegistroEscortsPage() {
                               name="email"
                               type="email"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -907,7 +962,7 @@ export default async function RegistroEscortsPage() {
                               name="password"
                               type="password"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -918,7 +973,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="phone"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -932,7 +987,7 @@ export default async function RegistroEscortsPage() {
                               min={18}
                               max={80}
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -953,7 +1008,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="mapConfirmation"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -971,8 +1026,8 @@ export default async function RegistroEscortsPage() {
                         if (step.number === "6" && field === "Payment method") {
                           return (
                               <div key={field} className="space-y-3">
-                                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
-                                  <div className="text-[10px] uppercase tracking-[0.22em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 sm:mt-8">
+                                  <div className="text-sm font-medium uppercase tracking-[0.24em] text-white/58">
                                     Payment type
                                   </div>
                                   <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
@@ -989,8 +1044,8 @@ export default async function RegistroEscortsPage() {
                                       value={option}
                                       className="peer sr-only"
                                     />
-                                    <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-black/35 px-3 py-2.5 text-sm text-white/80 transition hover:border-[#f5d68c]/35 peer-focus-visible:border-[#f5d68c]/55 peer-checked:border-[#f5d68c]/55 peer-checked:bg-gradient-to-r peer-checked:from-[#f5d68c]/12 peer-checked:via-[#f5b35c]/8 peer-checked:to-transparent sm:gap-3 sm:py-3">
-                                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-[#f5d68c] transition peer-checked:border-[#f5d68c]/35 peer-checked:bg-[#f5d68c]/10 sm:h-11 sm:w-11">
+                                    <div className="flex items-center gap-3 rounded-[22px] border border-white/10 bg-black/35 px-4 py-3 text-base text-white/84 transition hover:border-[#f5d68c]/35 peer-focus-visible:border-[#f5d68c]/55 peer-checked:border-[#f5d68c]/55 peer-checked:bg-gradient-to-r peer-checked:from-[#f5d68c]/12 peer-checked:via-[#f5b35c]/8 peer-checked:to-transparent sm:py-3.5">
+                                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-black/45 text-[#f5d68c] transition peer-checked:border-[#f5d68c]/35 peer-checked:bg-[#f5d68c]/10 sm:h-12 sm:w-12">
                                         {option.toLowerCase().includes("cash") ? (
                                           <svg
                                             viewBox="0 0 24 24"
@@ -1019,12 +1074,12 @@ export default async function RegistroEscortsPage() {
                                         )}
                                       </span>
                                       <span className="min-w-0 flex-1">
-                                        <span className="block text-sm font-medium leading-tight text-white/90">
+                                        <span className="block text-base font-medium leading-tight text-white/92">
                                           {option.toLowerCase().includes("cash")
                                             ? "Cash Collection"
                                             : "ATM / Bank Transfer"}
                                         </span>
-                                        <span className="mt-0.5 block text-xs leading-relaxed text-white/55">
+                                        <span className="mt-1.5 block text-base leading-relaxed text-white/58">
                                           {option}
                                         </span>
                                       </span>
@@ -1053,7 +1108,7 @@ export default async function RegistroEscortsPage() {
                           return (
                             <div key={field} className="sm:col-span-2 space-y-3">
                               <div className="flex flex-wrap items-center justify-between gap-3">
-                                <div className="text-[10px] uppercase tracking-[0.22em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                <div className="text-sm font-medium uppercase tracking-[0.24em] text-white/58">
                                   Special offer
                                 </div>
                                 <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
@@ -1064,9 +1119,9 @@ export default async function RegistroEscortsPage() {
                                 name="specialOffer"
                                 rows={4}
                                 placeholder="Example: Happy hour before 18:00, 2x1 massage session, weekend discount, first visit special..."
-                                className="w-full resize-none rounded-3xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/85 placeholder:text-white/35 focus:border-[#f5d68c]/60 focus:outline-none"
+                                className="w-full resize-none rounded-3xl border border-white/10 bg-black/40 px-4 py-3.5 text-base text-white/88 placeholder:text-white/35 focus:border-[#f5d68c]/60 focus:outline-none"
                               />
-                              <p className="text-xs leading-relaxed text-white/45">
+                              <p className="text-base leading-relaxed text-white/55">
                                 This text will be shown publicly on your profile as a highlighted advertiser offer.
                               </p>
                             </div>
@@ -1079,7 +1134,7 @@ export default async function RegistroEscortsPage() {
                               key={field}
                               name="featuredBanner"
                               placeholder={field}
-                              className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }
@@ -1088,7 +1143,7 @@ export default async function RegistroEscortsPage() {
                           <input
                             key={field}
                             placeholder={field}
-                            className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                            className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                           />
                         );
                       })}
@@ -1100,28 +1155,28 @@ export default async function RegistroEscortsPage() {
                   <div className="rounded-[28px] border border-white/10 bg-white/5 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 sm:gap-4">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-sm font-semibold text-white sm:h-10 sm:w-10">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-base font-semibold text-white sm:h-12 sm:w-12">
                           4
                         </div>
-                        <h3 className="text-base font-semibold sm:text-xl">
+                        <h3 className="text-lg font-semibold sm:text-2xl">
                           Weekly schedule
                         </h3>
                       </div>
-                      <p className="text-sm text-white/60">
+                      <p className="text-base leading-relaxed text-white/65">
                         Set your schedule by day. If you do not work on a day,
                         select it as Rest.
                       </p>
-                      <div className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3">
+                      <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-3.5">
                         {scheduleDays.map((day) => (
                           <div
                             key={day}
-                            className="rounded-2xl border border-white/10 bg-black/25 p-3 grid items-center gap-2.5 sm:grid-cols-[110px_1fr_1fr] sm:gap-3 sm:bg-transparent sm:p-0 md:grid-cols-[140px_1fr_1fr_100px]"
+                            className="grid items-center gap-3 rounded-[24px] border border-white/10 bg-black/25 p-4 sm:grid-cols-[128px_1fr_1fr] sm:gap-4 sm:bg-transparent sm:p-0 md:grid-cols-[160px_1fr_1fr_100px]"
                           >
-                            <span className="text-sm font-semibold">{day}</span>
+                            <span className="text-base font-semibold text-white/88">{day}</span>
                             <select
                               defaultValue="Rest"
                               name={`schedule-${day}-start`}
-                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/60 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               {scheduleOptions.map((option) => (
                                 <option
@@ -1135,7 +1190,7 @@ export default async function RegistroEscortsPage() {
                             <select
                               defaultValue="Rest"
                               name={`schedule-${day}-end`}
-                              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+                              className="w-full rounded-[22px] border border-white/10 bg-black/60 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               {scheduleOptions.map((option) => (
                                 <option

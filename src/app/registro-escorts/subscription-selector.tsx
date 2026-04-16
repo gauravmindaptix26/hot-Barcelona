@@ -75,9 +75,7 @@ const normalizePlanValue = (value: string) => {
 export default function SubscriptionSelector({ planName, durationName }: Props) {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<string>("");
-  const uniquePlans = Array.from(
-    new Map(planOptions.map((plan) => [plan.value, plan])).values()
-  );
+  const uniquePlans = Array.from(new Map(planOptions.map((plan) => [plan.value, plan])).values());
 
   useEffect(() => {
     const handlePrefill = (event: Event) => {
@@ -109,25 +107,25 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
   }, [durationName, planName]);
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      <div className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+    <div className="space-y-4 sm:space-y-5">
+      <div className="text-xs font-medium uppercase tracking-[0.22em] text-white/55 sm:text-sm">
         Choose Subscription
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {uniquePlans.map((plan) => (
           <div
             key={plan.value}
-            className={`rounded-3xl border p-3 text-left transition sm:p-4 ${
+            className={`rounded-[28px] border p-4 text-left transition sm:p-5 ${
               selectedPlan === plan.value
-                ? "border-[#f5d68c]/70 bg-gradient-to-br from-[#f5d68c]/20 via-[#f5b35c]/10 to-transparent text-white shadow-[0_10px_30px_rgba(245,179,92,0.2)]"
+                ? "border-[#f5d68c]/70 bg-gradient-to-br from-[#f5d68c]/24 via-[#f5b35c]/12 to-transparent text-white shadow-[0_16px_36px_rgba(245,179,92,0.2)]"
                 : "border-white/10 bg-black/40 text-white/75 hover:border-[#f5d68c]/35 hover:text-white"
             }`}
           >
-            <div className="break-words text-[11px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em]">
+            <div className="break-words text-sm font-semibold uppercase tracking-[0.16em] sm:text-base sm:tracking-[0.18em]">
               {plan.label}
             </div>
-            <div className="mt-2.5 space-y-1.5 sm:mt-3">
+            <div className="mt-3.5 space-y-2 sm:mt-4">
               {plan.durations.map((duration) => (
                 <button
                   key={`${plan.value}-${duration.label}`}
@@ -136,14 +134,18 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
                     setSelectedPlan(plan.value);
                     setSelectedDuration(duration.label);
                   }}
-                  className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-xs ${
+                  className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm ${
                     selectedPlan === plan.value && selectedDuration === duration.label
                       ? "border-[#f5b35c]/70 bg-[#f5b35c]/20 text-white"
                       : "border-white/10 bg-black/35 text-white/75 hover:border-[#f5d68c]/35"
                   }`}
                 >
-                  <span className="min-w-0 break-words uppercase tracking-[0.08em] sm:tracking-[0.12em]">{duration.label}</span>
-                  <span className="shrink-0 font-semibold text-[#f5d68c]">{duration.price}</span>
+                  <span className="min-w-0 break-words uppercase tracking-[0.08em] sm:tracking-[0.12em]">
+                    {duration.label}
+                  </span>
+                  <span className="shrink-0 text-base font-semibold text-[#f5d68c]">
+                    {duration.price}
+                  </span>
                 </button>
               ))}
             </div>
@@ -151,7 +153,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
         ))}
       </div>
 
-      <div className="rounded-2xl border border-[#f5b35c]/35 bg-[#f5b35c]/10 px-4 py-3 text-xs font-medium text-[#f7ddb1]">
+      <div className="rounded-[22px] border border-[#f5b35c]/35 bg-[#f5b35c]/10 px-4 py-3.5 text-sm font-medium text-[#f7ddb1]">
         VAT will be added to all listed prices.
       </div>
 

@@ -26,7 +26,8 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
 
   useEffect(() => {
     const handlePrefill = (event: Event) => {
-      const profile = (event as CustomEvent<{ profile?: { formFields?: Record<string, unknown> } }>).detail?.profile;
+      const profile =
+        (event as CustomEvent<{ profile?: { formFields?: Record<string, unknown> } }>).detail?.profile;
       const formFields =
         profile?.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
           ? profile.formFields
@@ -51,9 +52,7 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
 
   const toggleValue = (value: string) => {
     setSelected((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value]
+      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
     );
   };
 
@@ -63,12 +62,12 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
   }, [selected]);
 
   return (
-    <div ref={containerRef} className="space-y-2">
-      <div className="flex flex-col items-start gap-1">
-        <span className="text-[10px] uppercase tracking-[0.28em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+    <div ref={containerRef} className="space-y-3">
+      <div className="flex flex-col items-start gap-1.5">
+        <span className="text-xs font-medium uppercase tracking-[0.22em] text-white/55 sm:text-sm">
           {label}
         </span>
-        <span className="min-w-0 break-words text-[10px] text-white/70 sm:text-xs">
+        <span className="min-w-0 break-words text-sm leading-relaxed text-white/78 sm:text-base">
           {summary}
         </span>
       </div>
@@ -79,16 +78,16 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
         <button
           type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white/80 focus:border-[#f5d68c]/60 focus:outline-none"
+          className="flex w-full items-center justify-between rounded-[22px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.04),rgba(0,0,0,0.58))] px-4 py-3.5 text-base text-white/88 shadow-[0_14px_34px_rgba(0,0,0,0.18)] focus:border-[#f5d68c]/60 focus:outline-none"
         >
           <span className={selected.length ? "text-white/90" : "text-white/50"}>
             {selected.length ? "Selected services" : "Select your services"}
           </span>
-          <span className="text-white/50">v</span>
+          <span className="text-sm text-white/55">{open ? "▲" : "▼"}</span>
         </button>
 
         {open && (
-          <div className="absolute z-10 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-white/10 bg-[#0b0c10] p-2 shadow-[0_18px_40px_rgba(0,0,0,0.5)]">
+          <div className="absolute z-10 mt-2 max-h-72 w-full overflow-y-auto rounded-[22px] border border-white/10 bg-[#0b0c10] p-3 shadow-[0_22px_48px_rgba(0,0,0,0.5)]">
             {options.map((option) => {
               const checked = selected.includes(option);
               return (
@@ -96,10 +95,10 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
                   type="button"
                   key={option}
                   onClick={() => toggleValue(option)}
-                  className="flex w-full items-start justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm text-white/80 transition hover:bg-white/5"
+                  className="flex w-full items-start justify-between gap-3 rounded-2xl px-4 py-3 text-left text-base leading-relaxed text-white/84 transition hover:bg-white/5"
                 >
                   <span className="min-w-0 flex-1 break-words">{option}</span>
-                  <span className="text-white/60">{checked ? "✓" : ""}</span>
+                  <span className="text-sm text-white/60">{checked ? "Selected" : ""}</span>
                 </button>
               );
             })}

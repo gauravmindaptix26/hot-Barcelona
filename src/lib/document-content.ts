@@ -20,7 +20,7 @@ export const legalNoticeContent: DocumentPageContent = {
       ],
       list: [
         "Address: Edf. Mediterraneo 4-2, C/ EDf. Mediterraneo 1, 29692 Marbella (Malaga)",
-        "Phone: +34 622363966",
+        "Phone: 621 385161",
         "Mail: support@hotbarcelona.com",
       ],
     },
@@ -90,7 +90,7 @@ export const privacyPolicyContent: DocumentPageContent = {
     "The following privacy policy notice manifest the conditions of the handling of the content, the access and use of its topics of the HotBarcelona web portal, hereafter known as the WEB PORTAL.",
   summaryCards: [
     { label: "Holder", value: "HL Publication 2026 SL" },
-    { label: "Phone", value: "+34 622363966" },
+    { label: "Phone", value: "621 385161" },
     { label: "Mail", value: "support@hotbarcelona.com" },
   ],
   sections: [
@@ -102,7 +102,7 @@ export const privacyPolicyContent: DocumentPageContent = {
         "The user of the WEB PORTAL can correspond with the responsible company, the HOLDER, of the WEB PORTAL by forwarding a mail to the above-mentioned e-mail address.",
       ],
       list: [
-        "Phone: +34 622363966",
+        "Phone: 621 385161",
         "Mail: support@hotbarcelona.com",
       ],
     },
