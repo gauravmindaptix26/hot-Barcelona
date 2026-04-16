@@ -53,8 +53,8 @@ const steps = [
   {
     number: "6",
     title: "Ad type and payment",
-    note: "Choose subscription, payment method, and optional banner.",
-    fields: ["Subscription", "Payment method"],
+    note: "Choose subscription, payment method, and highlight any special offer.",
+    fields: ["Subscription", "Payment method", "Special offer"],
   },
 ];
 
@@ -572,10 +572,14 @@ export default async function RegistroEscortsPage() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/70 sm:p-4 sm:text-xs sm:tracking-[0.3em]"
+                  className="flex min-h-[118px] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-4 text-center text-white/70 sm:min-h-[134px] sm:px-4 sm:py-5"
                 >
-                  <div className="mb-3 text-2xl">{item.icon}</div>
-                  {item.label}
+                  <div className="flex h-10 w-10 items-center justify-center text-2xl sm:h-12 sm:w-12">
+                    {item.icon}
+                  </div>
+                  <div className="max-w-full text-[10px] font-medium leading-snug uppercase tracking-[0.14em] [overflow-wrap:anywhere] sm:text-xs sm:tracking-[0.22em]">
+                    {item.label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -647,6 +651,16 @@ export default async function RegistroEscortsPage() {
                   <input
                     name="phone"
                     placeholder="Phone number for your ad"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                  />
+                  <input
+                    name="whatsapp"
+                    placeholder="WhatsApp number for profile button"
+                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                  />
+                  <input
+                    name="telegramUsername"
+                    placeholder="Telegram username or t.me link (optional)"
                     className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-2.5 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
@@ -1031,6 +1045,30 @@ export default async function RegistroEscortsPage() {
                                 ))}
                               </div>
                               </div>
+                            </div>
+                          );
+                        }
+
+                        if (step.number === "6" && field === "Special offer") {
+                          return (
+                            <div key={field} className="sm:col-span-2 space-y-3">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="text-[10px] uppercase tracking-[0.22em] text-white/50 sm:text-xs sm:tracking-[0.32em]">
+                                  Special offer
+                                </div>
+                                <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
+                                  Optional
+                                </span>
+                              </div>
+                              <textarea
+                                name="specialOffer"
+                                rows={4}
+                                placeholder="Example: Happy hour before 18:00, 2x1 massage session, weekend discount, first visit special..."
+                                className="w-full resize-none rounded-3xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white/85 placeholder:text-white/35 focus:border-[#f5d68c]/60 focus:outline-none"
+                              />
+                              <p className="text-xs leading-relaxed text-white/45">
+                                This text will be shown publicly on your profile as a highlighted advertiser offer.
+                              </p>
                             </div>
                           );
                         }

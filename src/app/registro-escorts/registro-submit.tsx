@@ -81,6 +81,26 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   }, []);
 
   useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile =
+        (event as CustomEvent<{ profile?: { images?: string[] } }>).detail?.profile;
+      if (!Array.isArray(profile?.images)) return;
+
+      setUploads(
+        profile.images
+          .filter((url): url is string => typeof url === "string" && url.trim().length > 0)
+          .map((url, index) => ({
+            id: `prefill-${index}`,
+            url,
+          }))
+      );
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, []);
+
+  useEffect(() => {
     if (!saveOk) return;
 
     const targetPath = savedTarget === "trans" ? "/trans-escorts" : "/girls";
@@ -202,6 +222,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       mapConfirmation: "Map confirmation",
       subscription: "Subscription",
       paymentMethod: "Payment method",
+      specialOffer: "Special offer",
       featuredBanner: "Featured banner",
     };
     const requiredFields = [

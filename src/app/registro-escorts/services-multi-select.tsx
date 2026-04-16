@@ -24,6 +24,31 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile = (event as CustomEvent<{ profile?: { formFields?: Record<string, unknown> } }>).detail?.profile;
+      const formFields =
+        profile?.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
+          ? profile.formFields
+          : {};
+      const raw = formFields[name];
+      if (Array.isArray(raw)) {
+        setSelected(
+          raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+        );
+        return;
+      }
+      if (typeof raw === "string" && raw.trim()) {
+        setSelected([raw.trim()]);
+        return;
+      }
+      setSelected([]);
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, [name]);
+
   const toggleValue = (value: string) => {
     setSelected((prev) =>
       prev.includes(value)

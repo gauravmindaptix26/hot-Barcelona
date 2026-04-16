@@ -9,6 +9,7 @@ type LoadedProfile = {
   location: string;
   images: string[];
   email: string;
+  formFields?: Record<string, unknown>;
 };
 
 export default function ProfileLoader() {
@@ -25,9 +26,19 @@ export default function ProfileLoader() {
     if (!form) return;
 
     const setValue = (name: string, value: string) => {
+      const radio = form.querySelector(
+        `input[name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`
+      ) as HTMLInputElement | null;
+      if (radio && radio.type === "radio") {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("input", { bubbles: true }));
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
       const el = form.querySelector(
         `[name="${CSS.escape(name)}"]`
-      ) as HTMLInputElement | HTMLSelectElement | null;
+      ) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       if (!el) return;
       el.value = value;
       el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -42,6 +53,44 @@ export default function ProfileLoader() {
       setValue("age", String(profile.age));
     }
     setValue("address", profile.location);
+
+    const formFields =
+      profile.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
+        ? profile.formFields
+        : {};
+    const readText = (key: string) => {
+      const raw = formFields[key];
+      if (typeof raw === "string") return raw;
+      if (Array.isArray(raw)) {
+        const first = raw.find((item): item is string => typeof item === "string" && item.trim().length > 0);
+        return first ?? "";
+      }
+      return "";
+    };
+
+    for (const [key, raw] of Object.entries(formFields)) {
+      if (typeof raw === "string" && raw.trim()) {
+        setValue(key, raw);
+        continue;
+      }
+
+      if (Array.isArray(raw)) {
+        const first = raw.find(
+          (item): item is string => typeof item === "string" && item.trim().length > 0
+        );
+        if (first) {
+          setValue(key, first);
+        }
+      }
+    }
+
+    setValue("phone", readText("phone"));
+    setValue("whatsapp", readText("whatsapp") || readText("whatsappNumber"));
+    setValue(
+      "telegramUsername",
+      readText("telegramUsername") || readText("telegram") || readText("telegramLink")
+    );
+    setValue("specialOffer", readText("specialOffer"));
   };
 
   const handleLoad = async () => {
@@ -73,6 +122,7 @@ export default function ProfileLoader() {
       const data = (await response.json()) as { profile: LoadedProfile };
       const profile = data.profile;
       fillForm(profile);
+      window.dispatchEvent(new CustomEvent("profile:prefill", { detail: { profile } }));
       try {
         localStorage.setItem("loadedAdProfile", JSON.stringify(profile));
         window.dispatchEvent(new Event("profile:loaded"));

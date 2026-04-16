@@ -1,6 +1,8 @@
 import TransClient from "./trans-client";
+import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { stripPrivateContactFields } from "@/lib/profile-contact";
+import { ObjectId } from "mongodb";
 
 export const revalidate = 120;
 
@@ -8,6 +10,23 @@ const publicVisibilityQuery = {
   isDeleted: { $ne: true },
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
+const profileProjection = {
+  _id: 1,
+  name: 1,
+  age: 1,
+  location: 1,
+  images: 1,
+  createdAt: 1,
+  status: 1,
+  gender: 1,
+  formFields: 1,
+  rating: 1,
+  reviews: 1,
+  subscriptionPlan: 1,
+  subscriptionDuration: 1,
+  premiumPlan: 1,
+  premiumDuration: 1,
+} as const;
 
 const PREMIUM_PLAN_ORDER = [
   "TOP PREMIUM VIP",
@@ -37,6 +56,11 @@ const PREMIUM_PLAN_LOOKUP = new Map(
   PREMIUM_PLAN_ORDER.map((plan) => [normalizePremiumPlanText(plan), plan] as const)
 );
 const LEGACY_TOP_PLAN = "TOP PREMIUM TOP";
+const PREMIUM_PLAN_ALIASES = new Map<string, (typeof PREMIUM_PLAN_ORDER)[number]>([
+  ["VIP PREMINUM SUPERIOR", "TOP PREMIUM VIP"],
+  ["VIP PREMIUM SUPERIOR", "TOP PREMIUM VIP"],
+  ["BANNER PREMIUM SUPERIOR", "TOP PREMIUM BANNER"],
+]);
 
 const readSubscriptionPlan = (value: unknown) => {
   if (typeof value !== "string") return null;
@@ -46,6 +70,8 @@ const readSubscriptionPlan = (value: unknown) => {
   }
   const exact = PREMIUM_PLAN_LOOKUP.get(normalized);
   if (exact) return exact;
+  const alias = PREMIUM_PLAN_ALIASES.get(normalized);
+  if (alias) return alias;
   if (normalized.startsWith(normalizePremiumPlanText(LEGACY_TOP_PLAN))) {
     return "PREMIUM SUPERIOR";
   }
@@ -176,12 +202,33 @@ const buildAvailability = (
 
 export default async function TransPage() {
   const db = await getDb();
+  const session = await getAppServerSession();
   const items = await db
     .collection("trans")
-    .find(publicVisibilityQuery)
+    .find(publicVisibilityQuery, { projection: profileProjection })
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();
+
+  const initialFavoriteIds =
+    session?.user?.id
+      ? (
+          await db
+            .collection("profile_favorites")
+            .find({
+              userId: session.user.id,
+              profileType: "trans",
+              profileId: { $type: "string" },
+            }, { projection: { _id: 0, profileId: 1, profileType: 1 } })
+            .toArray()
+        )
+          .map((item) =>
+            typeof item.profileId === "string" && ObjectId.isValid(item.profileId)
+              ? `db-${item.profileId}`
+              : null
+          )
+          .filter((item): item is string => Boolean(item))
+      : [];
 
   const sortedItems = [...items].sort((a, b) => {
     const aFields = readFormFields(a.formFields);
@@ -237,8 +284,8 @@ export default async function TransPage() {
       readString(item.name) || readFieldText(formFields, "stageName") || "Profile";
     const age = readNumber(item.age) ?? readNumber(formFields.age) ?? 0;
     const location =
-      readString(item.location) ||
-      readFieldText(formFields, "address");
+      readFieldText(formFields, "address") ||
+      readString(item.location);
     const rating =
       readNumber(readItemValue(item, "rating")) ??
       readNumber(readItemValue(formFields, "rating"));
@@ -304,5 +351,10 @@ export default async function TransPage() {
     };
   });
 
-  return <TransClient initialProfiles={initialProfiles} />;
+  return (
+    <TransClient
+      initialProfiles={initialProfiles}
+      initialFavoriteIds={initialFavoriteIds}
+    />
+  );
 }

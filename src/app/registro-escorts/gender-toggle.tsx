@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   initialGender?: "girl" | "trans";
@@ -8,6 +8,18 @@ type Props = {
 
 export default function GenderToggle({ initialGender = "girl" }: Props) {
   const [gender, setGender] = useState<"girl" | "trans">(initialGender);
+
+  useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile = (event as CustomEvent<{ profile?: { gender?: "girl" | "trans" } }>).detail?.profile;
+      if (profile?.gender === "girl" || profile?.gender === "trans") {
+        setGender(profile.gender);
+      }
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, []);
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/40 p-5">

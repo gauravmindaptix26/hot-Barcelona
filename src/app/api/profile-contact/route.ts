@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { buildWhatsAppHrefFromFields } from "@/lib/profile-contact";
+import {
+  buildPhoneHrefFromFields,
+  buildTelegramHrefFromFields,
+  buildWhatsAppHrefFromFields,
+  extractPhoneValue,
+  extractTelegramValue,
+} from "@/lib/profile-contact";
 
 const allowedCollections = new Set(["girls", "trans"]);
 
@@ -29,19 +35,31 @@ export async function GET(request: NextRequest) {
   }
 
   const db = await getDb();
-  const profile = await db.collection(type).findOne({
-    _id: new ObjectId(id),
-    isDeleted: { $ne: true },
-    $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
-  });
+  const profile = await db.collection(type).findOne(
+    {
+      _id: new ObjectId(id),
+      isDeleted: { $ne: true },
+      $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+    },
+    { projection: { _id: 0, formFields: 1 } }
+  );
 
   if (!profile) {
     return NextResponse.json({ error: "Profile not found." }, { status: 404 });
   }
 
-  const whatsappHref = buildWhatsAppHrefFromFields(readFormFields(profile.formFields));
+  const formFields = readFormFields(profile.formFields);
+  const phoneLabel = extractPhoneValue(formFields) || null;
+  const telegramLabel = extractTelegramValue(formFields) || null;
+  const phoneHref = buildPhoneHrefFromFields(formFields);
+  const whatsappHref = buildWhatsAppHrefFromFields(formFields);
+  const telegramHref = buildTelegramHrefFromFields(formFields);
 
   return NextResponse.json({
+    phoneLabel,
+    phoneHref,
     whatsappHref,
+    telegramLabel,
+    telegramHref,
   });
 }

@@ -76,7 +76,15 @@ export default async function ProfileViewPage({
         </div>
 
         <div className="mt-8 sm:mt-10 lg:ml-auto lg:max-w-[52%]">
-          <ProfileReviews profileId={profile._id.toString()} profileType="profiles" />
+          <ProfileReviews
+            profileId={profile._id.toString()}
+            profileType="profiles"
+            profileName={typeof profile.fullName === "string" ? profile.fullName : "Profile"}
+            heroImage={typeof images[0]?.url === "string" ? images[0].url : null}
+            gallery={images
+              .map((image) => (typeof image.url === "string" ? image.url : null))
+              .filter((url): url is string => Boolean(url))}
+          />
         </div>
     </PageShell>
   );

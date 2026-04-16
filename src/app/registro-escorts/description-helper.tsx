@@ -1,9 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function DescriptionHelper() {
   const [wantsHelp, setWantsHelp] = useState<"yes" | "no">("no");
+
+  useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile =
+        (event as CustomEvent<{ profile?: { formFields?: Record<string, unknown> } }>).detail?.profile;
+      const formFields =
+        profile?.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
+          ? profile.formFields
+          : {};
+      const raw = formFields.descriptionHelp;
+      if (raw === "yes" || raw === "no") {
+        setWantsHelp(raw);
+        return;
+      }
+      if (typeof formFields.descriptionText === "string" && formFields.descriptionText.trim()) {
+        setWantsHelp("yes");
+        return;
+      }
+      setWantsHelp("no");
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, []);
 
   return (
     <div className="rounded-[24px] border border-white/10 bg-white/5 p-5 sm:p-6">

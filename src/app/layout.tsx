@@ -1,10 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import {
-  Cinzel,
-  Playfair_Display,
-  Space_Grotesk,
-} from "next/font/google";
 import "./globals.css";
 import SessionProvider from "../components/SessionProvider";
 import AgeCheckMount from "../components/AgeCheckMount";
@@ -16,26 +11,6 @@ const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 const siteTitle = "Hot Barcelona";
 const siteDescription =
   "Premium escort and companion portal for Barcelona with discreet profiles, verified listings, and elegant private experiences.";
-
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
-
-const cinzel = Cinzel({
-  variable: "--font-cinzel",
-  subsets: ["latin"],
-  display: "swap",
-  preload: false,
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -109,9 +84,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <body
-        className={`${spaceGrotesk.variable} ${playfairDisplay.variable} ${cinzel.variable} antialiased`}
-      >
+      <body className="antialiased">
         <SessionProvider>
           {children}
           <FooterMount />

@@ -11,6 +11,31 @@ export default function LocationMapField({ initialValue = "" }: Props) {
   const [geoError, setGeoError] = useState<string | null>(null);
 
   useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile =
+        (event as CustomEvent<{ profile?: { location?: string; formFields?: Record<string, unknown> } }>).detail?.profile;
+      const formFields =
+        profile?.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
+          ? profile.formFields
+          : {};
+      const rawAddress = formFields.address;
+      const savedAddress =
+        typeof rawAddress === "string"
+          ? rawAddress.trim()
+          : Array.isArray(rawAddress)
+            ? rawAddress.find(
+                (item): item is string => typeof item === "string" && item.trim().length > 0
+              )?.trim() ?? ""
+            : "";
+      setValue(savedAddress || profile?.location || "");
+      setGeoError(null);
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, []);
+
+  useEffect(() => {
     if (initialValue || value) return;
     if (!("geolocation" in navigator)) {
       const timeoutId = window.setTimeout(() => {

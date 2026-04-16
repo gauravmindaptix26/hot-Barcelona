@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
@@ -55,9 +56,15 @@ function Star({
 export default function ProfileReviews({
   profileId,
   profileType,
+  profileName,
+  heroImage,
+  gallery = [],
 }: {
   profileId: string;
   profileType: ProfileType;
+  profileName: string;
+  heroImage?: string | null;
+  gallery?: string[];
 }) {
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
@@ -76,6 +83,12 @@ export default function ProfileReviews({
   const canSubmit = useMemo(() => {
     return comment.trim().length >= 3 && rating >= 1 && rating <= 5;
   }, [comment, rating]);
+  const mediaItems = useMemo(() => {
+    return Array.from(new Set([heroImage, ...gallery].filter((item): item is string => Boolean(item))))
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+  }, [gallery, heroImage]);
 
   const loadReviews = async () => {
     setLoading(true);
@@ -148,103 +161,184 @@ export default function ProfileReviews({
   };
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-black/40 p-6">
-      <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">Reviews</p>
-
-      <div className="mt-4 flex flex-wrap items-center gap-4">
-        <div className="text-2xl font-semibold text-white">
-          {data.averageRating.toFixed(1)}
-        </div>
-        <div className="flex items-center gap-1 text-[#f5d68c]">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Star key={`avg-${index}`} filled={index < Math.round(data.averageRating)} />
-          ))}
-        </div>
-        <p className="text-xs uppercase tracking-[0.3em] text-white/60">
-          {data.totalReviews} reviews
-        </p>
-      </div>
-
-      {status === "authenticated" ? (
-        <form onSubmit={submitReview} className="mt-6 grid gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs uppercase tracking-[0.25em] text-white/60">
-              Your rating
-            </span>
-            <div className="flex items-center gap-1 text-[#f5d68c]">
-              {Array.from({ length: 5 }).map((_, index) => {
-                const current = index + 1;
-                return (
-                  <button
-                    key={`select-${current}`}
-                    type="button"
-                    onClick={() => setRating(current)}
-                    className="rounded p-1 transition hover:bg-white/10"
-                    aria-label={`Set rating ${current}`}
-                  >
-                    <Star filled={current <= rating} />
-                  </button>
-                );
-              })}
+    <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.94)_42%)]">
+      <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_320px]">
+        <div className="p-5 sm:p-7">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
+            Feedback
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <div className="text-3xl font-semibold text-white">
+              {data.averageRating.toFixed(1)}
             </div>
+            <div className="flex items-center gap-1 text-[#f5d68c]">
+              {Array.from({ length: 5 }).map((_, index) => (
+                <Star key={`avg-${index}`} filled={index < Math.round(data.averageRating)} />
+              ))}
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs">
+              {data.totalReviews} reviews
+            </p>
           </div>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
+            Reviews for {profileName} are shown with profile images so the section feels like part of the profile, not a separate plain box.
+          </p>
 
-          <textarea
-            value={comment}
-            onChange={(event) => setComment(event.target.value)}
-            rows={3}
-            placeholder="Write your review"
-            className="w-full resize-none rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
-          />
+          {status === "authenticated" ? (
+            <form onSubmit={submitReview} className="mt-6 grid gap-3 rounded-[24px] border border-white/10 bg-black/25 p-4 sm:p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs uppercase tracking-[0.25em] text-white/60">
+                  Your rating
+                </span>
+                <div className="flex items-center gap-1 text-[#f5d68c]">
+                  {Array.from({ length: 5 }).map((_, index) => {
+                    const current = index + 1;
+                    return (
+                      <button
+                        key={`select-${current}`}
+                        type="button"
+                        onClick={() => setRating(current)}
+                        className="rounded p-1 transition hover:bg-white/10"
+                        aria-label={`Set rating ${current}`}
+                      >
+                        <Star filled={current <= rating} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-          <button
-            type="submit"
-            disabled={submitting || !canSubmit}
-            className="w-fit rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {submitting ? "Saving..." : "Submit Review"}
-          </button>
-        </form>
-      ) : status === "loading" ? (
-        <p className="mt-6 text-sm text-white/60">Loading account status...</p>
-      ) : (
-        <p className="mt-6 text-sm text-white/60">
-          Login required to post review.{" "}
-          <Link href="/login" className="text-[#f5d68c]">
-            Login
-          </Link>
-        </p>
-      )}
+              <textarea
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                rows={3}
+                placeholder="Write your review"
+                className="w-full resize-none rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-sm text-white/80 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+              />
 
-      {success && <p className="mt-4 text-sm text-green-300">{success}</p>}
-      {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+              <button
+                type="submit"
+                disabled={submitting || !canSubmit}
+                className="w-fit rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting ? "Saving..." : "Submit Review"}
+              </button>
+            </form>
+          ) : status === "loading" ? (
+            <p className="mt-6 text-sm text-white/60">Loading account status...</p>
+          ) : (
+            <p className="mt-6 text-sm text-white/60">
+              Login required to post review.{" "}
+              <Link href="/login" className="text-[#f5d68c]">
+                Login
+              </Link>
+            </p>
+          )}
 
-      <div className="mt-6 space-y-3">
-        {loading ? (
-          <p className="text-sm text-white/60">Loading reviews...</p>
-        ) : data.reviews.length === 0 ? (
-          <p className="text-sm text-white/60">No reviews yet.</p>
-        ) : (
-          data.reviews.map((review) => (
-            <div
-              key={review.id}
-              className="rounded-2xl border border-white/10 bg-black/30 p-4"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-sm font-semibold text-white/85">{review.userName}</p>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-white/50">
-                  {formatDate(review.createdAt)}
+          {success && <p className="mt-4 text-sm text-green-300">{success}</p>}
+          {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
+
+          <div className="mt-6 space-y-3">
+            {loading ? (
+              <p className="text-sm text-white/60">Loading reviews...</p>
+            ) : data.reviews.length === 0 ? (
+              <p className="text-sm text-white/60">No reviews yet.</p>
+            ) : (
+              data.reviews.map((review, index) => {
+                const cardImage = mediaItems[index % Math.max(mediaItems.length, 1)];
+                return (
+                  <article
+                    key={review.id}
+                    className="overflow-hidden rounded-[24px] border border-white/10 bg-black/30"
+                  >
+                    <div className="grid gap-0 sm:grid-cols-[150px_minmax(0,1fr)]">
+                      <div className="relative min-h-[160px] border-b border-white/10 bg-black/40 sm:min-h-full sm:border-b-0 sm:border-r">
+                        {cardImage ? (
+                          <Image
+                            src={cardImage}
+                            alt={`${profileName} review visual`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 150px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(245,214,140,0.28),rgba(10,11,13,0.96)_70%)]" />
+                        )}
+                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.05),rgba(10,11,13,0.55))]" />
+                      </div>
+                      <div className="p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-white/85">{review.userName}</p>
+                          <p className="text-[10px] uppercase tracking-[0.25em] text-white/50">
+                            {formatDate(review.createdAt)}
+                          </p>
+                        </div>
+                        <div className="mt-2 flex items-center gap-1 text-[#f5d68c]">
+                          {Array.from({ length: 5 }).map((_, starIndex) => (
+                            <Star key={`${review.id}-${starIndex}`} filled={starIndex < review.rating} />
+                          ))}
+                        </div>
+                        <p className="mt-3 text-sm leading-relaxed text-white/72">{review.comment}</p>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <aside className="border-t border-white/10 bg-black/20 lg:border-t-0 lg:border-l">
+          <div className="grid h-full gap-3 p-4 sm:p-5">
+            <div className="relative min-h-[220px] overflow-hidden rounded-[24px] border border-white/10 bg-black/40">
+              {mediaItems[0] ? (
+                <Image
+                  src={mediaItems[0]}
+                  alt={`${profileName} profile preview`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 320px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(245,214,140,0.24),rgba(10,11,13,0.98)_72%)]" />
+              )}
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.08),rgba(10,11,13,0.68))]" />
+              <div className="absolute inset-x-0 bottom-0 p-4">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-[#f5d68c]">
+                  Profile Visuals
+                </p>
+                <p className="mt-2 text-sm text-white/80">
+                  Feedback section now sits with profile images for a richer presentation.
                 </p>
               </div>
-              <div className="mt-2 flex items-center gap-1 text-[#f5d68c]">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star key={`${review.id}-${index}`} filled={index < review.rating} />
-                ))}
-              </div>
-              <p className="mt-2 text-sm text-white/70">{review.comment}</p>
             </div>
-          ))
-        )}
+
+            <div className="grid grid-cols-2 gap-3">
+              {mediaItems.slice(1, 3).map((item, index) => (
+                <div
+                  key={`${item}-${index}`}
+                  className="relative aspect-[4/5] overflow-hidden rounded-[20px] border border-white/10 bg-black/40"
+                >
+                  <Image
+                    src={item}
+                    alt={`${profileName} gallery preview ${index + 2}`}
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 150px"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.04),rgba(10,11,13,0.45))]" />
+                </div>
+              ))}
+              {mediaItems.length < 3 &&
+                Array.from({ length: 3 - mediaItems.length }).map((_, index) => (
+                  <div
+                    key={`placeholder-${index}`}
+                    className="aspect-[4/5] rounded-[20px] border border-dashed border-white/10 bg-[linear-gradient(145deg,rgba(245,214,140,0.08),rgba(255,255,255,0.02),rgba(10,11,13,0.78))]"
+                  />
+                ))}
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
   );

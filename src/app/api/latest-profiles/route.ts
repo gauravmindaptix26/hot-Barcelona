@@ -7,19 +7,28 @@ const publicVisibilityQuery = {
   isDeleted: { $ne: true },
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
+const latestProfileProjection = {
+  _id: 1,
+  name: 1,
+  age: 1,
+  location: 1,
+  images: 1,
+  createdAt: 1,
+  gender: 1,
+} as const;
 
 export async function GET() {
   const db = await getDb();
   const [girls, trans] = await Promise.all([
     db
       .collection("girls")
-      .find(publicVisibilityQuery)
+      .find(publicVisibilityQuery, { projection: latestProfileProjection })
       .sort({ createdAt: -1 })
       .limit(25)
       .toArray(),
     db
       .collection("trans")
-      .find(publicVisibilityQuery)
+      .find(publicVisibilityQuery, { projection: latestProfileProjection })
       .sort({ createdAt: -1 })
       .limit(25)
       .toArray(),

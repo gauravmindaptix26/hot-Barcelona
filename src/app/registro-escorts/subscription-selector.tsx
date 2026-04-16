@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type DurationOption = {
   label: "1 month" | "15 days" | "7 days";
@@ -8,13 +8,15 @@ type DurationOption = {
 };
 
 type PlanOption = {
-  name: string;
+  value: string;
+  label: string;
   durations: DurationOption[];
 };
 
 const planOptions: PlanOption[] = [
   {
-    name: "VIP PREMINUM SUPERIOR",
+    value: "TOP PREMIUM VIP",
+    label: "VIP PREMIUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC335" },
       { label: "15 days", price: "\u20AC195" },
@@ -22,7 +24,8 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "BANNER PREMIUM SUPERIOR",
+    value: "TOP PREMIUM BANNER",
+    label: "BANNER PREMIUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC185" },
       { label: "15 days", price: "\u20AC120" },
@@ -30,7 +33,8 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "PREMIUM SUPERIOR",
+    value: "PREMIUM SUPERIOR",
+    label: "PREMIUM SUPERIOR",
     durations: [
       { label: "1 month", price: "\u20AC135" },
       { label: "15 days", price: "\u20AC90" },
@@ -38,7 +42,8 @@ const planOptions: PlanOption[] = [
     ],
   },
   {
-    name: "TOP PREMIUM STANDARD",
+    value: "TOP PREMIUM STANDARD",
+    label: "TOP PREMIUM STANDARD",
     durations: [
       { label: "1 month", price: "\u20AC90" },
       { label: "15 days", price: "\u20AC63" },
@@ -52,12 +57,56 @@ type Props = {
   durationName: string;
 };
 
+const normalizePlanValue = (value: string) => {
+  const normalized = value.replace(/\s+/g, " ").trim().toUpperCase();
+  switch (normalized) {
+    case "VIP PREMINUM SUPERIOR":
+    case "VIP PREMIUM SUPERIOR":
+      return "TOP PREMIUM VIP";
+    case "BANNER PREMIUM SUPERIOR":
+      return "TOP PREMIUM BANNER";
+    case "TOP PREMIUM TOP":
+      return "PREMIUM SUPERIOR";
+    default:
+      return normalized;
+  }
+};
+
 export default function SubscriptionSelector({ planName, durationName }: Props) {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<string>("");
   const uniquePlans = Array.from(
-    new Map(planOptions.map((plan) => [plan.name, plan])).values()
+    new Map(planOptions.map((plan) => [plan.value, plan])).values()
   );
+
+  useEffect(() => {
+    const handlePrefill = (event: Event) => {
+      const profile =
+        (event as CustomEvent<{ profile?: { formFields?: Record<string, unknown> } }>).detail?.profile;
+      const formFields =
+        profile?.formFields && typeof profile.formFields === "object" && !Array.isArray(profile.formFields)
+          ? profile.formFields
+          : {};
+
+      const readText = (key: string) => {
+        const raw = formFields[key];
+        if (typeof raw === "string") return raw.trim();
+        if (Array.isArray(raw)) {
+          const first = raw.find(
+            (item): item is string => typeof item === "string" && item.trim().length > 0
+          );
+          return first?.trim() ?? "";
+        }
+        return "";
+      };
+
+      setSelectedPlan(normalizePlanValue(readText(planName) || readText("premiumPlan")));
+      setSelectedDuration(readText(durationName) || readText("premiumDuration"));
+    };
+
+    window.addEventListener("profile:prefill", handlePrefill as EventListener);
+    return () => window.removeEventListener("profile:prefill", handlePrefill as EventListener);
+  }, [durationName, planName]);
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -68,27 +117,27 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
       <div className="grid gap-3 lg:grid-cols-2">
         {uniquePlans.map((plan) => (
           <div
-            key={plan.name}
+            key={plan.value}
             className={`rounded-3xl border p-3 text-left transition sm:p-4 ${
-              selectedPlan === plan.name
+              selectedPlan === plan.value
                 ? "border-[#f5d68c]/70 bg-gradient-to-br from-[#f5d68c]/20 via-[#f5b35c]/10 to-transparent text-white shadow-[0_10px_30px_rgba(245,179,92,0.2)]"
                 : "border-white/10 bg-black/40 text-white/75 hover:border-[#f5d68c]/35 hover:text-white"
             }`}
           >
             <div className="break-words text-[11px] font-semibold uppercase tracking-[0.18em] sm:tracking-[0.22em]">
-              {plan.name}
+              {plan.label}
             </div>
             <div className="mt-2.5 space-y-1.5 sm:mt-3">
               {plan.durations.map((duration) => (
                 <button
-                  key={`${plan.name}-${duration.label}`}
+                  key={`${plan.value}-${duration.label}`}
                   type="button"
                   onClick={() => {
-                    setSelectedPlan(plan.name);
+                    setSelectedPlan(plan.value);
                     setSelectedDuration(duration.label);
                   }}
                   className={`flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-xs ${
-                    selectedPlan === plan.name && selectedDuration === duration.label
+                    selectedPlan === plan.value && selectedDuration === duration.label
                       ? "border-[#f5b35c]/70 bg-[#f5b35c]/20 text-white"
                       : "border-white/10 bg-black/35 text-white/75 hover:border-[#f5d68c]/35"
                   }`}

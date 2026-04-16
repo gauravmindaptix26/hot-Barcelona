@@ -8,6 +8,14 @@ const publicVisibilityQuery = {
   isDeleted: { $ne: true },
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
+const listingProjection = {
+  _id: 1,
+  name: 1,
+  age: 1,
+  location: 1,
+  images: 1,
+  createdAt: 1,
+} as const;
 
 type GirlPayload = {
   name?: string;
@@ -51,7 +59,7 @@ export async function GET() {
   const db = await getDb();
   const items = await db
     .collection("girls")
-    .find(publicVisibilityQuery)
+    .find(publicVisibilityQuery, { projection: listingProjection })
     .sort({ createdAt: -1 })
     .limit(50)
     .toArray();
@@ -123,10 +131,13 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const now = new Date();
-  const existing = await db.collection("girls").findOne({
-    email,
-    isDeleted: { $ne: true },
-  });
+  const existing = await db.collection("girls").findOne(
+    {
+      email,
+      isDeleted: { $ne: true },
+    },
+    { projection: { _id: 1, passwordHash: 1 } }
+  );
 
   if (existing) {
     const existingHash =

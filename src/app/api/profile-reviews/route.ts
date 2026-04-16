@@ -48,6 +48,15 @@ const buildReviewSummary = async (
       profileId,
       profileType,
       isDeleted: { $ne: true },
+    }, {
+      projection: {
+        _id: 1,
+        userId: 1,
+        userName: 1,
+        rating: 1,
+        comment: 1,
+        createdAt: 1,
+      },
     })
     .sort({ createdAt: -1 })
     .limit(50)
@@ -180,7 +189,9 @@ export async function POST(req: Request) {
               { approvalStatus: { $exists: false } },
             ],
           };
-    const target = await db.collection(profileType).findOne(targetQuery);
+    const target = await db
+      .collection(profileType)
+      .findOne(targetQuery, { projection: { _id: 1 } });
     if (!target) {
       return NextResponse.json({ error: "Profile not found." }, { status: 404 });
     }

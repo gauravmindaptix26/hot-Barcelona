@@ -7,6 +7,18 @@ const publicVisibilityQuery = {
   isDeleted: { $ne: true },
   $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
 };
+const premiumVipProjection = {
+  _id: 1,
+  name: 1,
+  age: 1,
+  location: 1,
+  images: 1,
+  createdAt: 1,
+  gender: 1,
+  formFields: 1,
+  subscriptionPlan: 1,
+  premiumPlan: 1,
+} as const;
 
 const PREMIUM_VIP_PLAN = "TOP PREMIUM VIP";
 
@@ -60,8 +72,18 @@ const readCreatedAtMs = (value: unknown) => {
 export async function GET() {
   const db = await getDb();
   const [girls, trans] = await Promise.all([
-    db.collection("girls").find(publicVisibilityQuery).sort({ createdAt: -1 }).limit(60).toArray(),
-    db.collection("trans").find(publicVisibilityQuery).sort({ createdAt: -1 }).limit(60).toArray(),
+    db
+      .collection("girls")
+      .find(publicVisibilityQuery, { projection: premiumVipProjection })
+      .sort({ createdAt: -1 })
+      .limit(60)
+      .toArray(),
+    db
+      .collection("trans")
+      .find(publicVisibilityQuery, { projection: premiumVipProjection })
+      .sort({ createdAt: -1 })
+      .limit(60)
+      .toArray(),
   ]);
 
   const combined = [

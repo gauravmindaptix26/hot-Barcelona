@@ -3,11 +3,13 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, useMotionValue, useTransform, type Variants } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
+import ProfileActionBar from "../../components/ProfileActionBar";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
@@ -84,6 +86,7 @@ const hasRatingData = (profile: Profile) =>
 const hiddenFormFieldKeys = new Set([
   "password",
   "confirmPassword",
+  "email",
   "phone",
   "phonenumber",
   "mobile",
@@ -145,6 +148,17 @@ const formatFieldValue = (value: unknown): string => {
   }
   return "";
 };
+const readFirstFilledField = (fields: Record<string, unknown>, keys: string[]) => {
+  for (const key of keys) {
+    const value = formatFieldValue(fields[key]);
+    if (value) return value;
+  }
+  return "";
+};
+const buildGoogleMapsEmbedSrc = (query: string) =>
+  `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
+const buildGoogleMapsDirectionsHref = (query: string) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(query)}`;
 const scheduleDaysOrder = [
   "Monday",
   "Tuesday",
@@ -161,6 +175,8 @@ const getFilledFormEntries = (fields: Record<string, unknown>) => {
 
   for (const [key, rawValue] of Object.entries(fields)) {
     if (!isVisibleFormField(key)) continue;
+    const normalizedKey = key.toLowerCase().replace(/\s+/g, "");
+    if (normalizedKey === "specialoffer") continue;
     const value = formatFieldValue(rawValue);
     if (!value) continue;
 
@@ -338,25 +354,65 @@ const buildPagination = (currentPage: number, totalPages: number) => {
 
 export default function TransClient({
   initialProfiles,
+  initialFavoriteIds = [],
 }: {
   initialProfiles: Profile[];
+  initialFavoriteIds?: string[];
 }) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [liveProfiles] = useState<Profile[]>(initialProfiles);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedProfileWhatsapp, setSelectedProfileWhatsapp] = useState<{
+  const [selectedProfileContact, setSelectedProfileContact] = useState<{
     profileId: string;
-    href: string | null;
+    phoneHref: string | null;
+    phoneLabel: string | null;
+    whatsappHref: string | null;
+    telegramHref: string | null;
+    telegramLabel: string | null;
   } | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(initialFavoriteIds);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
   const scrollProgress = useMotionValue(0);
   const heroParallax = useTransform(scrollProgress, [0, 1], [0, 80]);
   const hasActiveFilters = Boolean(activeFilter || activeCategory);
+
+  const toggleFavorite = async (profileId: string) => {
+    if (!session?.user) {
+      router.push("/login");
+      return;
+    }
+
+    const isFavorite = favoriteIds.includes(profileId);
+    setFavoriteIds((current) =>
+      isFavorite ? current.filter((item) => item !== profileId) : [...current, profileId]
+    );
+
+    try {
+      const response = await fetch("/api/profile-favorites", {
+        method: isFavorite ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profileId: toDatabaseId(profileId),
+          profileType: "trans",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Favorite request failed");
+      }
+    } catch {
+      setFavoriteIds((current) =>
+        isFavorite ? [...current, profileId] : current.filter((item) => item !== profileId)
+      );
+    }
+  };
 
   const scrollToResults = () => {
     window.setTimeout(() => {
@@ -365,10 +421,24 @@ export default function TransClient({
   };
 
   const resetFilters = () => {
-    setActiveFilter(null);
-    setActiveCategory(null);
-    setCurrentPage(1);
+    startTransition(() => {
+      setActiveFilter(null);
+      setActiveCategory(null);
+      setCurrentPage(1);
+    });
     scrollToResults();
+  };
+  const openProfile = (profileId: string) => {
+    setShareFeedback(null);
+    startTransition(() => {
+      setSelectedId(profileId);
+    });
+  };
+  const closeProfile = () => {
+    setShareFeedback(null);
+    startTransition(() => {
+      setSelectedId(null);
+    });
   };
 
   const displayProfiles = useMemo(() => {
@@ -399,6 +469,40 @@ export default function TransClient({
     () => displayProfiles.find((profile) => profile.id === selectedId) || null,
     [displayProfiles, selectedId]
   );
+  const activeProfileContact =
+    selectedProfileContact?.profileId === selectedProfile?.id
+      ? selectedProfileContact
+      : null;
+  const selectedProfileAddress = useMemo(
+    () =>
+      selectedProfile
+        ? readFirstFilledField(selectedProfile.formFields, [
+            "address",
+            "mapConfirmation",
+            "location",
+          ]) || selectedProfile.location
+        : "",
+    [selectedProfile]
+  );
+  const selectedProfileSpecialOffer = useMemo(
+    () =>
+      selectedProfile
+        ? readFirstFilledField(selectedProfile.formFields, [
+            "specialOffer",
+            "specialoffer",
+            "offerText",
+          ])
+        : "",
+    [selectedProfile]
+  );
+  const selectedProfileMapSrc = useMemo(
+    () => (selectedProfileAddress ? buildGoogleMapsEmbedSrc(selectedProfileAddress) : ""),
+    [selectedProfileAddress]
+  );
+  const selectedProfileDirectionsHref = useMemo(
+    () => (selectedProfileAddress ? buildGoogleMapsDirectionsHref(selectedProfileAddress) : ""),
+    [selectedProfileAddress]
+  );
   const filledFormEntries = useMemo<FilledFormEntry[]>(
     () => (selectedProfile ? getFilledFormEntries(selectedProfile.formFields) : []),
     [selectedProfile]
@@ -407,10 +511,60 @@ export default function TransClient({
     () => groupFilledFormEntries(filledFormEntries),
     [filledFormEntries]
   );
+  const selectedLocationEntries = useMemo(
+    () => groupedFormEntries.find((group) => group.id === "location")?.entries ?? [],
+    [groupedFormEntries]
+  );
+  const detailGroupsForDisplay = useMemo(
+    () => groupedFormEntries.filter((group) => group.id !== "location" && group.id !== "plan"),
+    [groupedFormEntries]
+  );
+  const publicVisibleEntryCount = useMemo(
+    () =>
+      detailGroupsForDisplay.reduce((total, group) => total + group.entries.length, 0) +
+      selectedLocationEntries.length,
+    [detailGroupsForDisplay, selectedLocationEntries]
+  );
 
   useEffect(() => {
     // Client-only hook reserved if you want to add filters/interactions later.
   }, []);
+
+  useEffect(() => {
+    if (!session?.user) return;
+
+    const controller = new AbortController();
+
+    const loadFavorites = async () => {
+      try {
+        const response = await fetch("/api/profile-favorites", {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          favorites?: Array<{ profileId?: string; profileType?: string }>;
+        };
+        const nextFavoriteIds = Array.isArray(data.favorites)
+          ? data.favorites
+              .filter(
+                (item): item is { profileId: string; profileType: string } =>
+                  typeof item?.profileId === "string" && typeof item?.profileType === "string"
+              )
+              .filter((item) => item.profileType === "trans")
+              .map((item) => `db-${item.profileId}`)
+          : [];
+        setFavoriteIds(nextFavoriteIds);
+      } catch {
+        // keep current favorites on load error
+      }
+    };
+
+    void loadFavorites();
+
+    return () => controller.abort();
+  }, [session?.user]);
 
   useEffect(() => {
     if (didApplyQueryProfileRef.current) {
@@ -429,7 +583,7 @@ export default function TransClient({
 
     if (match) {
       const timeoutId = window.setTimeout(() => {
-        setSelectedId(match.id);
+        openProfile(match.id);
       }, 0);
       didApplyQueryProfileRef.current = true;
       return () => window.clearTimeout(timeoutId);
@@ -457,7 +611,7 @@ export default function TransClient({
     const controller = new AbortController();
     const profileId = toDatabaseId(selectedProfile.id);
 
-    const loadWhatsappHref = async () => {
+    const loadProfileContact = async () => {
       try {
         const response = await fetch(
           `/api/profile-contact?type=trans&id=${encodeURIComponent(profileId)}`,
@@ -468,32 +622,92 @@ export default function TransClient({
         );
 
         if (!response.ok) {
-          setSelectedProfileWhatsapp({
+          setSelectedProfileContact({
             profileId: selectedProfile.id,
-            href: null,
+            phoneHref: null,
+            phoneLabel: null,
+            whatsappHref: null,
+            telegramHref: null,
+            telegramLabel: null,
           });
           return;
         }
 
-        const data = (await response.json()) as { whatsappHref?: string | null };
-        setSelectedProfileWhatsapp({
+        const data = (await response.json()) as {
+          phoneHref?: string | null;
+          phoneLabel?: string | null;
+          whatsappHref?: string | null;
+          telegramHref?: string | null;
+          telegramLabel?: string | null;
+        };
+        setSelectedProfileContact({
           profileId: selectedProfile.id,
-          href: typeof data.whatsappHref === "string" ? data.whatsappHref : null,
+          phoneHref: typeof data.phoneHref === "string" ? data.phoneHref : null,
+          phoneLabel: typeof data.phoneLabel === "string" ? data.phoneLabel : null,
+          whatsappHref: typeof data.whatsappHref === "string" ? data.whatsappHref : null,
+          telegramHref: typeof data.telegramHref === "string" ? data.telegramHref : null,
+          telegramLabel: typeof data.telegramLabel === "string" ? data.telegramLabel : null,
         });
       } catch {
         if (!controller.signal.aborted) {
-          setSelectedProfileWhatsapp({
+          setSelectedProfileContact({
             profileId: selectedProfile.id,
-            href: null,
+            phoneHref: null,
+            phoneLabel: null,
+            whatsappHref: null,
+            telegramHref: null,
+            telegramLabel: null,
           });
         }
       }
     };
 
-    void loadWhatsappHref();
+    void loadProfileContact();
 
     return () => controller.abort();
   }, [selectedProfile, session?.user]);
+
+  const handleShare = async (profile: Profile) => {
+    const shareUrl = `${window.location.origin}/trans-escorts?profile=${encodeURIComponent(
+      toDatabaseId(profile.id)
+    )}`;
+    const shareTitle = `${profile.name} | Hot Barcelona`;
+    const shareText = [profile.name, formatAge(profile.age), profile.location]
+      .filter(Boolean)
+      .join(" • ");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        setShareFeedback("Link shared");
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareFeedback("Link copied");
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareFeedback("Link copied");
+      } catch {
+        setShareFeedback("Share unavailable");
+      }
+    }
+
+    window.setTimeout(() => {
+      setShareFeedback((current) =>
+        current === "Link shared" || current === "Link copied" || current === "Share unavailable"
+          ? null
+          : current
+      );
+    }, 2000);
+  };
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
@@ -642,21 +856,23 @@ export default function TransClient({
             animate="show"
             className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4"
           >
-            {visibleProfiles.map((profile) => (
-              <motion.div
-                key={profile.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => setSelectedId(profile.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedId(profile.id);
-                  }
-                }}
-                variants={cardVariants}
-                className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)]"
-              >
+            {visibleProfiles.map((profile) => {
+              const isFavorite = favoriteIds.includes(profile.id);
+              return (
+                <motion.div
+                  key={profile.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openProfile(profile.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openProfile(profile.id);
+                    }
+                  }}
+                  variants={cardVariants}
+                  className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)]"
+                >
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   {profile.image ? (
                     <Image
@@ -676,7 +892,15 @@ export default function TransClient({
                   <button
                     type="button"
                     aria-label="Save profile"
-                    className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleFavorite(profile.id);
+                    }}
+                    className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border bg-black/40 transition ${
+                      isFavorite
+                        ? "border-[#f5d68c]/65 text-[#f5d68c]"
+                        : "border-white/20 text-white/80 hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
+                    }`}
                   >
                     <NavIcon path="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
                   </button>
@@ -716,8 +940,9 @@ export default function TransClient({
                     </div>
                   </div>
                 </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           <div className="mt-12 flex flex-col items-center gap-5 sm:mt-16 sm:gap-6">
@@ -805,7 +1030,7 @@ export default function TransClient({
           <motion.button
             type="button"
             aria-label="Close profile"
-            onClick={() => setSelectedId(null)}
+            onClick={closeProfile}
             className="absolute inset-0 bg-black/70 backdrop-blur-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -848,7 +1073,7 @@ export default function TransClient({
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedId(null)}
+                onClick={closeProfile}
                 className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/50 text-white/80 transition hover:border-[#f5d68c]/60 hover:text-[#f5d68c]"
               >
                 <NavIcon path="M6 6l12 12M18 6l-12 12" />
@@ -862,40 +1087,32 @@ export default function TransClient({
                     >
                       {selectedProfile.name}, {formatAge(selectedProfile.age)}
                     </h2>
-                    {selectedProfile.location && (
+                    {selectedProfileAddress && (
                       <div className="mt-3 flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-white/70">
                         <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
-                        {selectedProfile.location}
+                        {selectedProfileAddress}
                       </div>
                     )}
                     {hasPremiumPlan(selectedProfile.premiumPlan) && (
-                      <div className="mt-4 inline-flex max-w-full rounded-2xl border border-[#f5d68c]/40 bg-black/70 px-4 py-2.5 text-[10px] font-semibold uppercase leading-tight tracking-[0.24em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.35)] sm:text-[11px]">
-                        {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
-                        {selectedProfile.premiumDuration ? ` • ${selectedProfile.premiumDuration}` : ""}
+                      <div className="mt-4 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-[#f5d68c]/40 bg-black/55 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.28)] sm:text-[11px] sm:tracking-[0.26em]">
+                          {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
+                        </span>
+                        {selectedProfile.premiumDuration && (
+                          <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/75 sm:text-[11px] sm:tracking-[0.24em]">
+                            {selectedProfile.premiumDuration}
+                          </span>
+                        )}
                       </div>
                     )}
                     <div className="mt-4 flex flex-wrap gap-2">
                       <span className="rounded-full border border-[#f5d68c]/35 bg-black/55 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
-                        {filledFormEntries.length} filled fields
+                        {publicVisibleEntryCount} filled fields
                       </span>
                       <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-white/70">
                         {selectedProfile.gallery.length} photos
                       </span>
                     </div>
-                    {session?.user &&
-                      selectedProfileWhatsapp?.profileId === selectedProfile.id &&
-                      selectedProfileWhatsapp.href && (
-                      <a
-                        href={selectedProfileWhatsapp.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        aria-label={`Open WhatsApp chat for ${selectedProfile.name}`}
-                        className="mt-4 inline-flex items-center gap-2.5 rounded-full border border-[#25D366]/45 bg-[#25D366]/12 px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#7df0a9] transition hover:border-[#25D366]/70 hover:bg-[#25D366]/20 sm:text-xs"
-                      >
-                        <NavIcon path="M20.5 11.8A8.5 8.5 0 1 0 6.2 18L3.5 20.5 6.9 19A8.5 8.5 0 0 0 20.5 11.8ZM9.1 7.8c.2-.4.4-.4.6-.4h.5c.1 0 .4 0 .6.5.2.5.8 2 .9 2.2.1.2.1.4 0 .6-.1.2-.2.4-.4.6-.2.2-.3.4-.5.5-.2.1-.4.3-.2.7.2.4.8 1.3 1.8 2.1 1.2 1 2.1 1.3 2.5 1.5.4.2.6.2.8-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.6.8 1.9 1 .3.2.5.2.5.4s-.1 1-.4 1.4c-.3.4-1.7 1.3-2.4 1.4-.6.1-1.3.2-4.2-1.1-3.2-1.4-5.3-4.9-5.5-5.1-.2-.2-1.3-1.8-1.3-3.4 0-1.6.8-2.4 1.1-2.8Z" />
-                        WhatsApp
-                      </a>
-                    )}
                   </div>
                   {hasRatingData(selectedProfile) && (
                     <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">
@@ -932,74 +1149,164 @@ export default function TransClient({
               </div>
             </div>
             <div className="space-y-8 px-6 py-10 sm:px-10 sm:py-12">
-              <ProfileReviews
-                profileId={toDatabaseId(selectedProfile.id)}
-                profileType="trans"
+              <ProfileActionBar
+                isAuthenticated={Boolean(session?.user)}
+                phoneHref={activeProfileContact?.phoneHref ?? null}
+                phoneLabel={activeProfileContact?.phoneLabel ?? null}
+                whatsappHref={activeProfileContact?.whatsappHref ?? null}
+                telegramHref={activeProfileContact?.telegramHref ?? null}
+                telegramLabel={activeProfileContact?.telegramLabel ?? null}
+                isFavorite={favoriteIds.includes(selectedProfile.id)}
+                onToggleFavorite={() => toggleFavorite(selectedProfile.id)}
+                onShare={() => void handleShare(selectedProfile)}
+                shareFeedback={shareFeedback}
               />
 
-              <section className="rounded-[28px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.13),rgba(245,179,92,0.04)_22%,rgba(10,11,13,0.94)_55%)] p-6 sm:p-7">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Profile Details
+              {selectedProfileSpecialOffer && (
+                <section className="rounded-[28px] border border-[#f5d68c]/35 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(245,179,92,0.07)_22%,rgba(10,11,13,0.94)_60%)] p-6 sm:p-7">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      Special Offer
+                    </p>
+                    <span className="rounded-full border border-[#f5d68c]/35 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]">
+                      Advertiser Highlight
+                    </span>
+                  </div>
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/90 sm:text-lg">
+                    {selectedProfileSpecialOffer}
                   </p>
-                  <span className="rounded-full border border-[#f5d68c]/35 bg-black/45 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
-                    {filledFormEntries.length} entries
-                  </span>
-                </div>
-                {groupedFormEntries.length === 0 ? (
-                  <p className="mt-6 text-sm text-white/60">
-                    No details submitted yet.
-                  </p>
-                ) : (
-                  <div className="mt-6 space-y-4">
-                    {groupedFormEntries.map((group) => (
-                      <div
-                        key={group.id}
-                        className="rounded-2xl border border-white/10 bg-black/35 p-4"
-                      >
-                        <div className="mb-3 flex items-center justify-between gap-3">
-                          <p className="text-[11px] uppercase tracking-[0.35em] text-[#f5d68c]/90">
-                            {group.label}
+                </section>
+              )}
+
+              {selectedProfileAddress && (
+                <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.94)_45%)] p-6 sm:p-7">
+                  <div className="max-w-3xl">
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      Location
+                    </p>
+                    <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
+                      {selectedProfileAddress}
+                    </h3>
+                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
+                      Advertiser ne profile banate waqt jo address fill kiya tha, wahi address aur map yahan show ho raha hai.
+                    </p>
+                  </div>
+                  <div className="mt-6 overflow-hidden rounded-[24px] border border-white/10 bg-black/25">
+                    {selectedProfileMapSrc ? (
+                      <iframe
+                        title={`${selectedProfile.name} location map`}
+                        src={selectedProfileMapSrc}
+                        className="h-[300px] w-full sm:h-[360px]"
+                        loading="lazy"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        sandbox="allow-scripts allow-same-origin"
+                      />
+                    ) : (
+                      <div className="flex h-[300px] w-full items-center justify-center text-sm text-white/45 sm:h-[360px]">
+                        Map preview unavailable.
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <a
+                      href={selectedProfileDirectionsHref}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-[#1e9bff] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(30,155,255,0.28)] transition hover:brightness-110"
+                    >
+                      <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                      Start route
+                    </a>
+                  </div>
+                  <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
+                    {selectedLocationEntries.length > 0 ? (
+                      selectedLocationEntries.map((entry) => (
+                        <article
+                          key={entry.key}
+                          className="grid gap-2 border-b border-white/8 pb-4 last:border-b-0 last:pb-0 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6"
+                        >
+                          <p className="pt-1 text-[10px] uppercase tracking-[0.26em] text-white/45 sm:text-xs">
+                            {entry.label}
                           </p>
-                          <span className="rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-white/60">
-                            {group.entries.length}
-                          </span>
-                        </div>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          {group.entries.map((entry) => {
-                            const tags = splitValueIntoTags(entry.value);
-                            const isLongValue = tags.length === 0 && entry.value.length > 90;
-                            return (
-                              <article
-                                key={entry.key}
-                                className={`rounded-2xl border border-white/10 bg-black/30 p-4 ${
-                                  isLongValue ? "sm:col-span-2" : ""
-                                }`}
-                              >
-                                <p className="text-[10px] uppercase tracking-[0.3em] text-white/55">
-                                  {entry.label}
-                                </p>
-                                {tags.length > 0 ? (
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    {tags.map((tag) => (
-                                      <span
-                                        key={`${entry.key}-${tag}`}
-                                        className="rounded-full border border-[#f5d68c]/25 bg-[#f5d68c]/10 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]"
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/85">
-                                    {entry.value}
+                          <p className="break-words text-base leading-relaxed text-white/88 sm:text-lg">
+                            {entry.value}
+                          </p>
+                        </article>
+                      ))
+                    ) : (
+                      <article className="grid gap-2 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6">
+                        <p className="pt-1 text-[10px] uppercase tracking-[0.26em] text-white/45 sm:text-xs">
+                          Saved location
+                        </p>
+                        <p className="break-words text-base leading-relaxed text-white/88 sm:text-lg">
+                          {selectedProfileAddress}
+                        </p>
+                      </article>
+                    )}
+                  </div>
+                </section>
+              )}
+
+                <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.15),rgba(245,179,92,0.03)_22%,rgba(10,11,13,0.96)_52%)] p-6 sm:p-7">
+                  <div className="max-w-4xl">
+                    <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                      Profile Details
+                    </p>
+                    <h3 className="mt-3 text-2xl font-semibold text-white sm:text-4xl">
+                      Everything shared in this profile
+                    </h3>
+                    <p className="mt-3 text-base leading-relaxed text-white/62 sm:text-lg">
+                      Identity, services, rates and schedule are now presented in a cleaner profile flow with larger text and softer separation.
+                    </p>
+                  </div>
+                  {detailGroupsForDisplay.length === 0 ? (
+                    <p className="mt-6 text-base text-white/60">
+                      No additional details submitted yet.
+                    </p>
+                  ) : (
+                    <div className="mt-10 grid gap-10 lg:grid-cols-2">
+                      {detailGroupsForDisplay.map((group) => (
+                        <section key={group.id} className="space-y-5">
+                          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-4">
+                            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#f5d68c]/90 sm:text-base">
+                              {group.label}
+                            </p>
+                            <span className="text-[11px] uppercase tracking-[0.22em] text-white/40 sm:text-xs">
+                              {group.entries.length} items
+                            </span>
+                          </div>
+                          <div className="space-y-5">
+                            {group.entries.map((entry) => {
+                              const tags = splitValueIntoTags(entry.value);
+                              return (
+                                <article
+                                  key={entry.key}
+                                  className="grid gap-2 border-b border-white/8 pb-5 last:border-b-0 last:pb-0 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6"
+                                >
+                                  <p className="pt-1 text-[10px] uppercase tracking-[0.3em] text-white/42 sm:text-xs">
+                                    {entry.label}
                                   </p>
-                                )}
-                              </article>
+                                  {tags.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2.5">
+                                      {tags.map((tag) => (
+                                        <span
+                                          key={`${entry.key}-${tag}`}
+                                          className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/10 px-3.5 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[#f5d68c]"
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="whitespace-pre-wrap break-words text-base leading-relaxed text-white/88 sm:text-lg">
+                                      {entry.value}
+                                    </p>
+                                  )}
+                                </article>
                             );
                           })}
                         </div>
-                      </div>
+                      </section>
                     ))}
                   </div>
                 )}
@@ -1015,6 +1322,14 @@ export default function TransClient({
                   </p>
                 </section>
               )}
+
+              <ProfileReviews
+                profileId={toDatabaseId(selectedProfile.id)}
+                profileType="trans"
+                profileName={selectedProfile.name}
+                heroImage={selectedProfile.image}
+                gallery={selectedProfile.gallery}
+              />
 
               <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7">
                 <div className="flex items-center justify-between gap-3">

@@ -5,15 +5,45 @@ import { ObjectId } from "mongodb";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import PageShell from "@/components/PageShell";
+import ProfileFavoritesSection from "./profile-favorites-section";
 
 type AdCollection = "girls" | "trans";
 type DisplayValue = string | string[];
+type FavoriteCard = {
+  id: string;
+  name: string;
+  age: number | null;
+  location: string;
+  image: string | null;
+  profileType: AdCollection;
+  href: string;
+};
+const adDocProjection = {
+  name: 1,
+  age: 1,
+  location: 1,
+  email: 1,
+  gender: 1,
+  images: 1,
+  formFields: 1,
+  updatedAt: 1,
+  createdAt: 1,
+} as const;
+const favoriteDocProjection = {
+  _id: 1,
+  name: 1,
+  age: 1,
+  location: 1,
+  images: 1,
+} as const;
 
 const fieldLabelMap: Record<string, string> = {
   gender: "Gender",
   stageName: "Stage Name",
   email: "Email",
   phone: "Phone",
+  whatsapp: "WhatsApp",
+  telegramUsername: "Telegram",
   age: "Age",
   nationality: "Nationality",
   servicesOffered: "Services Offered",
@@ -30,6 +60,7 @@ const fieldLabelMap: Record<string, string> = {
   subscriptionPlan: "Subscription Plan",
   subscriptionDuration: "Subscription Duration",
   paymentMethod: "Payment Method",
+  specialOffer: "Special Offer",
   featuredBanner: "Featured Banner",
 };
 
@@ -48,6 +79,17 @@ function labelForField(key: string) {
     .replace(/\s+/g, " ")
     .trim()
     .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function readEntryValue(
+  entries: Array<[string, DisplayValue]>,
+  key: string
+): string {
+  const match = entries.find(([entryKey]) => entryKey === key)?.[1];
+  if (Array.isArray(match)) {
+    return match.join(", ").trim();
+  }
+  return typeof match === "string" ? match.trim() : "";
 }
 
 function normalizeFieldEntries(
@@ -126,6 +168,11 @@ function pickLatest(girlsDoc: unknown, transDoc: unknown) {
     : { doc: transDoc, type: "trans" as const };
 }
 
+function getFavoriteHref(profile: Pick<FavoriteCard, "id" | "profileType">) {
+  const basePath = profile.profileType === "trans" ? "/trans-escorts" : "/girls";
+  return `${basePath}?profile=${encodeURIComponent(profile.id)}`;
+}
+
 export default async function ProfileMePage() {
   const session = await getAppServerSession();
   if (!session?.user) {
@@ -149,13 +196,18 @@ export default async function ProfileMePage() {
   const loadBy = async (collection: AdCollection, by: "userId" | "email") => {
     if (by === "userId") {
       if (!userId) return null;
-      return db.collection(collection).findOne({ userId, isDeleted: { $ne: true } });
+      return db
+        .collection(collection)
+        .findOne({ userId, isDeleted: { $ne: true } }, { projection: adDocProjection });
     }
     if (!normalizedEmail) return null;
-    return db.collection(collection).findOne({
-      email: normalizedEmail,
-      isDeleted: { $ne: true },
-    });
+    return db.collection(collection).findOne(
+      {
+        email: normalizedEmail,
+        isDeleted: { $ne: true },
+      },
+      { projection: adDocProjection }
+    );
   };
 
   const [girlsByUserId, transByUserId] = await Promise.all([
@@ -200,6 +252,104 @@ export default async function ProfileMePage() {
         gender: adDoc.gender,
       })
     : [];
+  const subscriptionPlan = readEntryValue(displayEntries, "subscriptionPlan");
+  const subscriptionDuration = readEntryValue(displayEntries, "subscriptionDuration");
+  const visibleDisplayEntries = displayEntries.filter(
+    ([key]) => key !== "subscriptionPlan" && key !== "subscriptionDuration"
+  );
+
+  const favoritesRaw = session.user.id
+    ? await db
+        .collection("profile_favorites")
+        .find(
+          { userId: session.user.id },
+          { projection: { _id: 0, profileId: 1, profileType: 1, createdAt: 1 } }
+        )
+        .sort({ createdAt: -1 })
+        .toArray()
+    : [];
+
+  const favoriteIdsByType = favoritesRaw.reduce(
+    (acc, item) => {
+      const profileId =
+        typeof item.profileId === "string" && ObjectId.isValid(item.profileId)
+          ? item.profileId
+          : null;
+      const profileType =
+        item.profileType === "girls" || item.profileType === "trans"
+          ? item.profileType
+          : null;
+      if (profileId && profileType === "girls") {
+        acc.girls.push(new ObjectId(profileId));
+      }
+      if (profileId && profileType === "trans") {
+        acc.trans.push(new ObjectId(profileId));
+      }
+      return acc;
+    },
+    { girls: [] as ObjectId[], trans: [] as ObjectId[] }
+  );
+
+  const [favoriteGirlsDocs, favoriteTransDocs] = await Promise.all([
+    favoriteIdsByType.girls.length > 0
+      ? db
+          .collection("girls")
+          .find({
+            _id: { $in: favoriteIdsByType.girls },
+            isDeleted: { $ne: true },
+            $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+          }, { projection: favoriteDocProjection })
+          .toArray()
+      : [],
+    favoriteIdsByType.trans.length > 0
+      ? db
+          .collection("trans")
+          .find({
+            _id: { $in: favoriteIdsByType.trans },
+            isDeleted: { $ne: true },
+            $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+          }, { projection: favoriteDocProjection })
+          .toArray()
+      : [],
+  ]);
+
+  const favoriteLookup = new Map<string, FavoriteCard>();
+  for (const doc of favoriteGirlsDocs) {
+    favoriteLookup.set(`girls:${doc._id.toString()}`, {
+      id: doc._id.toString(),
+      name: typeof doc.name === "string" && doc.name.trim() ? doc.name.trim() : "Profile",
+      age: typeof doc.age === "number" ? doc.age : null,
+      location: typeof doc.location === "string" ? doc.location.trim() : "",
+      image:
+        Array.isArray(doc.images) && typeof doc.images[0] === "string" ? doc.images[0] : null,
+      profileType: "girls",
+      href: getFavoriteHref({ id: doc._id.toString(), profileType: "girls" }),
+    });
+  }
+  for (const doc of favoriteTransDocs) {
+    favoriteLookup.set(`trans:${doc._id.toString()}`, {
+      id: doc._id.toString(),
+      name: typeof doc.name === "string" && doc.name.trim() ? doc.name.trim() : "Profile",
+      age: typeof doc.age === "number" ? doc.age : null,
+      location: typeof doc.location === "string" ? doc.location.trim() : "",
+      image:
+        Array.isArray(doc.images) && typeof doc.images[0] === "string" ? doc.images[0] : null,
+      profileType: "trans",
+      href: getFavoriteHref({ id: doc._id.toString(), profileType: "trans" }),
+    });
+  }
+
+  const favoriteProfiles = favoritesRaw
+    .map((item) => {
+      const profileId = typeof item.profileId === "string" ? item.profileId : null;
+      const profileType =
+        item.profileType === "girls" || item.profileType === "trans"
+          ? item.profileType
+          : null;
+      if (!profileId || !profileType) return null;
+      return favoriteLookup.get(`${profileType}:${profileId}`) ?? null;
+    })
+    .filter((item): item is FavoriteCard => Boolean(item));
 
   return (
     <PageShell>
@@ -242,15 +392,40 @@ export default async function ProfileMePage() {
           </div>
         </div>
 
+        <ProfileFavoritesSection initialFavorites={favoriteProfiles} />
+
         {adResult ? (
           <div className="mt-8 rounded-3xl border border-white/10 bg-black/40 p-5 sm:mt-10 sm:p-8">
             <h2 className="text-lg font-semibold sm:text-2xl">
               Advertise Profile ({adResult.type})
             </h2>
 
-            {displayEntries.length > 0 ? (
+            {(subscriptionPlan || subscriptionDuration) && (
+              <div className="mt-5 rounded-[26px] border border-[#f5d68c]/35 bg-[linear-gradient(145deg,rgba(245,214,140,0.16),rgba(245,179,92,0.06)_20%,rgba(10,11,13,0.95)_60%)] p-5">
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
+                  Advertiser Subscription
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {subscriptionPlan && (
+                    <span className="rounded-full border border-[#f5d68c]/35 bg-black/40 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.3em]">
+                      {subscriptionPlan}
+                    </span>
+                  )}
+                  {subscriptionDuration && (
+                    <span className="rounded-full border border-white/15 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.24em] text-white/80 sm:text-xs sm:tracking-[0.3em]">
+                      {subscriptionDuration}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-white/65">
+                  Yeh section sirf aapke own account area me visible hai. Public profile users ko subscription info nahi dikhai jayegi.
+                </p>
+              </div>
+            )}
+
+            {visibleDisplayEntries.length > 0 ? (
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {displayEntries.map(([key, value]) => (
+                {visibleDisplayEntries.map(([key, value]) => (
                   <div
                     key={key}
                     className="rounded-2xl border border-white/10 bg-white/5 p-4"

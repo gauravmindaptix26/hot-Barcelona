@@ -9,6 +9,23 @@ type LookupPayload = {
   gender?: string;
 };
 
+const readFormFields = (value: unknown) =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+
+const readFieldText = (fields: Record<string, unknown>, key: string) => {
+  const raw = fields[key];
+  if (typeof raw === "string") return raw.trim();
+  if (Array.isArray(raw)) {
+    const first = raw.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
+    return first?.trim() ?? "";
+  }
+  return "";
+};
+
 export async function POST(req: Request) {
   const limiter = rateLimit("profile:lookup", 30, 60_000);
   if (!limiter.allowed) {
@@ -47,7 +64,21 @@ export async function POST(req: Request) {
   for (const collection of collections) {
     const doc = await db
       .collection(collection)
-      .findOne({ email, isDeleted: { $ne: true } });
+      .findOne(
+        { email, isDeleted: { $ne: true } },
+        {
+          projection: {
+            _id: 0,
+            gender: 1,
+            name: 1,
+            age: 1,
+            location: 1,
+            images: 1,
+            formFields: 1,
+            passwordHash: 1,
+          },
+        }
+      );
     if (!doc) continue;
 
     const hash = typeof doc.passwordHash === "string" ? doc.passwordHash : "";
@@ -59,15 +90,21 @@ export async function POST(req: Request) {
       );
     }
 
+    const formFields = readFormFields(doc.formFields);
+    const savedAddress = readFieldText(formFields, "address");
+    const fallbackLocation =
+      typeof doc.location === "string" ? doc.location.trim() : "";
+
     return NextResponse.json({
       ok: true,
       profile: {
         gender: doc.gender ?? (collection === "trans" ? "trans" : "girl"),
         name: doc.name ?? "",
         age: doc.age ?? null,
-        location: doc.location ?? "",
+        location: savedAddress || fallbackLocation,
         images: Array.isArray(doc.images) ? doc.images : [],
         email,
+        formFields,
       },
     });
   }
