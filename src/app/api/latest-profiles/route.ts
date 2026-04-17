@@ -15,7 +15,31 @@ const latestProfileProjection = {
   images: 1,
   createdAt: 1,
   gender: 1,
+  formFields: 1,
 } as const;
+
+const readFormFields = (value: unknown) =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+
+const readFirstStringValue = (value: unknown) => {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (Array.isArray(value)) {
+    const first = value.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
+    return first?.trim() ?? "";
+  }
+  return "";
+};
+
+const hasSpecialOffer = (fields: Record<string, unknown>) =>
+  Boolean(
+    readFirstStringValue(fields.specialOffer) ||
+      readFirstStringValue(fields.specialoffer) ||
+      readFirstStringValue(fields.offerText)
+  );
 
 export async function GET() {
   const db = await getDb();
@@ -56,6 +80,7 @@ export async function GET() {
       createdAt: profile.createdAt ?? null,
       gender: profile.gender ?? null,
       profileType,
+      hasSpecialOffer: hasSpecialOffer(readFormFields(profile.formFields)),
     })),
     {
       headers: {

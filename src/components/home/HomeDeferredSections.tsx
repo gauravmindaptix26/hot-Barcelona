@@ -97,6 +97,7 @@ type LatestProfile = {
   age: number | null;
   location: string;
   image: string | null;
+  hasSpecialOffer?: boolean;
   gender?: string | null;
   profileType?: "girls" | "trans" | null;
 };
@@ -107,6 +108,7 @@ type PremiumVipProfile = {
   age: number | null;
   location: string;
   image: string | null;
+  hasSpecialOffer?: boolean;
   gender?: string | null;
   profileType?: "girls" | "trans" | null;
 };
@@ -142,6 +144,17 @@ const getPublicProfileHref = (profile: {
   const basePath = normalized.includes("trans") ? "/trans-escorts" : "/girls";
   return `${basePath}?profile=${encodeURIComponent(profile.id)}`;
 };
+
+function SpecialOfferBadge() {
+  return (
+    <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-[#f5d68c]/35 bg-[linear-gradient(145deg,rgba(245,214,140,0.2),rgba(212,106,122,0.22))] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(0,0,0,0.35)] sm:left-4 sm:top-4">
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 text-[#f5d68c]" fill="currentColor">
+        <path d="M12 2.8 14.9 8l5.9 1-4.2 4.1.9 6-5.5-2.9-5.5 2.9.9-6L3.2 9l5.9-1L12 2.8Z" />
+      </svg>
+      Offer
+    </span>
+  );
+}
 
 export default function HomeDeferredSections() {
   const lifestyleRef = useRef<HTMLDivElement | null>(null);
@@ -334,6 +347,7 @@ export default function HomeDeferredSections() {
                     whileHover={shouldReduceMotion ? undefined : { y: -6 }}
                     className="group relative mx-auto aspect-[3/4.2] w-full max-w-[22rem] overflow-hidden rounded-[26px] border border-white/15 bg-[#11141b] shadow-[0_24px_48px_rgba(0,0,0,0.45)] sm:max-w-none sm:aspect-[3/4.65]"
                   >
+                    {profile.hasSpecialOffer && <SpecialOfferBadge />}
                     <Image
                       src={
                         profile.image ??
@@ -759,6 +773,7 @@ export default function HomeDeferredSections() {
                 whileHover={shouldReduceMotion ? undefined : { y: -6 }}
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
+                  {profile.hasSpecialOffer && <SpecialOfferBadge />}
                   <Image
                     src={profile.image ?? "/images/hot1.webp"}
                     alt={profile.name}

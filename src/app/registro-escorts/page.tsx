@@ -717,8 +717,8 @@ export default async function RegistroEscortsPage() {
                       copy: "Form data saves to your profile automatically.",
                     },
                     {
-                      title: "Optional Safe",
-                      copy: "Website and referral are optional.",
+                      title: "Contact Safe",
+                      copy: "Only the contact methods you enable appear publicly.",
                     },
                   ].map((item) => (
                     <div

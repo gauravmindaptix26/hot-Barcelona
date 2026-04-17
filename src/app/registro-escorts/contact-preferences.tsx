@@ -144,8 +144,6 @@ export default function ContactPreferences() {
   const [telegramEnabled, setTelegramEnabled] = useState<ToggleState>("no");
   const [whatsappValue, setWhatsappValue] = useState("");
   const [telegramValue, setTelegramValue] = useState("");
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [referralUrl, setReferralUrl] = useState("");
 
   useEffect(() => {
     const handlePrefill = (event: Event) => {
@@ -179,12 +177,6 @@ export default function ContactPreferences() {
       );
       setWhatsappValue(nextWhatsappValue);
       setTelegramValue(nextTelegramValue.replace(/^@+/, ""));
-      setWebsiteUrl(
-        readTextValue(formFields, ["websiteUrl", "website", "web", "optionalWebsite"])
-      );
-      setReferralUrl(
-        readTextValue(formFields, ["referralUrl", "referral", "referidoUrl", "referredBy"])
-      );
     };
 
     window.addEventListener("profile:prefill", handlePrefill as EventListener);
@@ -198,7 +190,7 @@ export default function ContactPreferences() {
           Contact Channels
         </p>
         <h3 className="mt-3 text-2xl font-semibold text-white sm:text-[2rem]">
-          Messaging, website, and referral links
+          Messaging contact options
         </h3>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/62 sm:text-lg">
           Choose which contact methods you want to show.
@@ -231,35 +223,6 @@ export default function ContactPreferences() {
           helperText=""
         />
       </div>
-
-      <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        <label className="block rounded-[24px] border border-white/10 bg-black/25 p-5">
-          <span className="text-[11px] uppercase tracking-[0.24em] text-white/50">
-            Optional Website
-          </span>
-          <input
-            name="websiteUrl"
-            value={websiteUrl}
-            onChange={(event) => setWebsiteUrl(event.target.value)}
-            placeholder="Your website URL"
-            className="mt-3.5 w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3.5 text-base text-white/88 placeholder:text-white/35 focus:border-[#f5d68c]/60 focus:outline-none"
-          />
-        </label>
-
-        <label className="block rounded-[24px] border border-white/10 bg-black/25 p-5">
-          <span className="text-[11px] uppercase tracking-[0.24em] text-white/50">
-            Referral / Referido URL
-          </span>
-          <input
-            name="referralUrl"
-            value={referralUrl}
-            onChange={(event) => setReferralUrl(event.target.value)}
-            placeholder="Referral URL"
-            className="mt-3.5 w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3.5 text-base text-white/88 placeholder:text-white/35 focus:border-[#f5d68c]/60 focus:outline-none"
-          />
-        </label>
-      </div>
-
     </div>
   );
 }

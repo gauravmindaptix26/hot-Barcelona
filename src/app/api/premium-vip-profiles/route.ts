@@ -50,6 +50,13 @@ const readStringValue = (value: unknown): string | null => {
   return null;
 };
 
+const hasSpecialOffer = (fields: Record<string, unknown>) =>
+  Boolean(
+    readStringValue(fields.specialOffer) ||
+      readStringValue(fields.specialoffer) ||
+      readStringValue(fields.offerText)
+  );
+
 const readSubscriptionPlan = (value: unknown) => {
   const raw = readStringValue(value);
   if (!raw) return null;
@@ -118,6 +125,7 @@ export async function GET() {
       createdAt: createdAtMs || null,
       gender: item.gender ?? null,
       profileType,
+      hasSpecialOffer: hasSpecialOffer(readFormFields(item.formFields)),
     })),
     {
       headers: {

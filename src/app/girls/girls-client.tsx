@@ -10,6 +10,7 @@ import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileActionBar from "../../components/ProfileActionBar";
+import ProfileSectionSidebar from "../../components/ProfileSectionSidebar";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
@@ -246,9 +247,9 @@ type FilledFormEntry = {
 const detailGroupOrder = [
   "identity",
   "description",
-  "services",
   "rates",
   "schedule",
+  "services",
   "location",
   "plan",
   "other",
@@ -522,15 +523,57 @@ export default function GirlsClient({
     () => groupedFormEntries.find((group) => group.id === "location")?.entries ?? [],
     [groupedFormEntries]
   );
-  const detailGroupsForDisplay = useMemo(
-    () => groupedFormEntries.filter((group) => group.id !== "location" && group.id !== "plan"),
-    [groupedFormEntries]
-  );
+  const detailGroupsForDisplay = useMemo(() => {
+    const baseGroups = groupedFormEntries.filter(
+      (group) => group.id !== "location" && group.id !== "plan"
+    );
+
+    if (selectedProfileSpecialOffer && !baseGroups.some((group) => group.id === "rates")) {
+      baseGroups.push({
+        id: "rates",
+        label: detailGroupLabels.rates,
+        entries: [],
+      });
+    }
+
+    return [...baseGroups].sort(
+      (a, b) => detailGroupOrder.indexOf(a.id) - detailGroupOrder.indexOf(b.id)
+    );
+  }, [groupedFormEntries, selectedProfileSpecialOffer]);
   const publicVisibleEntryCount = useMemo(
     () =>
       detailGroupsForDisplay.reduce((total, group) => total + group.entries.length, 0) +
       selectedLocationEntries.length,
     [detailGroupsForDisplay, selectedLocationEntries]
+  );
+  const selectedProfileInfoSectionId =
+    selectedProfile?.about.trim() ? "profile-about-section" : "profile-details-section";
+  const profileSidebarSections = useMemo(
+    () => [
+      {
+        id: "profile-gallery-section",
+        label: "Fotos",
+        iconPath:
+          "M4 7h4l1.5-2h5L16 7h4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm8 3a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7Z",
+      },
+      {
+        id: selectedProfileInfoSectionId,
+        label: "Info",
+        iconPath: "M12 16v-4M12 8h.01M5 12a7 7 0 1 0 14 0a7 7 0 1 0 -14 0",
+      },
+      {
+        id: "profile-details-section",
+        label: "Tarifa",
+        iconPath: "M16 7.5c-1.2-1-2.7-1.5-4.5-1.5c-3 0-5 1.8-5 5s2 5 5 5c1.8 0 3.3-.5 4.5-1.5M5 10h8M5 14h8",
+      },
+      {
+        id: "profile-map-section",
+        label: "Mapa",
+        iconPath: "M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z",
+        disabled: !selectedProfileAddress,
+      },
+    ],
+    [selectedProfileAddress, selectedProfileInfoSectionId]
   );
 
   useEffect(() => {
@@ -1031,20 +1074,27 @@ export default function GirlsClient({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
+          <div className="absolute right-3 top-1/2 z-20 -translate-y-1/2 sm:right-4 lg:right-6">
+            <ProfileSectionSidebar
+              sections={profileSidebarSections}
+              scrollContainerRef={modalRef}
+              onClose={closeProfile}
+            />
+          </div>
 
           <motion.div
             ref={modalRef}
-            onScroll={(event) => {
-              const target = event.currentTarget;
-              const maxScroll = target.scrollHeight - target.clientHeight;
-              scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
-            }}
-            initial={{ opacity: 0, scale: 0.98, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 24 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="no-scrollbar relative z-10 max-h-[96svh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:max-h-[92vh] sm:rounded-[32px]"
-          >
+              onScroll={(event) => {
+                const target = event.currentTarget;
+                const maxScroll = target.scrollHeight - target.clientHeight;
+                scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
+              }}
+              initial={{ opacity: 0, scale: 0.98, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 24 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="no-scrollbar relative z-10 max-h-[96svh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:max-h-[92vh] sm:rounded-[32px]"
+            >
             <div className="relative h-[48vh] min-h-[300px] overflow-hidden sm:h-[55vh] sm:min-h-[380px]">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
                 {selectedProfile.image ? (
@@ -1143,42 +1193,26 @@ export default function GirlsClient({
                 </div>
               </div>
             </div>
-            <div className="space-y-6 px-4 py-6 sm:space-y-8 sm:px-10 sm:py-12">
-              <ProfileActionBar
+            <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+                <div className="space-y-6 sm:space-y-8">
+                  <ProfileActionBar
                 isAuthenticated={Boolean(session?.user)}
                 phoneHref={activeProfileContact?.phoneHref ?? null}
                 phoneLabel={activeProfileContact?.phoneLabel ?? null}
                 whatsappHref={activeProfileContact?.whatsappHref ?? null}
                 telegramHref={activeProfileContact?.telegramHref ?? null}
                 telegramLabel={activeProfileContact?.telegramLabel ?? null}
-                websiteHref={activeProfileContact?.websiteHref ?? null}
-                websiteLabel={activeProfileContact?.websiteLabel ?? null}
-                referralHref={activeProfileContact?.referralHref ?? null}
-                referralLabel={activeProfileContact?.referralLabel ?? null}
                 isFavorite={favoriteIds.includes(selectedProfile.id)}
                 onToggleFavorite={() => toggleFavorite(selectedProfile.id)}
                 onShare={() => void handleShare(selectedProfile)}
                 shareFeedback={shareFeedback}
               />
 
-              {selectedProfileSpecialOffer && (
-                <section className="rounded-[28px] border border-[#f5d68c]/35 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(245,179,92,0.07)_22%,rgba(10,11,13,0.94)_60%)] p-4 sm:p-7">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
-                      Special Offer
-                    </p>
-                    <span className="rounded-full border border-[#f5d68c]/35 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-[#f5d68c]">
-                      Advertiser Highlight
-                    </span>
-                  </div>
-                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/90 sm:text-lg">
-                    {selectedProfileSpecialOffer}
-                  </p>
-                </section>
-              )}
-
-              {selectedProfileAddress && (
-                <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.94)_45%)] p-4 sm:p-7">
+                  {selectedProfileAddress && (
+                <section
+                  id="profile-map-section"
+                  className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.94)_45%)] p-4 sm:p-7"
+                >
                   <div className="max-w-3xl">
                     <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                       Location
@@ -1246,7 +1280,10 @@ export default function GirlsClient({
                 </section>
               )}
 
-                <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.15),rgba(245,179,92,0.03)_22%,rgba(10,11,13,0.96)_52%)] p-4 sm:p-7">
+                <section
+                  id="profile-details-section"
+                  className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.15),rgba(245,179,92,0.03)_22%,rgba(10,11,13,0.96)_52%)] p-4 sm:p-7"
+                >
                   <div className="max-w-4xl">
                     <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                       Profile Details
@@ -1304,6 +1341,21 @@ export default function GirlsClient({
                                 </article>
                             );
                           })}
+                            {group.id === "rates" && selectedProfileSpecialOffer && (
+                              <div className="rounded-[24px] border border-[#f5d68c]/30 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(245,179,92,0.06)_24%,rgba(10,11,13,0.94)_72%)] p-4 sm:p-5">
+                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.34em]">
+                                    Special Offer
+                                  </p>
+                                  <span className="rounded-full border border-[#f5d68c]/30 bg-black/35 px-3 py-1 text-[10px] uppercase tracking-[0.16em] text-[#f5d68c]">
+                                    Advertiser Highlight
+                                  </span>
+                                </div>
+                                <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/88 sm:text-lg">
+                                  {selectedProfileSpecialOffer}
+                                </p>
+                              </div>
+                            )}
                         </div>
                       </section>
                     ))}
@@ -1311,8 +1363,11 @@ export default function GirlsClient({
                 )}
               </section>
 
-              {selectedProfile.about.trim() && (
-              <section className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-4 sm:p-7">
+                  {selectedProfile.about.trim() && (
+              <section
+                id="profile-about-section"
+                className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-4 sm:p-7"
+              >
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                     About
                   </p>
@@ -1330,7 +1385,10 @@ export default function GirlsClient({
                 gallery={selectedProfile.gallery}
               />
 
-              <section className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-4 sm:p-7">
+                  <section
+                id="profile-gallery-section"
+                className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-4 sm:p-7"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
                     Gallery
@@ -1362,7 +1420,8 @@ export default function GirlsClient({
                     ))}
                   </div>
                 )}
-              </section>
+                  </section>
+                </div>
             </div>
           </motion.div>
         </motion.div>
