@@ -6,6 +6,7 @@ import Link from "next/link";
 import NavIcon from "./NavIcon";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const LanguageSwitcher = dynamic(() => import("./LanguageSwitcher"), {
   ssr: false,
@@ -30,6 +31,7 @@ export default function Navbar({
   compactDesktop?: boolean;
   logoPriority?: boolean;
 }) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -47,6 +49,18 @@ export default function Navbar({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  useEffect(() => {
+    const routesToPrefetch = ["/", ...navItems.map((item) => item.href), "/registro-escorts", "/login", "/register"];
+    if (session?.user) {
+      routesToPrefetch.push("/my-ad", "/profile/me");
+      if (session.user.isAdmin) {
+        routesToPrefetch.push("/admin");
+      }
+    }
+
+    routesToPrefetch.forEach((route) => router.prefetch(route));
+  }, [router, session]);
 
   return (
     <header className={`relative z-20 ${compactDesktop ? "" : "lg:-mt-5"}`}>

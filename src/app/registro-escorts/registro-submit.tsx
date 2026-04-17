@@ -242,7 +242,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "rate30",
       "rate45",
       "rate60",
-      "address",
       "subscriptionPlan",
       "subscriptionDuration",
       "paymentMethod",

@@ -75,7 +75,7 @@ export default function LocationMapField({ initialValue = "" }: Props) {
     <div className="grid gap-3 sm:gap-4 md:grid-cols-[1fr_1.6fr] md:items-start">
       <div className="flex min-h-[220px] w-full flex-col justify-between space-y-3 rounded-[24px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.04),rgba(0,0,0,0.56))] p-4 sm:min-h-[260px] sm:p-5 md:min-h-[300px]">
         <label className="text-sm font-medium uppercase tracking-[0.22em] text-white/55">
-          Address
+          Address (Optional)
         </label>
         <input
           name="address"
@@ -86,7 +86,7 @@ export default function LocationMapField({ initialValue = "" }: Props) {
           className="h-12 w-full rounded-[22px] border border-white/10 bg-black/60 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none sm:h-14"
         />
         <p className="text-sm leading-relaxed text-white/55">
-          {geoError ?? "We auto-fill your current location. Edit the address to update the map."}
+          {geoError ?? "Add your location only if you want it on the ad. Leave it empty if you do not want to share it."}
         </p>
       </div>
 

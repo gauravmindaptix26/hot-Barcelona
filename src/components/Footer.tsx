@@ -9,6 +9,8 @@ const infoLinks = [
   { label: "Advertise", href: "/registro-escorts" },
 ];
 
+const brandLogoSrc = "/images/hot-loho3.png";
+
 const instagramImages = [
   "/images/Frauen%20in%20Limousine.jpeg",
   "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
@@ -48,27 +50,25 @@ export default function Footer() {
 
       <footer className="deferred-section relative z-10 bg-[#151018] text-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(245,214,140,0.08),_rgba(21,16,24,0)_60%)]" />
-        <div className="relative z-10 mx-auto w-full max-w-[80rem] px-4 pb-14 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
+        <div className="relative z-10 mx-auto w-full max-w-[80rem] px-4 pb-14 pt-14 sm:px-6 sm:pb-16 sm:pt-18">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_0.9fr_1fr]">
             <div>
-              <div className="flex items-center gap-3">
-                <span className="flex h-14 w-14 items-center justify-center rounded-full border border-[#f5d68c]/40 text-[#f5d68c]">
-                  <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6">
-                    <circle cx="12" cy="12" r="8" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </span>
-                <h3 className="text-2xl font-semibold">About</h3>
+              <div>
+                <div className="relative h-36 w-72 sm:h-40 sm:w-80">
+                  <Image
+                    src={brandLogoSrc}
+                    alt="Hot Barcelona"
+                    fill
+                    sizes="(max-width: 640px) 18rem, 20rem"
+                    quality={78}
+                    className="object-contain object-left"
+                  />
+                </div>
               </div>
-              <p className="mt-6 text-lg text-white/70">
-                Hot-Barcelona
-                <br />
-                Catalonia, Spain
-              </p>
               <div className="mt-5 space-y-2 text-lg text-white/70">
                 <p>
-                  <a href="tel:621385161" className="underline decoration-white/25 underline-offset-4 hover:text-white">
-                    621 385161
+                  <a href="tel:+34621385161" className="underline decoration-white/25 underline-offset-4 hover:text-white">
+                    +34 621 385 161
                   </a>
                 </p>
                 <p>support@hotbarcelona.com</p>

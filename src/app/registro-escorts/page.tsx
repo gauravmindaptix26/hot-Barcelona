@@ -49,7 +49,7 @@ const steps = [
   {
     number: "5",
     title: "Service location",
-    note: "Provide the address where you offer services.",
+    note: "Add your service address if you want. You can also leave this step empty.",
     fields: ["Address"],
   },
   {
