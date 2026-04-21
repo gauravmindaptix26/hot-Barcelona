@@ -59,7 +59,11 @@ export default function Navbar({
       }
     }
 
-    routesToPrefetch.forEach((route) => router.prefetch(route));
+    const timeoutId = window.setTimeout(() => {
+      routesToPrefetch.forEach((route) => router.prefetch(route));
+    }, 900);
+
+    return () => window.clearTimeout(timeoutId);
   }, [router, session]);
 
   return (

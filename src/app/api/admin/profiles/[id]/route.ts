@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { ObjectId } from "mongodb";
 import crypto from "crypto";
 import { getAppServerSession } from "@/lib/auth";
@@ -184,6 +184,8 @@ function revalidateProfilePages() {
   revalidatePath("/profile/me");
   revalidatePath("/registro-escorts");
   revalidatePath("/my-ad");
+  revalidateTag("girls-public-profiles", { expire: 0 });
+  revalidateTag("trans-public-profiles", { expire: 0 });
 }
 
 const sanitizeText = (value: unknown) =>

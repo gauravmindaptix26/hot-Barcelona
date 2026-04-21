@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { deriveCloudinaryPublicIds } from "@/lib/cloudinary";
+import { revalidateTag } from "next/cache";
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
@@ -172,6 +173,7 @@ export async function POST(req: Request) {
         },
       }
     );
+    revalidateTag("trans-public-profiles", { expire: 0 });
     return NextResponse.json({
       ok: true,
       id: existing._id.toString(),
@@ -199,6 +201,7 @@ export async function POST(req: Request) {
     userEmail: null,
     createdAt: now,
   });
+  revalidateTag("trans-public-profiles", { expire: 0 });
 
   return NextResponse.json({
     ok: true,

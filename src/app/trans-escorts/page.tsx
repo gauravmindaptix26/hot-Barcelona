@@ -8,6 +8,7 @@ import {
   SUBSCRIPTION_PLAN_ORDER,
 } from "@/lib/subscription";
 import { ObjectId } from "mongodb";
+import { unstable_cache } from "next/cache";
 
 export const revalidate = 120;
 
@@ -167,35 +168,15 @@ const buildAvailability = (
   };
 };
 
-export default async function TransPage() {
-  const db = await getDb();
-  const session = await getAppServerSession();
-  const items = await db
-    .collection("trans")
-    .find(publicVisibilityQuery, { projection: profileProjection })
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .toArray();
-
-  const initialFavoriteIds =
-    session?.user?.id
-      ? (
-          await db
-            .collection("profile_favorites")
-            .find({
-              userId: session.user.id,
-              profileType: "trans",
-              profileId: { $type: "string" },
-            }, { projection: { _id: 0, profileId: 1, profileType: 1 } })
-            .toArray()
-        )
-          .map((item) =>
-            typeof item.profileId === "string" && ObjectId.isValid(item.profileId)
-              ? `db-${item.profileId}`
-              : null
-          )
-          .filter((item): item is string => Boolean(item))
-      : [];
+const getCachedTransProfiles = unstable_cache(
+  async () => {
+    const db = await getDb();
+    const items = await db
+      .collection("trans")
+      .find(publicVisibilityQuery, { projection: profileProjection })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .toArray();
 
   const sortedItems = [...items].sort((a, b) => {
     const aFields = readFormFields(a.formFields);
@@ -218,7 +199,7 @@ export default async function TransPage() {
     return readCreatedAtMs(b.createdAt) - readCreatedAtMs(a.createdAt);
   });
 
-  const initialProfiles = sortedItems.map((item) => {
+  return sortedItems.map((item) => {
     const formFields = readFormFields(item.formFields);
     const publicFormFields = stripPrivateContactFields(formFields);
     const images = Array.isArray(item.images)
@@ -317,6 +298,35 @@ export default async function TransPage() {
       formFields: publicFormFields,
     };
   });
+  },
+  ["trans-public-profiles-v3"],
+  { revalidate: 120, tags: ["trans-public-profiles"] }
+);
+
+export default async function TransPage() {
+  const [session, initialProfiles] = await Promise.all([
+    getAppServerSession(),
+    getCachedTransProfiles(),
+  ]);
+
+  const initialFavoriteIds =
+    session?.user?.id
+      ? (
+          await (await getDb()).collection("profile_favorites")
+            .find({
+              userId: session.user.id,
+              profileType: "trans",
+              profileId: { $type: "string" },
+            }, { projection: { _id: 0, profileId: 1, profileType: 1 } })
+            .toArray()
+        )
+          .map((item) =>
+            typeof item.profileId === "string" && ObjectId.isValid(item.profileId)
+              ? `db-${item.profileId}`
+              : null
+          )
+          .filter((item): item is string => Boolean(item))
+      : [];
 
   return (
     <TransClient
