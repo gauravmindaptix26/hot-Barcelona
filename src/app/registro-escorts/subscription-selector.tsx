@@ -1,56 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type DurationOption = {
-  label: "1 month" | "15 days" | "7 days";
-  price: string;
-};
-
-type PlanOption = {
-  value: string;
-  label: string;
-  durations: DurationOption[];
-};
-
-const planOptions: PlanOption[] = [
-  {
-    value: "TOP PREMIUM VIP",
-    label: "VIP PREMIUM SUPERIOR",
-    durations: [
-      { label: "1 month", price: "\u20AC335" },
-      { label: "15 days", price: "\u20AC195" },
-      { label: "7 days", price: "\u20AC100" },
-    ],
-  },
-  {
-    value: "TOP PREMIUM BANNER",
-    label: "BANNER PREMIUM SUPERIOR",
-    durations: [
-      { label: "1 month", price: "\u20AC185" },
-      { label: "15 days", price: "\u20AC120" },
-      { label: "7 days", price: "\u20AC65" },
-    ],
-  },
-  {
-    value: "PREMIUM SUPERIOR",
-    label: "PREMIUM SUPERIOR",
-    durations: [
-      { label: "1 month", price: "\u20AC135" },
-      { label: "15 days", price: "\u20AC90" },
-      { label: "7 days", price: "\u20AC45" },
-    ],
-  },
-  {
-    value: "TOP PREMIUM STANDARD",
-    label: "TOP PREMIUM STANDARD",
-    durations: [
-      { label: "1 month", price: "\u20AC90" },
-      { label: "15 days", price: "\u20AC63" },
-      { label: "7 days", price: "\u20AC36" },
-    ],
-  },
-];
+import {
+  normalizeSubscriptionDurationValue,
+  normalizeSubscriptionPlanValue,
+  subscriptionPlanOptions,
+} from "@/lib/subscription";
 
 type Props = {
   planName: string;
@@ -58,24 +13,15 @@ type Props = {
 };
 
 const normalizePlanValue = (value: string) => {
-  const normalized = value.replace(/\s+/g, " ").trim().toUpperCase();
-  switch (normalized) {
-    case "VIP PREMINUM SUPERIOR":
-    case "VIP PREMIUM SUPERIOR":
-      return "TOP PREMIUM VIP";
-    case "BANNER PREMIUM SUPERIOR":
-      return "TOP PREMIUM BANNER";
-    case "TOP PREMIUM TOP":
-      return "PREMIUM SUPERIOR";
-    default:
-      return normalized;
-  }
+  return normalizeSubscriptionPlanValue(value) ?? value.replace(/\s+/g, " ").trim().toUpperCase();
 };
 
 export default function SubscriptionSelector({ planName, durationName }: Props) {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [selectedDuration, setSelectedDuration] = useState<string>("");
-  const uniquePlans = Array.from(new Map(planOptions.map((plan) => [plan.value, plan])).values());
+  const uniquePlans = Array.from(
+    new Map(subscriptionPlanOptions.map((plan) => [plan.value, plan])).values()
+  );
 
   useEffect(() => {
     const handlePrefill = (event: Event) => {
@@ -99,7 +45,9 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
       };
 
       setSelectedPlan(normalizePlanValue(readText(planName) || readText("premiumPlan")));
-      setSelectedDuration(readText(durationName) || readText("premiumDuration"));
+      setSelectedDuration(
+        normalizeSubscriptionDurationValue(readText(durationName) || readText("premiumDuration")) ?? ""
+      );
     };
 
     window.addEventListener("profile:prefill", handlePrefill as EventListener);
@@ -143,7 +91,7 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
                   <span className="min-w-0 break-words uppercase tracking-[0.08em] sm:tracking-[0.12em]">
                     {duration.label}
                   </span>
-                  <span className="shrink-0 text-base font-semibold text-[#f5d68c]">
+                  <span className="shrink-0 text-base font-semibold tabular-nums text-[#f5d68c] sm:text-[1.05rem]">
                     {duration.price}
                   </span>
                 </button>

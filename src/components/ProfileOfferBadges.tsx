@@ -1,0 +1,108 @@
+import NavIcon from "./NavIcon";
+
+export type OfferHighlights = {
+  activeOffer: string;
+  nextOffer: string;
+};
+
+const offerConfig = {
+  activeOffer: {
+    label: "Active offer",
+    tone: "border-emerald-200/80 bg-[#04c900] text-black shadow-[0_14px_30px_rgba(4,201,0,0.32)]",
+    iconPath: "M20 6 9 17l-5-5",
+  },
+  nextOffer: {
+    label: "Next offer",
+    tone: "border-white/80 bg-[#ff1616] text-black shadow-[0_14px_30px_rgba(255,22,22,0.32)]",
+    iconPath: "M8 5l8 7-8 7",
+  },
+} as const;
+
+type Props = {
+  offers: OfferHighlights;
+  compact?: boolean;
+  className?: string;
+};
+
+export const readOfferHighlights = (
+  fields: Record<string, unknown>
+): OfferHighlights => ({
+  activeOffer: readFirstText(fields.activeOffer),
+  nextOffer: readFirstText(fields.nextOffer),
+});
+
+export const hasOfferHighlights = (offers: OfferHighlights) =>
+  Boolean(offers.activeOffer || offers.nextOffer);
+
+function readFirstText(value: unknown) {
+  if (typeof value === "string") return value.trim();
+  if (Array.isArray(value)) {
+    const first = value.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
+    return first?.trim() ?? "";
+  }
+  return "";
+}
+
+export default function ProfileOfferBadges({
+  offers,
+  compact = false,
+  className = "",
+}: Props) {
+  const items = [
+    ["activeOffer", offers.activeOffer],
+    ["nextOffer", offers.nextOffer],
+  ] as const;
+
+  const visibleItems = items.filter(([, value]) => value);
+  if (visibleItems.length === 0) return null;
+
+  if (compact) {
+    return (
+      <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+        {visibleItems.map(([key]) => {
+          const config = offerConfig[key];
+          return (
+            <span
+              key={key}
+              title={config.label}
+              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 text-center text-[10px] font-bold uppercase leading-tight tracking-normal ${config.tone}`}
+            >
+              {config.label}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`grid gap-3 sm:grid-cols-2 ${className}`}>
+      {visibleItems.map(([key, value]) => {
+        const config = offerConfig[key];
+        return (
+          <article
+            key={key}
+            className="flex items-center gap-4 rounded-[24px] border border-white/10 bg-black/40 p-4 shadow-[0_18px_38px_rgba(0,0,0,0.28)]"
+          >
+            <div
+              className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 text-center text-xs font-bold uppercase leading-tight tracking-normal ${config.tone}`}
+            >
+              {config.label}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
+                <NavIcon path={config.iconPath} />
+                {config.label}
+              </p>
+              <p className="mt-2 whitespace-pre-wrap break-words text-base leading-relaxed text-white/88">
+                {value}
+              </p>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}

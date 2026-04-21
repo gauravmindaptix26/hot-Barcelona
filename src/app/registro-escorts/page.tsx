@@ -56,7 +56,7 @@ const steps = [
     number: "6",
     title: "Ad type and payment",
     note: "Choose subscription, payment method, and highlight any special offer.",
-    fields: ["Subscription", "Payment method", "Special offer"],
+    fields: ["Subscription", "Payment method", "Offer icons", "Special offer"],
   },
 ];
 
@@ -1099,6 +1099,70 @@ export default async function RegistroEscortsPage() {
                                   </label>
                                 ))}
                               </div>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        if (step.number === "6" && field === "Offer icons") {
+                          return (
+                            <div key={field} className="sm:col-span-2 space-y-4">
+                              <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                  <div className="text-sm font-medium uppercase tracking-[0.24em] text-white/58">
+                                    Offer icons
+                                  </div>
+                                  <p className="mt-2 text-base leading-relaxed text-white/55">
+                                    Fill either field only when you want its icon to appear on your public profile.
+                                  </p>
+                                </div>
+                                <span className="rounded-full border border-[#f5d68c]/20 bg-[#f5d68c]/5 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]/80">
+                                  Optional
+                                </span>
+                              </div>
+                              <div className="grid gap-4 md:grid-cols-2">
+                                <label className="rounded-[26px] border border-emerald-300/20 bg-gradient-to-br from-emerald-400/12 via-black/35 to-black/65 p-4">
+                                  <span className="flex items-center gap-3">
+                                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-emerald-100/80 bg-[#04c900] text-center text-xs font-bold uppercase leading-tight tracking-normal text-black shadow-[0_14px_30px_rgba(4,201,0,0.28)]">
+                                      Active offer
+                                    </span>
+                                    <span className="min-w-0">
+                                      <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/78">
+                                        Active offer
+                                      </span>
+                                      <span className="mt-1 block text-sm leading-relaxed text-white/48">
+                                        Shown now on card and profile.
+                                      </span>
+                                    </span>
+                                  </span>
+                                  <textarea
+                                    name="activeOffer"
+                                    rows={3}
+                                    placeholder="Example: Active today - 30 min special price"
+                                    className="mt-4 w-full resize-none rounded-[22px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 placeholder:text-white/35 focus:border-emerald-300/60 focus:outline-none"
+                                  />
+                                </label>
+                                <label className="rounded-[26px] border border-red-300/20 bg-gradient-to-br from-red-500/12 via-black/35 to-black/65 p-4">
+                                  <span className="flex items-center gap-3">
+                                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-white/80 bg-[#ff1616] text-center text-xs font-bold uppercase leading-tight tracking-normal text-black shadow-[0_14px_30px_rgba(255,22,22,0.28)]">
+                                      Next offer
+                                    </span>
+                                    <span className="min-w-0">
+                                      <span className="block text-sm font-semibold uppercase tracking-[0.2em] text-white/78">
+                                        Next offer
+                                      </span>
+                                      <span className="mt-1 block text-sm leading-relaxed text-white/48">
+                                        Shown only after this field is filled.
+                                      </span>
+                                    </span>
+                                  </span>
+                                  <textarea
+                                    name="nextOffer"
+                                    rows={3}
+                                    placeholder="Example: Weekend new offer starts Friday"
+                                    className="mt-4 w-full resize-none rounded-[22px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 placeholder:text-white/35 focus:border-red-300/60 focus:outline-none"
+                                  />
+                                </label>
                               </div>
                             </div>
                           );

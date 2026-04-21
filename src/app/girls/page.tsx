@@ -2,6 +2,11 @@ import GirlsClient from "./girls-client";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { stripPrivateContactFields } from "@/lib/profile-contact";
+import {
+  normalizeSubscriptionDurationValue,
+  normalizeSubscriptionPlanValue,
+  SUBSCRIPTION_PLAN_ORDER,
+} from "@/lib/subscription";
 import { ObjectId } from "mongodb";
 
 export const revalidate = 120;
@@ -28,12 +33,7 @@ const profileProjection = {
   premiumDuration: 1,
 } as const;
 
-const PREMIUM_PLAN_ORDER = [
-  "TOP PREMIUM VIP",
-  "TOP PREMIUM BANNER",
-  "PREMIUM SUPERIOR",
-  "TOP PREMIUM STANDARD",
-] as const;
+const PREMIUM_PLAN_ORDER = SUBSCRIPTION_PLAN_ORDER;
 
 const PREMIUM_PLAN_PRIORITY = new Map<string, number>(
   PREMIUM_PLAN_ORDER.map((plan, index) => [plan, index])
@@ -49,44 +49,11 @@ const scheduleDays = [
   "Sunday",
 ] as const;
 
-const normalizePremiumPlanText = (value: string) =>
-  value.replace(/\s+/g, " ").trim().toUpperCase();
-
-const PREMIUM_PLAN_LOOKUP = new Map(
-  PREMIUM_PLAN_ORDER.map((plan) => [normalizePremiumPlanText(plan), plan] as const)
-);
-const LEGACY_TOP_PLAN = "TOP PREMIUM TOP";
-const PREMIUM_PLAN_ALIASES = new Map<string, (typeof PREMIUM_PLAN_ORDER)[number]>([
-  ["VIP PREMINUM SUPERIOR", "TOP PREMIUM VIP"],
-  ["VIP PREMIUM SUPERIOR", "TOP PREMIUM VIP"],
-  ["BANNER PREMIUM SUPERIOR", "TOP PREMIUM BANNER"],
-]);
-
-const readSubscriptionPlan = (value: unknown) => {
-  if (typeof value !== "string") return null;
-  const normalized = normalizePremiumPlanText(value);
-  if (normalized === normalizePremiumPlanText(LEGACY_TOP_PLAN)) {
-    return "PREMIUM SUPERIOR";
-  }
-  const exact = PREMIUM_PLAN_LOOKUP.get(normalized);
-  if (exact) return exact;
-  const alias = PREMIUM_PLAN_ALIASES.get(normalized);
-  if (alias) return alias;
-  if (normalized.startsWith(normalizePremiumPlanText(LEGACY_TOP_PLAN))) {
-    return "PREMIUM SUPERIOR";
-  }
-
-  for (const plan of PREMIUM_PLAN_ORDER) {
-    if (normalized.startsWith(normalizePremiumPlanText(plan))) {
-      return plan;
-    }
-  }
-
-  return null;
-};
+const readSubscriptionPlan = (value: unknown) =>
+  typeof value === "string" ? normalizeSubscriptionPlanValue(value) : null;
 
 const readSubscriptionDuration = (value: unknown) =>
-  typeof value === "string" && value.trim() ? value.trim() : null;
+  normalizeSubscriptionDurationValue(value);
 
 const readFormFields = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value)

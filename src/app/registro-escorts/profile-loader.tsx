@@ -90,6 +90,8 @@ export default function ProfileLoader() {
       "telegramUsername",
       readText("telegramUsername") || readText("telegram") || readText("telegramLink")
     );
+    setValue("activeOffer", readText("activeOffer"));
+    setValue("nextOffer", readText("nextOffer"));
     setValue("specialOffer", readText("specialOffer"));
   };
 

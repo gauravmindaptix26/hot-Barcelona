@@ -11,6 +11,8 @@ import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileActionBar from "../../components/ProfileActionBar";
 import ProfileSectionSidebar from "../../components/ProfileSectionSidebar";
+import ProfileOfferBadges, { readOfferHighlights } from "../../components/ProfileOfferBadges";
+import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
@@ -34,6 +36,8 @@ const formatPremiumPlanLabel = (value: string | null | undefined) => {
   if (normalized === "PREMIUM SUPERIOR") return "Premium superior";
   return value.trim();
 };
+const formatPremiumDurationLabel = (value: string | null | undefined) =>
+  normalizeSubscriptionDurationValue(value) ?? "";
 
 const filterMatches = (profile: Profile, filter: string) => {
   switch (filter) {
@@ -108,6 +112,7 @@ const hiddenFormFieldKeys = new Set([
   "whatsappenabled",
   "telegramenabled",
 ]);
+const offerFormFieldKeys = new Set(["activeoffer", "nextoffer"]);
 const isVisibleFormField = (key: string) => {
   const normalized = key.toLowerCase().replace(/\s+/g, "");
   if (hiddenFormFieldKeys.has(normalized)) return false;
@@ -181,6 +186,7 @@ const getFilledFormEntries = (fields: Record<string, unknown>) => {
   for (const [key, rawValue] of Object.entries(fields)) {
     if (!isVisibleFormField(key)) continue;
     const normalizedKey = key.toLowerCase().replace(/\s+/g, "");
+    if (offerFormFieldKeys.has(normalizedKey)) continue;
     if (normalizedKey === "specialoffer") continue;
     const value = formatFieldValue(rawValue);
     if (!value) continue;
@@ -501,6 +507,13 @@ export default function GirlsClient({
             "offerText",
           ])
         : "",
+    [selectedProfile]
+  );
+  const selectedProfileOfferHighlights = useMemo(
+    () =>
+      selectedProfile
+        ? readOfferHighlights(selectedProfile.formFields)
+        : { activeOffer: "", nextOffer: "" },
     [selectedProfile]
   );
   const selectedProfileMapSrc = useMemo(
@@ -897,6 +910,7 @@ export default function GirlsClient({
           >
             {visibleProfiles.map((profile) => {
               const isFavorite = favoriteIds.includes(profile.id);
+              const offerHighlights = readOfferHighlights(profile.formFields);
               return (
                 <motion.div
                   key={profile.id}
@@ -951,6 +965,11 @@ export default function GirlsClient({
                       </span>
                     </div>
                     <div className="flex flex-col gap-1.5">
+                      <ProfileOfferBadges
+                        offers={offerHighlights}
+                        compact
+                        className="mb-1"
+                      />
                       <div className="flex items-center justify-between gap-3">
                         <div>
                         <p className="text-lg font-semibold">
@@ -1115,6 +1134,11 @@ export default function GirlsClient({
                   <NavIcon path="M4 7h16M4 12h10M4 17h7" />
                   Elite profile
                 </div>
+                <ProfileOfferBadges
+                  offers={selectedProfileOfferHighlights}
+                  compact
+                  className="mt-2"
+                />
               </div>
               <button
                 type="button"
@@ -1145,7 +1169,7 @@ export default function GirlsClient({
                         </span>
                         {selectedProfile.premiumDuration && (
                           <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/75 sm:text-[11px] sm:tracking-[0.24em]">
-                            {selectedProfile.premiumDuration}
+                            {formatPremiumDurationLabel(selectedProfile.premiumDuration)}
                           </span>
                         )}
                       </div>
@@ -1205,8 +1229,10 @@ export default function GirlsClient({
                 isFavorite={favoriteIds.includes(selectedProfile.id)}
                 onToggleFavorite={() => toggleFavorite(selectedProfile.id)}
                 onShare={() => void handleShare(selectedProfile)}
-                shareFeedback={shareFeedback}
+                  shareFeedback={shareFeedback}
               />
+
+                  <ProfileOfferBadges offers={selectedProfileOfferHighlights} />
 
                   {selectedProfileAddress && (
                 <section

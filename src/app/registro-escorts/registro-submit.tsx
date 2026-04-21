@@ -222,6 +222,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       mapConfirmation: "Map confirmation",
       subscription: "Subscription",
       paymentMethod: "Payment method",
+      activeOffer: "Active offer",
+      nextOffer: "Next offer",
       specialOffer: "Special offer",
       featuredBanner: "Featured banner",
     };

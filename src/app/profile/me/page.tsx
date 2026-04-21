@@ -6,6 +6,8 @@ import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import PageShell from "@/components/PageShell";
 import ProfileFavoritesSection from "./profile-favorites-section";
+import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
+import ProfileOfferBadges, { readOfferHighlights } from "@/components/ProfileOfferBadges";
 
 type AdCollection = "girls" | "trans";
 type DisplayValue = string | string[];
@@ -65,6 +67,8 @@ const fieldLabelMap: Record<string, string> = {
   subscriptionPlan: "Subscription Plan",
   subscriptionDuration: "Subscription Duration",
   paymentMethod: "Payment Method",
+  activeOffer: "Active Offer",
+  nextOffer: "Next Offer",
   specialOffer: "Special Offer",
   featuredBanner: "Featured Banner",
 };
@@ -257,10 +261,21 @@ export default async function ProfileMePage() {
         gender: adDoc.gender,
       })
     : [];
+  const adFormFields =
+    adDoc?.formFields && typeof adDoc.formFields === "object" && !Array.isArray(adDoc.formFields)
+      ? (adDoc.formFields as Record<string, unknown>)
+      : {};
+  const offerHighlights = readOfferHighlights(adFormFields);
   const subscriptionPlan = readEntryValue(displayEntries, "subscriptionPlan");
-  const subscriptionDuration = readEntryValue(displayEntries, "subscriptionDuration");
+  const subscriptionDuration = normalizeSubscriptionDurationValue(
+    readEntryValue(displayEntries, "subscriptionDuration")
+  );
   const visibleDisplayEntries = displayEntries.filter(
-    ([key]) => key !== "subscriptionPlan" && key !== "subscriptionDuration"
+    ([key]) =>
+      key !== "subscriptionPlan" &&
+      key !== "subscriptionDuration" &&
+      key !== "activeOffer" &&
+      key !== "nextOffer"
   );
 
   const favoritesRaw = session.user.id
@@ -427,6 +442,8 @@ export default async function ProfileMePage() {
                 </p>
               </div>
             )}
+
+            <ProfileOfferBadges offers={offerHighlights} className="mt-5" />
 
             {visibleDisplayEntries.length > 0 ? (
               <div className="mt-5 grid gap-4 sm:grid-cols-2">

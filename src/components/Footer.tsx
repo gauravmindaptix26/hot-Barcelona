@@ -10,6 +10,8 @@ const infoLinks = [
 ];
 
 const brandLogoSrc = "/images/hot-loho3.png";
+const whatsappNumber = "+34 621 385 161";
+const whatsappHref = "https://wa.me/34621385161";
 
 const instagramImages = [
   "/images/Frauen%20in%20Limousine.jpeg",
@@ -150,7 +152,7 @@ export default function Footer() {
 
           <div className="my-10 h-px w-full bg-[linear-gradient(90deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0)_100%)]" />
 
-          <div className="flex flex-wrap items-center justify-between gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
+          <div className="flex flex-wrap items-end justify-between gap-4 text-xs uppercase tracking-[0.25em] text-white/50">
             <p>(c) 2026 Hot Barcelona. All rights reserved.</p>
             <div className="flex items-center gap-3">
               <Link href="/legal-notice" className="text-white/55 transition hover:text-white/80">
@@ -164,6 +166,21 @@ export default function Footer() {
           </div>
         </div>
       </footer>
+
+      <a
+        href={whatsappHref}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={`Chat on WhatsApp at ${whatsappNumber}`}
+        className="fixed bottom-4 left-4 z-[70] inline-flex h-[4.15rem] w-[4.15rem] items-center justify-center rounded-full bg-[#2bc21f] shadow-[0_16px_28px_rgba(43,194,31,0.26)] transition hover:scale-105 sm:bottom-5 sm:left-5 sm:h-[4.35rem] sm:w-[4.35rem]"
+      >
+        <svg viewBox="0 0 24 24" className="h-[2.15rem] w-[2.15rem] sm:h-[2.25rem] sm:w-[2.25rem]" fill="none" aria-hidden="true">
+          <path
+            d="M12 4.25c-4.24 0-7.69 3.33-7.69 7.44c0 1.38.39 2.72 1.13 3.89L4.5 19.75l4.35-1.13a7.83 7.83 0 0 0 3.08.63h.01c4.25 0 7.7-3.33 7.7-7.44a7.3 7.3 0 0 0-2.25-5.27A7.76 7.76 0 0 0 12 4.25Zm0 13.15h-.01a6.52 6.52 0 0 1-3.32-.91l-.24-.14-2.57.67l.69-2.49-.16-.25a6.44 6.44 0 0 1-1.01-3.45c0-3.57 2.99-6.47 6.66-6.47c1.81 0 3.5.69 4.76 1.92a6.3 6.3 0 0 1 1.96 4.59c0 3.57-2.99 6.47-6.66 6.47Zm3.66-4.85c-.2-.1-1.17-.57-1.35-.64c-.18-.07-.31-.1-.44.1c-.13.2-.51.64-.63.77c-.11.13-.23.15-.43.05c-.2-.1-.83-.3-1.58-.95c-.58-.51-.98-1.14-1.09-1.34c-.11-.2-.01-.31.08-.41c.08-.08.18-.2.26-.31c.08-.1.11-.18.18-.29c.06-.1.03-.2-.02-.3c-.05-.1-.44-1.03-.6-1.41c-.16-.38-.32-.33-.44-.33h-.37c-.13 0-.34.05-.52.24c-.18.2-.69.67-.69 1.64c0 .97.72 1.91.81 2.04c.1.13 1.4 2.08 3.39 2.92c.47.2.83.32 1.11.4c.47.14.89.12 1.23.07c.37-.06 1.17-.46 1.34-.91c.16-.46.16-.84.11-.91c-.05-.08-.18-.12-.38-.22Z"
+            fill="#fff"
+          />
+        </svg>
+      </a>
     </>
   );
 }
