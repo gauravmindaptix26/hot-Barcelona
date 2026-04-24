@@ -13,6 +13,7 @@ const globalForMongo = globalThis as typeof globalThis & {
 const client = globalForMongo._mongoClient ?? new MongoClient(uri);
 const clientPromise =
   globalForMongo._mongoClientPromise ?? client.connect().then(() => client);
+let indexesPromise: Promise<void> | undefined;
 
 if (process.env.NODE_ENV !== "production") {
   globalForMongo._mongoClient = client;
@@ -22,5 +23,17 @@ if (process.env.NODE_ENV !== "production") {
 export async function getDb() {
   await clientPromise;
   const dbName = process.env.MONGODB_DB ?? "hot_barcelona";
-  return client.db(dbName);
+  const db = client.db(dbName);
+
+  indexesPromise ??= db.collection("users").createIndex(
+    { nameKey: 1 },
+    {
+      name: "users_nameKey_unique",
+      unique: true,
+      partialFilterExpression: { nameKey: { $type: "string" } },
+    }
+  ).then(() => undefined);
+
+  await indexesPromise;
+  return db;
 }

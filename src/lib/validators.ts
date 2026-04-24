@@ -1,12 +1,20 @@
 import { z } from "zod";
 
 export const genderSchema = z.enum(["female", "male"]);
+const usernameSchema = z
+  .string()
+  .trim()
+  .min(3, "Username must be at least 3 characters")
+  .max(30, "Username must be 30 characters or less")
+  .regex(
+    /^[a-zA-Z0-9._-]+$/,
+    "Username can only use letters, numbers, dots, underscores, and hyphens"
+  );
 
 export const registerSchema = z.object({
-  name: z.string().trim().min(2, "Name is too short"),
+  name: usernameSchema,
   email: z.string().trim().email("Invalid email"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  gender: genderSchema,
 });
 
 export const profileSchema = z.object({

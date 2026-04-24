@@ -1,4 +1,5 @@
 import { createHash, randomBytes } from "crypto";
+import { sendEmailViaWebhook } from "./email";
 
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30; // 30 minutes
 
@@ -29,31 +30,20 @@ export async function sendPasswordResetEmail(params: {
 }) {
   const { toEmail, resetUrl } = params;
 
-  const webhookUrl = process.env.PASSWORD_RESET_WEBHOOK_URL?.trim();
+  const emailResult = await sendEmailViaWebhook({
+    to: toEmail,
+    subject: "Reset your Hot Barcelona password",
+    html: `
+      <p>You requested a password reset.</p>
+      <p><a href="${resetUrl}">Click here to reset your password</a></p>
+      <p>This link expires in 30 minutes.</p>
+      <p>If you did not request this, you can ignore this email.</p>
+    `,
+    text: `Reset your password: ${resetUrl} (expires in 30 minutes)`,
+  });
 
-  // Optional webhook integration for real email sending.
-  if (webhookUrl) {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: toEmail,
-        subject: "Reset your Hot Barcelona password",
-        html: `
-          <p>You requested a password reset.</p>
-          <p><a href="${resetUrl}">Click here to reset your password</a></p>
-          <p>This link expires in 30 minutes.</p>
-          <p>If you did not request this, you can ignore this email.</p>
-        `,
-        text: `Reset your password: ${resetUrl} (expires in 30 minutes)`,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Password reset webhook failed (${response.status})`);
-    }
-
-    return { sent: true, mode: "webhook" as const };
+  if (emailResult.sent) {
+    return emailResult;
   }
 
   // Dev fallback when no email service is configured.

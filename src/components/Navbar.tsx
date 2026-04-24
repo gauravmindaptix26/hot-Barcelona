@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavIcon from "./NavIcon";
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const LanguageSwitcher = dynamic(() => import("./LanguageSwitcher"), {
@@ -35,9 +35,26 @@ export default function Navbar({
   const { data: session } = useSession();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
   const accountRef = useRef<HTMLDivElement | null>(null);
+  const pendingResetTimeoutRef = useRef<number | null>(null);
   const accountItemClass =
     "rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm uppercase tracking-[0.22em] text-white/85 transition hover:text-white";
+
+  const prefetchRoute = useCallback((route: string) => {
+    router.prefetch(route);
+  }, [router]);
+
+  const triggerPendingRoute = (route: string) => {
+    setPendingRoute(route);
+    if (pendingResetTimeoutRef.current) {
+      window.clearTimeout(pendingResetTimeoutRef.current);
+    }
+    pendingResetTimeoutRef.current = window.setTimeout(() => {
+      setPendingRoute(null);
+      pendingResetTimeoutRef.current = null;
+    }, 1400);
+  };
 
   useEffect(() => {
     const handler = (event: MouseEvent) => {
@@ -59,15 +76,44 @@ export default function Navbar({
       }
     }
 
-    const timeoutId = window.setTimeout(() => {
-      routesToPrefetch.forEach((route) => router.prefetch(route));
-    }, 900);
+    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
+    let idleId: number | null = null;
 
-    return () => window.clearTimeout(timeoutId);
-  }, [router, session]);
+    const runPrefetch = () => {
+      routesToPrefetch.forEach((route) => prefetchRoute(route));
+    };
+
+    if ("requestIdleCallback" in globalThis) {
+      idleId = globalThis.requestIdleCallback(runPrefetch, { timeout: 1200 });
+    } else {
+      timeoutId = globalThis.setTimeout(runPrefetch, 0);
+    }
+
+    return () => {
+      if (timeoutId !== null) {
+        globalThis.clearTimeout(timeoutId);
+      }
+      if (idleId !== null && "cancelIdleCallback" in globalThis) {
+        globalThis.cancelIdleCallback(idleId);
+      }
+    };
+  }, [prefetchRoute, session]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingResetTimeoutRef.current) {
+        window.clearTimeout(pendingResetTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <header className={`relative z-20 ${compactDesktop ? "" : "lg:-mt-5"}`}>
+      {pendingRoute && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-0.5 overflow-hidden">
+          <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-[#f5d68c] to-transparent" />
+        </div>
+      )}
       <nav
         className={`mx-auto flex w-full max-w-[88rem] items-center justify-between px-3 py-2.5 sm:px-6 sm:py-4 ${
           compactDesktop ? "lg:py-4" : "lg:items-start lg:py-1"
@@ -121,7 +167,15 @@ export default function Navbar({
 
             if (item.href) {
               return (
-                <Link key={item.label} href={item.href} className={itemClass}>
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={itemClass}
+                  onMouseEnter={() => prefetchRoute(item.href)}
+                  onFocus={() => prefetchRoute(item.href)}
+                  onTouchStart={() => prefetchRoute(item.href)}
+                  onClick={() => triggerPendingRoute(item.href)}
+                >
                   {item.label}
                   <span className="absolute -bottom-2 left-0 h-[2px] w-full origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#f5b35c] via-[#d46a7a] to-[#f5d68c] transition group-hover:scale-x-100" />
                 </Link>
@@ -146,6 +200,10 @@ export default function Navbar({
             <Link
               href="/registro-escorts"
               className="rounded-full border border-white/20 bg-black/45 px-8 py-3 text-base font-semibold uppercase tracking-[0.34em] text-white/95 shadow-[0_14px_34px_rgba(0,0,0,0.45)] transition hover:border-[#f5d68c]/45 hover:bg-black/65"
+              onMouseEnter={() => prefetchRoute("/registro-escorts")}
+              onFocus={() => prefetchRoute("/registro-escorts")}
+              onTouchStart={() => prefetchRoute("/registro-escorts")}
+              onClick={() => triggerPendingRoute("/registro-escorts")}
             >
               Advertise
             </Link>
@@ -280,7 +338,13 @@ export default function Navbar({
               <Link
                 href="/registro-escorts"
                 className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-black"
-                onClick={() => setIsMenuOpen(false)}
+                onMouseEnter={() => prefetchRoute("/registro-escorts")}
+                onFocus={() => prefetchRoute("/registro-escorts")}
+                onTouchStart={() => prefetchRoute("/registro-escorts")}
+                onClick={() => {
+                  triggerPendingRoute("/registro-escorts");
+                  setIsMenuOpen(false);
+                }}
               >
                 Advertise
               </Link>
@@ -291,7 +355,13 @@ export default function Navbar({
                   key={item.label}
                   href={item.href}
                   className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
-                  onClick={() => setIsMenuOpen(false)}
+                  onMouseEnter={() => prefetchRoute(item.href)}
+                  onFocus={() => prefetchRoute(item.href)}
+                  onTouchStart={() => prefetchRoute(item.href)}
+                  onClick={() => {
+                    triggerPendingRoute(item.href);
+                    setIsMenuOpen(false);
+                  }}
                 >
                   {item.label}
                 </Link>

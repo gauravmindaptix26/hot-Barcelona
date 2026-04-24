@@ -1,8 +1,13 @@
 "use client";
 
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
+
+const supportEmail = "support@hot-barcelona.com";
+const whatsappNumber = "+34 621 385 161";
+const whatsappHref = "https://wa.me/34621385161";
 
 const contactCards = [
   {
@@ -43,12 +48,78 @@ const trustItems = [
 ];
 
 const quickConnect = [
-  { label: "Email", icon: "M4 6h16v12H4z M4 7l8 5 8-5" },
-  { label: "Secure Chat", icon: "M4 5h16v10H7l-3 3V5Z" },
-  { label: "WhatsApp", icon: "M6 18l-2 4 4-2a8 8 0 1 0-2-2Z" },
+  {
+    label: "Email",
+    href: `mailto:${supportEmail}`,
+    icon: "M4 6h16v12H4z M4 7l8 5 8-5",
+  },
+  {
+    label: "WhatsApp",
+    href: whatsappHref,
+    icon: "M6 18l-2 4 4-2a8 8 0 1 0-2-2Z",
+  },
 ];
 
 export default function ContactPage() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFeedback(null);
+    setIsSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      fullName: String(formData.get("fullName") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      location: String(formData.get("location") ?? "").trim(),
+      purpose: String(formData.get("purpose") ?? "").trim(),
+      message: String(formData.get("message") ?? "").trim(),
+      consent: formData.get("consent") === "on",
+    };
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFeedback({
+          type: "error",
+          message:
+            typeof data.error === "string"
+              ? data.error
+              : "Unable to send your request right now.",
+        });
+        return;
+      }
+
+      setFeedback({
+        type: "success",
+        message:
+          typeof data.message === "string"
+            ? data.message
+            : "Your details have been sent successfully.",
+      });
+      form.reset();
+    } catch {
+      setFeedback({
+        type: "error",
+        message: "Unable to send your request right now.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
       <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,179,92,0.35),_rgba(245,179,92,0)_65%)] blur-3xl" />
@@ -135,16 +206,22 @@ export default function ContactPage() {
                 Our concierge will respond discreetly within 24 hours.
               </p>
 
-              <form className="mt-8 grid gap-5">
+              <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
                 {[
-                  { label: "Full Name", type: "text" },
-                  { label: "Email Address", type: "email" },
-                  { label: "Preferred City / Location", type: "text" },
+                  { label: "Full Name", type: "text", name: "fullName" },
+                  { label: "Email Address", type: "email", name: "email" },
+                  {
+                    label: "Preferred City / Location",
+                    type: "text",
+                    name: "location",
+                  },
                 ].map((field) => (
                   <label key={field.label} className="group relative">
                     <input
+                      name={field.name}
                       type={field.type}
                       placeholder=" "
+                      required
                       className="peer w-full rounded-2xl border border-white/10 bg-black/40 px-4 pb-3 pt-6 text-sm text-white/90 outline-none transition focus:border-[#f5d68c]/60 focus:shadow-[0_0_0_1px_rgba(245,179,92,0.35)]"
                     />
                     <span className="pointer-events-none absolute left-4 top-4 text-xs uppercase tracking-[0.3em] text-white/50 transition peer-focus:-translate-y-2 peer-focus:text-[#f5d68c] peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-white/40">
@@ -155,8 +232,10 @@ export default function ContactPage() {
 
                 <label className="group relative">
                   <select
+                    name="purpose"
                     className="peer w-full rounded-2xl border border-white/10 bg-black/40 px-4 pb-3 pt-6 text-sm text-white/90 outline-none transition focus:border-[#f5d68c]/60 focus:shadow-[0_0_0_1px_rgba(245,179,92,0.35)]"
                     defaultValue=""
+                    required
                   >
                     <option value="" disabled>
                       Select purpose
@@ -173,8 +252,10 @@ export default function ContactPage() {
 
                 <label className="group relative">
                   <textarea
+                    name="message"
                     rows={4}
                     placeholder=" "
+                    required
                     className="peer w-full resize-none rounded-2xl border border-white/10 bg-black/40 px-4 pb-3 pt-6 text-sm text-white/90 outline-none transition focus:border-[#f5d68c]/60 focus:shadow-[0_0_0_1px_rgba(245,179,92,0.35)]"
                   />
                   <span className="pointer-events-none absolute left-4 top-4 text-xs uppercase tracking-[0.3em] text-white/50 transition peer-focus:-translate-y-2 peer-focus:text-[#f5d68c] peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-white/40">
@@ -183,16 +264,34 @@ export default function ContactPage() {
                 </label>
 
                 <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-black/40 px-4 py-3 text-xs text-white/60">
-                  <input type="checkbox" className="mt-1 h-4 w-4 accent-[#f5d68c]" />
+                  <input
+                    name="consent"
+                    type="checkbox"
+                    required
+                    className="mt-1 h-4 w-4 accent-[#f5d68c]"
+                  />
                   I consent to discreet communication and understand the privacy
                   policy.
                 </label>
 
+                {feedback && (
+                  <p
+                    className={
+                      feedback.type === "success"
+                        ? "text-sm text-emerald-300"
+                        : "text-sm text-red-300"
+                    }
+                  >
+                    {feedback.message}
+                  </p>
+                )}
+
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-8 py-3 text-xs font-semibold uppercase tracking-[0.35em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110"
                 >
-                  Send Request
+                  {isSubmitting ? "Sending Request..." : "Send Request"}
                 </button>
               </form>
             </motion.div>
@@ -223,16 +322,23 @@ export default function ContactPage() {
                 </p>
                 <div className="mt-5 grid gap-3">
                   {quickConnect.map((item) => (
-                    <button
+                    <a
                       key={item.label}
-                      type="button"
+                      href={item.href}
+                      target={item.label === "WhatsApp" ? "_blank" : undefined}
+                      rel={item.label === "WhatsApp" ? "noreferrer" : undefined}
+                      aria-label={
+                        item.label === "Email"
+                          ? `Email ${supportEmail}`
+                          : `Open WhatsApp chat at ${whatsappNumber}`
+                      }
                       className="group flex items-center justify-between rounded-full border border-white/10 bg-black/40 px-5 py-3 text-xs uppercase tracking-[0.3em] text-white/80 transition hover:border-[#f5d68c]/60 hover:text-white"
                     >
                       {item.label}
                       <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/50 text-[#f5d68c] transition group-hover:shadow-[0_0_20px_rgba(245,179,92,0.35)]">
                         <NavIcon path={item.icon} />
                       </span>
-                    </button>
+                    </a>
                   ))}
                 </div>
               </div>

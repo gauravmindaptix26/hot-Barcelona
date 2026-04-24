@@ -6,6 +6,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PageShell from "@/components/PageShell";
 
+function getRegistrationErrorMessage(error: unknown) {
+  if (typeof error === "string") {
+    return error;
+  }
+
+  if (error && typeof error === "object") {
+    for (const messages of Object.values(error as Record<string, unknown>)) {
+      if (Array.isArray(messages) && typeof messages[0] === "string") {
+        return messages[0];
+      }
+    }
+  }
+
+  return "Registration failed";
+}
+
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -15,7 +31,7 @@ export default function RegisterPage() {
     <PageShell centered>
         <div className="rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-8">
           <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
-            Create Account
+            Create User Account
           </p>
           <h1
             className="mt-3 text-2xl font-semibold sm:mt-4 sm:text-4xl"
@@ -36,7 +52,6 @@ export default function RegisterPage() {
                 name: formData.get("name"),
                 email: formData.get("email"),
                 password: formData.get("password"),
-                gender: formData.get("gender"),
               };
 
               const response = await fetch("/api/register", {
@@ -47,7 +62,7 @@ export default function RegisterPage() {
 
               if (!response.ok) {
                 const data = await response.json();
-                setError(data.error ?? "Registration failed");
+                setError(getRegistrationErrorMessage(data.error));
                 setIsSubmitting(false);
                 return;
               }
@@ -79,8 +94,8 @@ export default function RegisterPage() {
           >
             <input
               name="name"
-              placeholder="Full name"
-              autoComplete="off"
+              placeholder="Username"
+              autoComplete="username"
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />
@@ -101,25 +116,13 @@ export default function RegisterPage() {
               required
               minLength={8}
             />
-            <select
-              name="gender"
-              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
-              required
-              defaultValue=""
-            >
-              <option value="" disabled>
-                Select gender
-              </option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-            </select>
             {error && <p className="text-sm text-red-300">{error}</p>}
             <button
               type="submit"
               disabled={isSubmitting}
               className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-black shadow-[0_16px_30px_rgba(245,179,92,0.3)] transition disabled:opacity-60 sm:px-6 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
             >
-              {isSubmitting ? "Creating..." : "Create account"}
+              {isSubmitting ? "Creating User Account..." : "Create User Account"}
             </button>
           </form>
 

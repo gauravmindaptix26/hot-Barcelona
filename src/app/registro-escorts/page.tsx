@@ -11,6 +11,7 @@ import ServicesMultiSelect from "./services-multi-select";
 import DescriptionHelper from "./description-helper";
 import ContactPreferences from "./contact-preferences";
 import SubscriptionSelector from "./subscription-selector";
+import LaunchOfferPopup from "./launch-offer-popup";
 import Navbar from "../../components/Navbar";
 
 const steps = [
@@ -532,6 +533,7 @@ export default async function RegistroEscortsPage() {
   }
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
+      <LaunchOfferPopup />
       <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,179,92,0.35),_rgba(245,179,92,0)_65%)] blur-3xl" />
       <div className="pointer-events-none absolute -left-32 top-40 h-80 w-80 rounded-full bg-[radial-gradient(circle_at_center,_rgba(212,106,122,0.2),_rgba(212,106,122,0)_70%)] blur-2xl" />
       <div className="pointer-events-none absolute right-0 top-20 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />

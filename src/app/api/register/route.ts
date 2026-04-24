@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { MongoServerError } from "mongodb";
 import { getDb } from "@/lib/db";
 import { registerSchema } from "@/lib/validators";
 import { rateLimit } from "@/lib/rate-limit";
+
+function getFirstFieldError(fieldErrors: Record<string, string[] | undefined>) {
+  for (const messages of Object.values(fieldErrors)) {
+    if (messages?.[0]) {
+      return messages[0];
+    }
+  }
+
+  return "Registration failed";
+}
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export async function POST(request: Request) {
   const limiter = rateLimit(`register:${request.headers.get("x-forwarded-for") ?? "local"}`, 5, 60_000);
@@ -14,29 +29,63 @@ export async function POST(request: Request) {
   const parsed = registerSchema.safeParse(body);
 
   if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
     return NextResponse.json(
-      { error: parsed.error.flatten().fieldErrors },
+      { error: getFirstFieldError(fieldErrors) },
       { status: 400 }
     );
   }
 
-  const { name, email, password, gender } = parsed.data;
+  const { name, email, password } = parsed.data;
   const db = await getDb();
+  const users = db.collection("users");
+  const trimmedName = name.trim();
+  const normalizedName = trimmedName.toLowerCase();
   const normalizedEmail = email.toLowerCase();
 
-  const existing = await db.collection("users").findOne({ email: normalizedEmail });
-  if (existing) {
+  const [existingEmail, existingUsername] = await Promise.all([
+    users.findOne({ email: normalizedEmail }, { projection: { _id: 1 } }),
+    users.findOne(
+      {
+        $or: [
+          { nameKey: normalizedName },
+          { name: { $regex: `^${escapeRegex(trimmedName)}$`, $options: "i" } },
+        ],
+      },
+      { projection: { _id: 1 } }
+    ),
+  ]);
+
+  if (existingEmail) {
     return NextResponse.json({ error: "Email already in use" }, { status: 409 });
   }
 
-  const passwordHash = await bcrypt.hash(password, 12);
-  const result = await db.collection("users").insertOne({
-    name,
-    email: normalizedEmail,
-    passwordHash,
-    gender,
-    createdAt: new Date(),
-  });
+  if (existingUsername) {
+    return NextResponse.json({ error: "Username already in use" }, { status: 409 });
+  }
 
-  return NextResponse.json({ id: result.insertedId.toString() }, { status: 201 });
+  const passwordHash = await bcrypt.hash(password, 12);
+  try {
+    const result = await users.insertOne({
+      name: trimmedName,
+      nameKey: normalizedName,
+      email: normalizedEmail,
+      passwordHash,
+      createdAt: new Date(),
+    });
+
+    return NextResponse.json({ id: result.insertedId.toString() }, { status: 201 });
+  } catch (error) {
+    if (error instanceof MongoServerError && error.code === 11000) {
+      if (error.message.includes("nameKey")) {
+        return NextResponse.json({ error: "Username already in use" }, { status: 409 });
+      }
+
+      if (error.message.includes("email")) {
+        return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+      }
+    }
+
+    throw error;
+  }
 }
