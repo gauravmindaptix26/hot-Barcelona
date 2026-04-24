@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "crypto";
-import { sendEmailViaWebhook } from "./email";
+import { sendEmail } from "./email";
 
 const RESET_TOKEN_TTL_MS = 1000 * 60 * 30; // 30 minutes
 
@@ -30,7 +30,7 @@ export async function sendPasswordResetEmail(params: {
 }) {
   const { toEmail, resetUrl } = params;
 
-  const emailResult = await sendEmailViaWebhook({
+  const emailResult = await sendEmail({
     to: toEmail,
     subject: "Reset your Hot Barcelona password",
     html: `

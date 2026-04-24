@@ -1,9 +1,42 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
-import { sendEmailViaWebhook } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
+import { getDb } from "@/lib/db";
 
-const supportEmail = "support@hot-barcelona.com";
+const fallbackSupportEmail = "support@hot-barcelona.com";
+
+function readFirstAdminEmail() {
+  const raw = process.env.ADMIN_EMAILS ?? "";
+  const first = raw
+    .split(",")
+    .map((value) => value.trim())
+    .find(Boolean);
+  return first ?? "";
+}
+
+const supportEmail =
+  process.env.CONTACT_TO_EMAIL?.trim() || readFirstAdminEmail() || fallbackSupportEmail;
+
+let contactIndexesPromise: Promise<void> | undefined;
+
+async function getContactRequestsCollection() {
+  const db = await getDb();
+  const collection = db.collection("contact_requests");
+
+  contactIndexesPromise ??= collection
+    .createIndex(
+      { createdAt: 1 },
+      {
+        name: "contact_requests_createdAt_ttl_180d",
+        expireAfterSeconds: 60 * 60 * 24 * 180,
+      }
+    )
+    .then(() => undefined);
+
+  await contactIndexesPromise;
+  return collection;
+}
 
 const contactSchema = z.object({
   fullName: z.string().trim().min(2, "Full name is required."),
@@ -54,9 +87,10 @@ export async function POST(request: Request) {
 
   const { fullName, email, location, purpose, message } = parsed.data;
   const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br />");
+  const debugEnabled = process.env.NODE_ENV !== "production";
 
   try {
-    const emailResult = await sendEmailViaWebhook({
+    const emailResult = await sendEmail({
       to: supportEmail,
       replyTo: email,
       subject: `Contact Form: ${purpose} - ${fullName}`,
@@ -80,17 +114,65 @@ export async function POST(request: Request) {
     });
 
     if (!emailResult.sent) {
-      return NextResponse.json(
-        {
-          error:
-            "Contact email is not configured yet. Add EMAIL_WEBHOOK_URL to enable form delivery.",
-        },
-        { status: 500 }
-      );
+      const collection = await getContactRequestsCollection();
+      await collection.insertOne({
+        fullName,
+        email,
+        location,
+        purpose,
+        message,
+        createdAt: new Date(),
+        delivered: false,
+        deliveryMode: emailResult.mode,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        message: "Your request has been received. Our concierge will reply soon.",
+      });
     }
-  } catch {
+
+    const collection = await getContactRequestsCollection();
+    await collection.insertOne({
+      fullName,
+      email,
+      location,
+      purpose,
+      message,
+      createdAt: new Date(),
+      delivered: true,
+      deliveryMode: emailResult.mode,
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("[contact] email delivery failed:", errorMessage);
+    try {
+      const collection = await getContactRequestsCollection();
+      await collection.insertOne({
+        fullName,
+        email,
+        location,
+        purpose,
+        message,
+        createdAt: new Date(),
+        delivered: false,
+        deliveryMode: "error",
+        deliveryError: errorMessage.slice(0, 800),
+      });
+
+      return NextResponse.json({
+        ok: true,
+        message: "Your request has been received. Our concierge will reply soon.",
+        ...(debugEnabled ? { debug: errorMessage } : {}),
+      });
+    } catch {
+      // Ignore secondary logging failures.
+    }
     return NextResponse.json(
-      { error: "Unable to send your request right now. Please try again later." },
+      {
+        error: "Unable to send your request right now. Please try again later.",
+        ...(debugEnabled ? { debug: errorMessage } : {}),
+      },
       { status: 500 }
     );
   }

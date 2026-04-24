@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+## Environment Variables
+
+- Copy `hot/.env.example` to `hot/.env.local` and fill in values.
+- Contact form email sending: set `RESEND_API_KEY` + `RESEND_FROM` (preferred) or `EMAIL_WEBHOOK_URL` (webhook).
+- If no email sender is configured, contact submissions are stored in MongoDB in `contact_requests` (with a TTL index).
+
 First, run the development server:
 
 ```bash

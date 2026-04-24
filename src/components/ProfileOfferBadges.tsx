@@ -60,7 +60,7 @@ export default function ProfileOfferBadges({
 
   if (compact) {
     return (
-      <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      <div className={`flex w-full flex-wrap items-center justify-end gap-2 ${className}`}>
         {visibleItems.map(([key]) => {
           const config = offerConfig[key];
           return (
