@@ -2,27 +2,55 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
-import { getDb } from "@/lib/db";
 
 const fallbackSupportEmail = "support@hot-barcelona.com";
 
-function readFirstAdminEmail() {
-  const raw = process.env.ADMIN_EMAILS ?? "";
-  const first = raw
-    .split(",")
+type ContactRequestRecord = {
+  fullName: string;
+  email: string;
+  location: string;
+  purpose: string;
+  message: string;
+  createdAt: Date;
+  delivered: boolean;
+  deliveryMode: string;
+  deliveryError?: string;
+};
+
+function parseEmailList(raw: string) {
+  return raw
+    .split(/[;,]/g)
     .map((value) => value.trim())
-    .find(Boolean);
-  return first ?? "";
+    .filter((value) => value.length > 0);
 }
 
-const supportEmail =
-  process.env.CONTACT_TO_EMAIL?.trim() || readFirstAdminEmail() || fallbackSupportEmail;
+function readRecipientEmails() {
+  const configured =
+    process.env.CONTACT_TO_EMAIL?.trim() || process.env.ADMIN_EMAILS?.trim() || "";
+  const emails = parseEmailList(configured);
+  if (emails.length > 0) {
+    return Array.from(new Set(emails)).slice(0, 5);
+  }
+  return [fallbackSupportEmail];
+}
+
+function readClientIpKey(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const first = forwardedFor.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return "local";
+}
 
 let contactIndexesPromise: Promise<void> | undefined;
 
 async function getContactRequestsCollection() {
+  const { getDb } = await import("@/lib/db");
   const db = await getDb();
-  const collection = db.collection("contact_requests");
+  const collection = db.collection<ContactRequestRecord>("contact_requests");
 
   contactIndexesPromise ??= collection
     .createIndex(
@@ -44,6 +72,7 @@ const contactSchema = z.object({
   location: z.string().trim().min(2, "Location is required."),
   purpose: z.string().trim().min(2, "Please select a contact purpose."),
   message: z.string().trim().min(10, "Message must be at least 10 characters."),
+  company: z.string().trim().optional(),
   consent: z.literal(true, {
     errorMap: () => ({
       message: "You must consent to discreet communication before sending.",
@@ -60,8 +89,18 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+async function logContactRequest(record: ContactRequestRecord) {
+  try {
+    const collection = await getContactRequestsCollection();
+    await collection.insertOne(record);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
-  const ipKey = request.headers.get("x-forwarded-for") ?? "local";
+  const ipKey = readClientIpKey(request);
   const limiter = rateLimit(`contact:${ipKey}`, 5, 60_000);
   if (!limiter.allowed) {
     return NextResponse.json(
@@ -85,16 +124,25 @@ export async function POST(request: Request) {
     );
   }
 
-  const { fullName, email, location, purpose, message } = parsed.data;
+  const { fullName, email, location, purpose, message, company } = parsed.data;
+  if (typeof company === "string" && company.length > 0) {
+    return NextResponse.json({ error: "Invalid form submission." }, { status: 400 });
+  }
+
   const safeMessage = escapeHtml(message).replace(/\r?\n/g, "<br />");
   const debugEnabled = process.env.NODE_ENV !== "production";
+  const recipients = readRecipientEmails();
 
   try {
-    const emailResult = await sendEmail({
-      to: supportEmail,
-      replyTo: email,
-      subject: `Contact Form: ${purpose} - ${fullName}`,
-      html: `
+    const results: Array<{ sent: boolean; mode: string; error?: string }> = [];
+
+    for (const recipient of recipients) {
+      try {
+        const emailResult = await sendEmail({
+          to: recipient,
+          replyTo: email,
+          subject: `Contact Form: ${purpose} - ${fullName}`,
+          html: `
         <h2>New contact request</h2>
         <p><strong>Name:</strong> ${escapeHtml(fullName)}</p>
         <p><strong>Email:</strong> ${escapeHtml(email)}</p>
@@ -102,20 +150,32 @@ export async function POST(request: Request) {
         <p><strong>Purpose:</strong> ${escapeHtml(purpose)}</p>
         <p><strong>Message:</strong><br />${safeMessage}</p>
       `,
-      text: [
-        "New contact request",
-        `Name: ${fullName}`,
-        `Email: ${email}`,
-        `Location: ${location}`,
-        `Purpose: ${purpose}`,
-        "Message:",
-        message,
-      ].join("\n"),
-    });
+          text: [
+            "New contact request",
+            `Name: ${fullName}`,
+            `Email: ${email}`,
+            `Location: ${location}`,
+            `Purpose: ${purpose}`,
+            "Message:",
+            message,
+          ].join("\n"),
+        });
+        results.push({ sent: emailResult.sent, mode: emailResult.mode });
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        results.push({ sent: false, mode: "error", error: errorMessage });
+      }
+    }
 
-    if (!emailResult.sent) {
-      const collection = await getContactRequestsCollection();
-      await collection.insertOne({
+    const delivered = results.some((result) => result.sent);
+    const deliveryMode =
+      results.find((result) => result.sent)?.mode ??
+      results.find((result) => result.mode !== "error")?.mode ??
+      "unconfigured";
+    const deliveryError = results.find((result) => result.error)?.error;
+
+    if (!delivered) {
+      const logged = await logContactRequest({
         fullName,
         email,
         location,
@@ -123,8 +183,19 @@ export async function POST(request: Request) {
         message,
         createdAt: new Date(),
         delivered: false,
-        deliveryMode: emailResult.mode,
+        deliveryMode,
+        ...(deliveryError ? { deliveryError: deliveryError.slice(0, 800) } : {}),
       });
+
+      if (!logged) {
+        return NextResponse.json(
+          {
+            error: "Unable to send your request right now. Please try again later.",
+            ...(debugEnabled && deliveryError ? { debug: deliveryError } : {}),
+          },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json({
         ok: true,
@@ -132,8 +203,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const collection = await getContactRequestsCollection();
-    await collection.insertOne({
+    void logContactRequest({
       fullName,
       email,
       location,
@@ -141,33 +211,12 @@ export async function POST(request: Request) {
       message,
       createdAt: new Date(),
       delivered: true,
-      deliveryMode: emailResult.mode,
+      deliveryMode,
+      ...(deliveryError ? { deliveryError: deliveryError.slice(0, 800) } : {}),
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("[contact] email delivery failed:", errorMessage);
-    try {
-      const collection = await getContactRequestsCollection();
-      await collection.insertOne({
-        fullName,
-        email,
-        location,
-        purpose,
-        message,
-        createdAt: new Date(),
-        delivered: false,
-        deliveryMode: "error",
-        deliveryError: errorMessage.slice(0, 800),
-      });
-
-      return NextResponse.json({
-        ok: true,
-        message: "Your request has been received. Our concierge will reply soon.",
-        ...(debugEnabled ? { debug: errorMessage } : {}),
-      });
-    } catch {
-      // Ignore secondary logging failures.
-    }
     return NextResponse.json(
       {
         error: "Unable to send your request right now. Please try again later.",

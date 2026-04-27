@@ -81,6 +81,7 @@ export default function ContactPage() {
       location: String(formData.get("location") ?? "").trim(),
       purpose: String(formData.get("purpose") ?? "").trim(),
       message: String(formData.get("message") ?? "").trim(),
+      company: String(formData.get("company") ?? "").trim(),
       consent: formData.get("consent") === "on",
     };
 
@@ -208,10 +209,24 @@ export default function ContactPage() {
               </p>
 
               <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
-                {[
-                  { label: "Full Name", type: "text", name: "fullName" },
-                  { label: "Email Address", type: "email", name: "email" },
-                  {
+                <div
+                  className="absolute left-[-10000px] top-auto h-0 w-0 overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <label>
+                    Company
+                    <input
+                      type="text"
+                      name="company"
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </label>
+                </div>
+                  {[
+                    { label: "Full Name", type: "text", name: "fullName" },
+                    { label: "Email Address", type: "email", name: "email" },
+                    {
                     label: "Preferred City / Location",
                     type: "text",
                     name: "location",

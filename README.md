@@ -5,13 +5,16 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Environment Variables
 
 - Copy `hot/.env.example` to `hot/.env.local` and fill in values.
-- Contact form email sending: set `RESEND_API_KEY` + `RESEND_FROM` (preferred) or `EMAIL_WEBHOOK_URL` (webhook).
+- Contact form email sending: set SMTP vars (`SMTP_HOST` etc) for Nodemailer (preferred), or `EMAIL_WEBHOOK_URL` (webhook).
+- Contact recipient: set `CONTACT_TO_EMAIL` to the owner inbox (supports comma-separated emails). If unset, `ADMIN_EMAILS` is used as a fallback.
 - If no email sender is configured, contact submissions are stored in MongoDB in `contact_requests` (with a TTL index).
 
 First, run the development server:
 
 ```bash
 npm run dev
+# optional
+npm run typecheck
 # or
 yarn dev
 # or

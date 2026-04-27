@@ -6,6 +6,66 @@ type SendEmailParams = {
   replyTo?: string;
 };
 
+function hasSmtpConfig() {
+  return Boolean(process.env.SMTP_HOST?.trim());
+}
+
+async function sendViaSmtp(params: SendEmailParams) {
+  const host = process.env.SMTP_HOST?.trim();
+  if (!host) {
+    return { sent: false, mode: "unconfigured" as const };
+  }
+
+  const rawPort = process.env.SMTP_PORT?.trim() || "587";
+  const port = Number(rawPort);
+  if (!Number.isFinite(port) || port <= 0) {
+    throw new Error("SMTP_PORT must be a valid port number");
+  }
+
+  const secureFromEnv = process.env.SMTP_SECURE?.trim().toLowerCase();
+  const secure =
+    secureFromEnv === "true" || (secureFromEnv !== "false" && port === 465);
+
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+
+  if ((user && !pass) || (!user && pass)) {
+    throw new Error("SMTP_USER and SMTP_PASS must be set together");
+  }
+
+  const from = process.env.EMAIL_FROM?.trim();
+  if (!from) {
+    throw new Error("EMAIL_FROM is not set");
+  }
+
+  // Use `require` to avoid needing TS types and keep this lib server-only.
+  // Next.js will still need the dependency installed to bundle it.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const nodemailer = require("nodemailer") as {
+    createTransport: (config: unknown) => {
+      sendMail: (mail: unknown) => Promise<unknown>;
+    };
+  };
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: user && pass ? { user, pass } : undefined,
+  });
+
+  await transporter.sendMail({
+    from,
+    to: params.to,
+    subject: params.subject,
+    html: params.html,
+    text: params.text,
+    replyTo: params.replyTo,
+  });
+
+  return { sent: true, mode: "smtp" as const };
+}
+
 async function sendViaWebhook(params: SendEmailParams) {
   const webhookUrl =
     process.env.EMAIL_WEBHOOK_URL?.trim() ||
@@ -28,55 +88,18 @@ async function sendViaWebhook(params: SendEmailParams) {
   return { sent: true, mode: "webhook" as const };
 }
 
-async function sendViaResend(params: SendEmailParams) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  if (!apiKey) {
-    return { sent: false, mode: "unconfigured" as const };
-  }
-
-  const from = process.env.RESEND_FROM?.trim() || process.env.EMAIL_FROM?.trim();
-  if (!from) {
-    throw new Error("RESEND_FROM (or EMAIL_FROM) is not set");
-  }
-
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [params.to],
-      subject: params.subject,
-      html: params.html,
-      text: params.text,
-      reply_to: params.replyTo ? [params.replyTo] : undefined,
-    }),
-  });
-
-  if (!response.ok) {
-    const details = (await response.text()).slice(0, 400);
-    throw new Error(
-      `Resend failed (${response.status})${details ? `: ${details}` : ""}`
-    );
-  }
-
-  return { sent: true, mode: "resend" as const };
-}
-
 export async function sendEmail(params: SendEmailParams) {
+  // Prefer SMTP (Nodemailer) when configured.
+  if (hasSmtpConfig()) {
+    return sendViaSmtp(params);
+  }
+
   // Prefer the existing webhook when configured.
   if (
     process.env.EMAIL_WEBHOOK_URL?.trim() ||
     process.env.PASSWORD_RESET_WEBHOOK_URL?.trim()
   ) {
     return sendViaWebhook(params);
-  }
-
-  // Otherwise use Resend if configured.
-  if (process.env.RESEND_API_KEY?.trim()) {
-    return sendViaResend(params);
   }
 
   return { sent: false, mode: "unconfigured" as const };
