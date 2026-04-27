@@ -76,6 +76,13 @@ body {
 
 html {
   top: 0 !important;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 .goog-te-gadget {

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const offerTitle = "SPECIAL LAUNCH OFFER:";
 const offerDiscounts = "Week 1: 10% off, Week 2: 15% off, Month 1: 25% off";
+const OFFER_SEEN_KEY = "hb_launch_offer_seen_v1";
 
 const offerLines = [
   "For every new girl/guy you recommend to our site, you'll get 1 week of free advertising.",
@@ -12,7 +13,13 @@ const offerLines = [
 ];
 
 export default function LaunchOfferPopup() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(() => {
+    try {
+      return window.sessionStorage.getItem(OFFER_SEEN_KEY) !== "true";
+    } catch {
+      return true;
+    }
+  });
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -28,6 +35,15 @@ export default function LaunchOfferPopup() {
   if (!isOpen) {
     return null;
   }
+
+  const handleClose = () => {
+    try {
+      window.sessionStorage.setItem(OFFER_SEEN_KEY, "true");
+    } catch {
+      // Ignore storage errors.
+    }
+    setIsOpen(false);
+  };
 
   return (
     <AnimatePresence>
@@ -46,14 +62,14 @@ export default function LaunchOfferPopup() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="launch-offer-title"
-            className="relative w-full max-w-5xl overflow-hidden rounded-[34px] border border-[#f5d68c]/18 bg-[#07080b] text-white shadow-[0_36px_120px_rgba(0,0,0,0.68)]"
+            className="relative flex w-full max-w-5xl max-h-[calc(100dvh-1.5rem)] flex-col overflow-hidden rounded-[34px] border border-[#f5d68c]/18 bg-[#07080b] text-white shadow-[0_36px_120px_rgba(0,0,0,0.68)] sm:max-h-[calc(100dvh-3rem)]"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top_left,rgba(245,214,140,0.26),rgba(245,179,92,0.08)_34%,rgba(0,0,0,0)_72%)]" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.05),transparent_24%,transparent_76%,rgba(255,255,255,0.03))]" />
             <div className="pointer-events-none absolute -left-12 top-8 h-40 w-40 rounded-full bg-[#f5d68c]/10 blur-3xl" />
             <div className="pointer-events-none absolute -right-10 bottom-4 h-40 w-40 rounded-full bg-[#d46a7a]/10 blur-3xl" />
 
-            <div className="relative p-4 sm:p-7">
+            <div className="relative flex-1 overflow-y-auto p-4 sm:p-7">
               <div className="rounded-[30px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-8">
                 <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
                   <div>
@@ -72,7 +88,7 @@ export default function LaunchOfferPopup() {
 
                   <button
                     type="button"
-                    onClick={() => setIsOpen(false)}
+                    onClick={handleClose}
                     className="w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.34em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 lg:w-auto lg:min-w-[190px]"
                   >
                     Thanks

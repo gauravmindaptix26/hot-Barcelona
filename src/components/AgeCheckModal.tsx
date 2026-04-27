@@ -35,8 +35,8 @@ export default function AgeCheckModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/75 p-3 backdrop-blur-sm sm:p-4">
-      <div className="flex min-h-dvh items-end justify-center py-2 sm:items-center sm:py-8">
+    <div className="fixed inset-0 z-[200] bg-black/75 p-4 backdrop-blur-sm sm:p-6">
+      <div className="flex min-h-dvh items-center justify-center py-6">
         <div
           role="dialog"
           aria-modal="true"
