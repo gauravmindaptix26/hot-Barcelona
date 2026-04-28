@@ -24,6 +24,7 @@ const siteUrl = resolveSiteUrl();
 const siteTitle = "Hot Barcelona";
 const siteDescription =
   "Premium escort and companion portal for Barcelona with discreet profiles, verified listings, and elegant private experiences.";
+const siteLogoPath = "/images/hot-loho3.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -53,7 +54,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/images/added%20logo.png",
+        url: siteLogoPath,
         width: 1200,
         height: 1200,
         alt: siteTitle,
@@ -64,7 +65,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteTitle,
     description: siteDescription,
-    images: ["/images/added%20logo.png"],
+    images: [siteLogoPath],
   },
   robots: {
     index: true,
@@ -78,9 +79,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: "/images/added%20logo.png", type: "image/png" }],
-    shortcut: ["/images/added%20logo.png"],
-    apple: [{ url: "/images/added%20logo.png", type: "image/png" }],
+    icon: [{ url: siteLogoPath, type: "image/png" }],
+    shortcut: [siteLogoPath],
+    apple: [{ url: siteLogoPath, type: "image/png" }],
   },
 };
 
