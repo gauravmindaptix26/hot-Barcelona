@@ -35,13 +35,13 @@ export default function AgeCheckModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/75 p-4 backdrop-blur-sm sm:p-6">
-      <div className="flex min-h-dvh items-center justify-center py-6">
+    <div className="fixed inset-0 z-[200] overflow-y-auto overscroll-contain bg-black/75 p-4 backdrop-blur-sm sm:p-6">
+      <div className="flex min-h-screen min-h-dvh items-center justify-center py-6">
         <div
           role="dialog"
           aria-modal="true"
           aria-labelledby="age-check-title"
-          className="flex w-full max-w-md max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#0b0c10] text-white shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:max-h-[calc(100dvh-2rem)]"
+          className="flex w-full max-w-md max-h-[calc(100vh-1rem)] max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#0b0c10] text-white shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:max-h-[calc(100vh-2rem)] sm:max-h-[calc(100dvh-2rem)]"
         >
           <div className="flex-1 overflow-y-auto px-5 pt-5 sm:px-8 sm:pt-8">
             <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">

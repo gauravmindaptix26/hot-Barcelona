@@ -68,13 +68,29 @@ export default function Navbar({
   }, []);
 
   useEffect(() => {
-    const routesToPrefetch = ["/", ...navItems.map((item) => item.href), "/registro-escorts", "/login", "/register"];
-    if (session?.user) {
-      routesToPrefetch.push("/my-ad", "/profile/me");
-      if (session.user.isAdmin) {
-        routesToPrefetch.push("/admin");
+    const isSmallScreen = (() => {
+      if (typeof window === "undefined") return false;
+      if (typeof window.matchMedia === "function") {
+        return window.matchMedia("(max-width: 767px)").matches;
       }
+      return window.innerWidth < 768;
+    })();
+
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+
+    const isDataSaver = Boolean(connection?.saveData);
+    const effectiveType = connection?.effectiveType ?? "";
+    const isSlowConnection = effectiveType === "slow-2g" || effectiveType === "2g";
+
+    if (isSmallScreen || isDataSaver || isSlowConnection) {
+      return;
     }
+
+    const routesToPrefetch = ["/girls", "/trans-escorts", "/contact"];
 
     let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
     let idleId: number | null = null;

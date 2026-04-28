@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { ObjectId } from "mongodb";
 import { getAppServerSession } from "@/lib/auth";
-import { getDb } from "@/lib/db";
+import { ensureUsersIndexes, getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
 const changePasswordSchema = z
@@ -59,6 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid user session." }, { status: 400 });
   }
 
+  void ensureUsersIndexes();
   const db = await getDb();
   const userId = new ObjectId(session.user.id);
   const user = await db.collection("users").findOne({ _id: userId });

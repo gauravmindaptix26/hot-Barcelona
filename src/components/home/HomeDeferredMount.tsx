@@ -1,12 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const HomeDeferredSections = dynamic(() => import("./HomeDeferredSections"));
 
 export default function HomeDeferredMount() {
   const [shouldRender, setShouldRender] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (shouldRender) {
@@ -14,25 +15,41 @@ export default function HomeDeferredMount() {
     }
 
     let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
-    let idleId: number | null = null;
 
     const loadDeferredSections = () => setShouldRender(true);
 
-    if ("requestIdleCallback" in globalThis) {
-      idleId = globalThis.requestIdleCallback(loadDeferredSections, { timeout: 1500 });
-    } else {
-      timeoutId = globalThis.setTimeout(loadDeferredSections, 700);
+    let observer: IntersectionObserver | null = null;
+
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            loadDeferredSections();
+          }
+        },
+        { rootMargin: "320px 0px" }
+      );
+
+      if (sentinelRef.current) {
+        observer.observe(sentinelRef.current);
+      }
     }
+
+    timeoutId = globalThis.setTimeout(loadDeferredSections, 4000);
 
     return () => {
       if (timeoutId !== null) {
         globalThis.clearTimeout(timeoutId);
       }
-      if (idleId !== null && "cancelIdleCallback" in globalThis) {
-        globalThis.cancelIdleCallback(idleId);
+      if (observer) {
+        observer.disconnect();
       }
     };
   }, [shouldRender]);
 
-  return shouldRender ? <HomeDeferredSections /> : null;
+  return shouldRender ? (
+    <HomeDeferredSections />
+  ) : (
+    <div ref={sentinelRef} className="h-px w-full" aria-hidden="true" />
+  );
 }

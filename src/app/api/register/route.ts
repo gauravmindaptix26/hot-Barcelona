@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { MongoServerError } from "mongodb";
-import { getDb } from "@/lib/db";
+import { ensureUsersIndexes, getDb } from "@/lib/db";
 import { registerSchema } from "@/lib/validators";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -37,6 +37,7 @@ export async function POST(request: Request) {
   }
 
   const { name, email, password } = parsed.data;
+  await ensureUsersIndexes();
   const db = await getDb();
   const users = db.collection("users");
   const trimmedName = name.trim();

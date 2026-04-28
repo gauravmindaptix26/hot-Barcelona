@@ -15,7 +15,7 @@ export default function Home() {
       <div className="pointer-events-none absolute right-0 top-24 h-72 w-72 rounded-full bg-[radial-gradient(circle_at_center,_rgba(245,214,140,0.2),_rgba(245,214,140,0)_65%)] blur-2xl" />
 
       <main className="relative z-10">
-        <section className="relative h-[100svh] overflow-hidden">
+        <section className="relative h-screen h-svh overflow-hidden">
           <div className="absolute inset-0">
             <Image
               src="/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg"
@@ -31,7 +31,7 @@ export default function Home() {
 
           <Navbar />
 
-          <div className="relative z-10 mx-auto flex h-[calc(100svh-4.5rem)] w-full max-w-[80rem] flex-col items-center justify-center px-4 pb-8 pt-3 text-center sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-8 lg:-mt-40 lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[8rem] lg:pr-8 lg:pt-12 lg:text-left xl:-mt-44 xl:pl-[9rem] xl:pr-10">
+          <div className="relative z-10 mx-auto flex h-[calc(100vh-4.5rem)] h-[calc(100svh-4.5rem)] w-full max-w-[80rem] flex-col items-center justify-center px-4 pb-8 pt-3 text-center sm:h-[calc(100vh-6rem)] sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-8 lg:-mt-40 lg:h-[calc(100vh-7rem)] lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[8rem] lg:pr-8 lg:pt-12 lg:text-left xl:-mt-44 xl:pl-[9rem] xl:pr-10">
             <p className="flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.28em] text-[#f5d68c] sm:gap-4 sm:text-base sm:tracking-[0.45em] lg:justify-start">
               <span className="h-px w-8 bg-[#f5d68c]/70 sm:w-10" />
               Elite Companionship

@@ -2,7 +2,7 @@ import type { NextAuthOptions, Session } from "next-auth";
 import { getServerSession } from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { getDb } from "./db";
+import { ensureUsersIndexes, getDb } from "./db";
 import { isAdminEmail } from "./admin";
 
 export type AppSession = Session & {
@@ -27,6 +27,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        void ensureUsersIndexes();
         const db = await getDb();
         const user = await db.collection("users").findOne({
           email: credentials.email.toLowerCase(),
