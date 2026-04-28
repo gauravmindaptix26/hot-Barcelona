@@ -30,11 +30,28 @@ const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 const normalizeLanguage = (value: string | null | undefined): SiteLanguage =>
   value && SUPPORTED_LANGUAGE_SET.has(value) ? (value as SiteLanguage) : DEFAULT_SITE_LANGUAGE;
 
+const safeLocalStorageGet = (key: string) => {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const safeLocalStorageSet = (key: string, value: string) => {
+  try {
+    window.localStorage.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const readStoredLanguage = (): SiteLanguage => {
   if (typeof window === "undefined") {
     return DEFAULT_SITE_LANGUAGE;
   }
-  return normalizeLanguage(window.localStorage.getItem(STORAGE_KEY));
+  return normalizeLanguage(safeLocalStorageGet(STORAGE_KEY));
 };
 
 export const getClientLanguageSnapshot = (): SiteLanguage => readStoredLanguage();
@@ -106,7 +123,7 @@ export const setSiteLanguage = (
   const reload = options?.reload ?? false;
 
   if (persist) {
-    window.localStorage.setItem(STORAGE_KEY, language);
+    safeLocalStorageSet(STORAGE_KEY, language);
   }
 
   document.documentElement.lang = language;

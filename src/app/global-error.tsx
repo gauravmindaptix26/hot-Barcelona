@@ -3,11 +3,16 @@
 import Link from "next/link";
 
 export default function GlobalError({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const digest = typeof error?.digest === "string" ? error.digest : null;
+  const showMessage = process.env.NODE_ENV !== "production";
+  const message = showMessage ? error?.message : null;
+
   return (
     <html lang="es">
       <body className="bg-[#0a0b0d] text-white">
@@ -27,6 +32,22 @@ export default function GlobalError({
                 A global app error interrupted the screen. Retry the app once, or
                 return to the home page.
               </p>
+              {(digest || message) && (
+                <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-xs text-white/70">
+                  {digest && (
+                    <p>
+                      <span className="font-semibold text-white/85">Digest:</span>{" "}
+                      {digest}
+                    </p>
+                  )}
+                  {message && (
+                    <p className="mt-1 break-words">
+                      <span className="font-semibold text-white/85">Error:</span>{" "}
+                      {message}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <button

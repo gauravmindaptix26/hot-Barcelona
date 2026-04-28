@@ -7,7 +7,20 @@ import LanguageBootstrap from "../components/LanguageBootstrap";
 import LanguageManagerMount from "../components/LanguageManagerMount";
 import FooterMount from "../components/FooterMount";
 
-const siteUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+function resolveSiteUrl() {
+  const raw = (process.env.NEXTAUTH_URL ?? "").trim();
+  if (!raw) return "http://localhost:3000";
+
+  const normalized = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+  try {
+    return new URL(normalized).toString().replace(/\/$/, "");
+  } catch {
+    return "http://localhost:3000";
+  }
+}
+
+const siteUrl = resolveSiteUrl();
 const siteTitle = "Hot Barcelona";
 const siteDescription =
   "Premium escort and companion portal for Barcelona with discreet profiles, verified listings, and elegant private experiences.";
