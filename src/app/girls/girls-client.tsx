@@ -11,7 +11,10 @@ import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 import ProfileActionBar from "../../components/ProfileActionBar";
 import ProfileSectionSidebar from "../../components/ProfileSectionSidebar";
-import ProfileOfferBadges, { readOfferHighlights } from "../../components/ProfileOfferBadges";
+import ProfileOfferBadges, {
+  ProfileActiveOfferPhotoBadge,
+  readOfferHighlights,
+} from "../../components/ProfileOfferBadges";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
@@ -942,6 +945,10 @@ export default function GirlsClient({
                   <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
                   </div>
+                  <ProfileActiveOfferPhotoBadge
+                    offers={offerHighlights}
+                    className="absolute left-4 top-1/2 z-10 -translate-y-1/2"
+                  />
                   <button
                     type="button"
                     aria-label="Save profile"
@@ -965,11 +972,6 @@ export default function GirlsClient({
                       </span>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <ProfileOfferBadges
-                        offers={offerHighlights}
-                        compact
-                        className="mb-1"
-                      />
                       <div className="flex items-center justify-between gap-3">
                         <div>
                         <p className="text-lg font-semibold">

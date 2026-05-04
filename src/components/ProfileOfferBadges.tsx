@@ -24,6 +24,11 @@ type Props = {
   className?: string;
 };
 
+type ActiveOfferPhotoBadgeProps = {
+  offers: OfferHighlights;
+  className?: string;
+};
+
 export const readOfferHighlights = (
   fields: Record<string, unknown>
 ): OfferHighlights => ({
@@ -33,6 +38,24 @@ export const readOfferHighlights = (
 
 export const hasOfferHighlights = (offers: OfferHighlights) =>
   Boolean(offers.activeOffer || offers.nextOffer);
+
+export function ProfileActiveOfferPhotoBadge({
+  offers,
+  className = "",
+}: ActiveOfferPhotoBadgeProps) {
+  if (!offers.activeOffer) return null;
+
+  const config = offerConfig.activeOffer;
+
+  return (
+    <span
+      title={config.label}
+      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 text-center text-[10px] font-bold uppercase leading-tight tracking-normal ${config.tone} ${className}`}
+    >
+      {config.label}
+    </span>
+  );
+}
 
 function readFirstText(value: unknown) {
   if (typeof value === "string") return value.trim();

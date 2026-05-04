@@ -75,25 +75,6 @@ export default function Footer() {
                 </p>
                 <p>support@hotbarcelona.com</p>
               </div>
-              <div className="mt-7 flex w-full max-w-[28rem] items-center gap-3 rounded-full border border-white/10 bg-white/5 px-6 py-3.5">
-                <input
-                  type="email"
-                  aria-label="Email address"
-                  autoComplete="email"
-                  placeholder="Enter email address"
-                  className="w-full bg-transparent text-lg text-white/80 placeholder:text-white/40 focus:outline-none"
-                />
-                <button
-                  type="button"
-                  aria-label="Subscribe"
-                  className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] text-black"
-                >
-                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 12h16" />
-                    <path d="M14 6l6 6-6 6" />
-                  </svg>
-                </button>
-              </div>
             </div>
 
             <div>

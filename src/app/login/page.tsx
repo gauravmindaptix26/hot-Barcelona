@@ -47,7 +47,7 @@ export default function LoginPage() {
                 </button>
               </div>
               <p className="text-xs uppercase tracking-[0.5em] text-[#f5d68c]">
-                Profile Access
+                User Access
               </p>
               <h1
                 className="mt-3 text-3xl font-semibold sm:text-4xl"
