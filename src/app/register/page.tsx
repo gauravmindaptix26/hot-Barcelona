@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import PageShell from "@/components/PageShell";
+import Navbar from "@/components/Navbar";
 
 function getRegistrationErrorMessage(error: unknown) {
   if (typeof error === "string") {
@@ -28,8 +28,13 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
-    <PageShell centered>
-        <div className="rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-8">
+    <div className="relative min-h-screen overflow-hidden bg-[#0a0b0d] text-white">
+      <main className="relative z-10">
+        <section className="relative overflow-hidden pb-8 pt-0 sm:pb-10 sm:pt-1">
+          <Navbar />
+
+          <div className="mx-auto flex w-full max-w-5xl px-4 pb-8 pt-0 sm:px-6 sm:pb-10 lg:-mt-14 lg:min-h-[calc(100vh-9rem)] lg:items-start xl:-mt-20">
+            <div className="w-full rounded-3xl border border-white/10 bg-black/40 p-5 sm:p-8">
           <p className="text-[10px] uppercase tracking-[0.35em] text-[#f5d68c] sm:text-xs sm:tracking-[0.5em]">
             Create User Account
           </p>
@@ -132,7 +137,10 @@ export default function RegisterPage() {
               Login
             </Link>
           </p>
-        </div>
-    </PageShell>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
