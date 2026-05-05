@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: process.platform === "win32",
   },
   images: {
+    // Hostinger shared Node can fail Next's disk image cache writes at runtime.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     qualities: [66, 68, 70, 72, 75],
     remotePatterns: [
