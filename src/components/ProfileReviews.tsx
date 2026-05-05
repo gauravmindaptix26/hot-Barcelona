@@ -22,6 +22,7 @@ type ReviewResponse = {
   myReview?: {
     rating: number;
     comment: string;
+    approvalStatus?: "pending" | "approved" | "rejected";
   } | null;
 };
 
@@ -152,7 +153,7 @@ export default function ProfileReviews({
         return;
       }
       setData(payload);
-      setSuccess("Review submitted successfully.");
+      setSuccess("Review submitted. Awaiting approval.");
     } catch {
       setError("Failed to submit review.");
     } finally {
@@ -236,6 +237,11 @@ export default function ProfileReviews({
           )}
 
           {success && <p className="mt-4 text-sm text-green-300">{success}</p>}
+          {data.myReview?.approvalStatus === "pending" && (
+            <p className="mt-4 text-sm font-semibold text-red-300">
+              Awaiting approval
+            </p>
+          )}
           {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
 
           <div className="mt-6 space-y-3">

@@ -20,10 +20,19 @@ export default function FooterMount() {
       return;
     }
 
+    const timeoutId = window.setTimeout(() => {
+      setShouldRender(true);
+    }, 4000);
+
+    if (typeof IntersectionObserver === "undefined") {
+      return () => window.clearTimeout(timeoutId);
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
           setShouldRender(true);
+          window.clearTimeout(timeoutId);
           observer.disconnect();
         }
       },
@@ -35,6 +44,7 @@ export default function FooterMount() {
     observer.observe(node);
 
     return () => {
+      window.clearTimeout(timeoutId);
       observer.disconnect();
     };
   }, [shouldRender]);

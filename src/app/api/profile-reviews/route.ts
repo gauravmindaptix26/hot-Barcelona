@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
 type ProfileType = "girls" | "trans" | "profiles";
+type ReviewApprovalStatus = "pending" | "approved" | "rejected";
 
 type SummaryReview = {
   id: string;
@@ -36,6 +37,11 @@ const toSafeText = (value: unknown, maxLength = 500) => {
   return value.trim().slice(0, maxLength);
 };
 
+const toApprovalStatus = (value: unknown): ReviewApprovalStatus => {
+  if (value === "approved" || value === "rejected") return value;
+  return "pending";
+};
+
 const buildReviewSummary = async (
   profileId: string,
   profileType: ProfileType,
@@ -48,10 +54,10 @@ const buildReviewSummary = async (
       profileId,
       profileType,
       isDeleted: { $ne: true },
+      approvalStatus: "approved",
     }, {
       projection: {
         _id: 1,
-        userId: 1,
         userName: 1,
         rating: 1,
         comment: 1,
@@ -80,15 +86,29 @@ const buildReviewSummary = async (
   const averageRating =
     totalReviews > 0 ? Number((totalRating / totalReviews).toFixed(1)) : 0;
 
-  const myDoc =
-    currentUserId
-      ? docs.find((doc) => toSafeText(doc.userId, 100) === currentUserId)
-      : null;
+  const myDoc = currentUserId
+    ? await db.collection("profile_reviews").findOne(
+        {
+          profileId,
+          profileType,
+          userId: currentUserId,
+          isDeleted: { $ne: true },
+        },
+        {
+          projection: {
+            rating: 1,
+            comment: 1,
+            approvalStatus: 1,
+          },
+        }
+      )
+    : null;
 
   const myReview = myDoc
     ? {
         rating: toSafeRating(myDoc.rating) ?? 0,
         comment: toSafeText(myDoc.comment, 500),
+        approvalStatus: toApprovalStatus(myDoc.approvalStatus),
       }
     : null;
 
@@ -210,9 +230,12 @@ export async function POST(req: Request) {
         $set: {
           rating,
           comment,
+          approvalStatus: "pending",
           userName,
           userEmail: session.user.email,
           updatedAt: now,
+          reviewedAt: null,
+          reviewedBy: null,
           isDeleted: false,
         },
         $setOnInsert: {

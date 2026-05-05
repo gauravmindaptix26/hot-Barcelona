@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 type PersistedFormFields = Record<string, string | string[]>;
@@ -20,9 +21,23 @@ type ProfileItem = {
   createdAtLabel?: string;
 };
 
+type ReviewItem = {
+  _id: string;
+  profileId: string;
+  profileType: string;
+  userName: string;
+  userEmail: string;
+  rating: number;
+  comment: string;
+  approvalStatus: ApprovalStatus;
+  createdAt: string | null;
+  createdAtLabel?: string;
+};
+
 type Props = {
   girls: ProfileItem[];
   trans: ProfileItem[];
+  reviews: ReviewItem[];
 };
 
 type TabKey = "girls" | "trans";
@@ -334,14 +349,16 @@ const formSectionConfigs = [
   },
 ] as const;
 
-export default function AdminClient({ girls, trans }: Props) {
+export default function AdminClient({ girls, trans, reviews }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("girls");
   const [items, setItems] = useState<Record<TabKey, ProfileItem[]>>({
     girls,
     trans,
   });
+  const [reviewItems, setReviewItems] = useState<ReviewItem[]>(reviews);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [isUpdatingReviewStatus, setIsUpdatingReviewStatus] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditFormState>(createEmptyEditForm);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
@@ -382,6 +399,34 @@ export default function AdminClient({ girls, trans }: Props) {
       >
     );
   }, [activeItems]);
+
+  const reviewSummary = useMemo(() => {
+    return reviewItems.reduce(
+      (acc, item) => {
+        acc[item.approvalStatus] += 1;
+        return acc;
+      },
+      { pending: 0, approved: 0, rejected: 0 } as Record<
+        ApprovalStatus,
+        number
+      >
+    );
+  }, [reviewItems]);
+
+  const sortedReviews = useMemo(() => {
+    const rank: Record<ApprovalStatus, number> = {
+      pending: 0,
+      rejected: 1,
+      approved: 2,
+    };
+    return [...reviewItems].sort((a, b) => {
+      const rankDiff = rank[a.approvalStatus] - rank[b.approvalStatus];
+      if (rankDiff !== 0) return rankDiff;
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+  }, [reviewItems]);
 
   const otherFieldEntries = useMemo(
     () =>
@@ -519,6 +564,48 @@ export default function AdminClient({ girls, trans }: Props) {
     }
   };
 
+  const handleReviewApproval = async (id: string, action: "accept" | "reject") => {
+    setIsUpdatingReviewStatus(id);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/reviews/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to update review status.");
+        return;
+      }
+
+      const data = (await response.json()) as { approvalStatus?: ApprovalStatus };
+      const nextStatus: ApprovalStatus =
+        data.approvalStatus === "pending" ||
+        data.approvalStatus === "approved" ||
+        data.approvalStatus === "rejected"
+          ? data.approvalStatus
+          : action === "accept"
+            ? "approved"
+            : "rejected";
+
+      if (nextStatus === "rejected") {
+        setReviewItems((prev) => prev.filter((item) => item._id !== id));
+        return;
+      }
+
+      setReviewItems((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, approvalStatus: nextStatus } : item
+        )
+      );
+    } catch {
+      setError("Failed to update review status.");
+    } finally {
+      setIsUpdatingReviewStatus(null);
+    }
+  };
+
   const startEdit = (item: ProfileItem) => {
     setEditingId(item._id);
     setEditForm({
@@ -652,13 +739,13 @@ export default function AdminClient({ girls, trans }: Props) {
         ? "border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
         : "border-rose-300/30 bg-rose-500/10 text-rose-200";
 
+  useBodyScrollLock(Boolean(editingId));
+
   useEffect(() => {
     if (!editingId) {
-      document.body.style.overflow = "";
       return;
     }
 
-    document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !isSavingEdit) {
         cancelEdit();
@@ -667,7 +754,6 @@ export default function AdminClient({ girls, trans }: Props) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [editingId, isSavingEdit]);
@@ -854,6 +940,113 @@ export default function AdminClient({ girls, trans }: Props) {
           No profiles found in this category.
         </div>
       )}
+
+      <section className="mt-14 border-t border-white/10 pt-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs">
+              Review Moderation
+            </p>
+            <h2
+              className="mt-3 text-2xl font-semibold sm:text-3xl"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Manage reviews
+            </h2>
+          </div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-white/50 sm:text-xs sm:tracking-[0.3em]">
+            {sortedReviews.length} reviews
+          </p>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/60 sm:tracking-[0.25em]">
+          <span className="rounded-full border border-amber-300/30 bg-amber-500/10 px-3 py-1 text-amber-200">
+            Awaiting approval: {reviewSummary.pending}
+          </span>
+          <span className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-emerald-200">
+            Approved: {reviewSummary.approved}
+          </span>
+          <span className="rounded-full border border-rose-300/30 bg-rose-500/10 px-3 py-1 text-rose-200">
+            Not approved: {reviewSummary.rejected}
+          </span>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          {sortedReviews.map((review) => (
+            <article
+              key={review._id}
+              className="rounded-[24px] border border-white/10 bg-[#0c0d10] p-5"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-semibold text-white/85">
+                    {review.userName}
+                  </p>
+                  {review.userEmail && (
+                    <p className="mt-1 break-all text-xs text-white/45">
+                      {review.userEmail}
+                    </p>
+                  )}
+                </div>
+                <span
+                  className={`w-fit rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em] ${statusClass(
+                    review.approvalStatus
+                  )}`}
+                >
+                  {review.approvalStatus === "pending"
+                    ? "Awaiting approval"
+                    : review.approvalStatus === "approved"
+                      ? "Approved"
+                      : "Not approved"}
+                </span>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
+                <span>{review.createdAtLabel ?? "No date"}</span>
+                <span>{review.profileType || "profile"} / {review.profileId}</span>
+                <span>Rating: {review.rating}/5</span>
+              </div>
+
+              <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/72">
+                {review.comment}
+              </p>
+
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleReviewApproval(review._id, "accept")}
+                  disabled={
+                    isUpdatingReviewStatus === review._id ||
+                    review.approvalStatus === "approved" ||
+                    isSavingEdit
+                  }
+                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
+                >
+                  {isUpdatingReviewStatus === review._id ? "Saving..." : "Approve"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleReviewApproval(review._id, "reject")}
+                  disabled={
+                    isUpdatingReviewStatus === review._id ||
+                    review.approvalStatus === "rejected" ||
+                    isSavingEdit
+                  }
+                  className="rounded-full border border-rose-300/30 bg-rose-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
+                >
+                  {isUpdatingReviewStatus === review._id ? "Saving..." : "Not approved"}
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {sortedReviews.length === 0 && (
+          <div className="mt-6 rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-sm text-white/60">
+            No reviews found.
+          </div>
+        )}
+      </section>
 
       {editingId && editingItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6">

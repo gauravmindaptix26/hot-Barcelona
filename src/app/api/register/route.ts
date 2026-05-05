@@ -4,6 +4,7 @@ import { MongoServerError } from "mongodb";
 import { ensureUsersIndexes, getDb } from "@/lib/db";
 import { registerSchema } from "@/lib/validators";
 import { rateLimit } from "@/lib/rate-limit";
+import { sendRegistrationWelcomeEmail } from "@/lib/registration-email";
 
 function getFirstFieldError(fieldErrors: Record<string, string[] | undefined>) {
   for (const messages of Object.values(fieldErrors)) {
@@ -74,6 +75,18 @@ export async function POST(request: Request) {
       passwordHash,
       createdAt: new Date(),
     });
+
+    try {
+      await sendRegistrationWelcomeEmail({
+        name: trimmedName,
+        email: normalizedEmail,
+      });
+    } catch (error) {
+      console.error(
+        "[register] welcome email failed:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
 
     return NextResponse.json({ id: result.insertedId.toString() }, { status: 201 });
   } catch (error) {

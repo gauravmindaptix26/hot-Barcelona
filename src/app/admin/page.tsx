@@ -15,6 +15,13 @@ const normalizeApprovalStatus = (value: unknown): ApprovalStatus => {
   return "approved";
 };
 
+const normalizeReviewApprovalStatus = (value: unknown): ApprovalStatus => {
+  if (value === "approved" || value === "rejected") {
+    return value;
+  }
+  return "pending";
+};
+
 const parseIsoDate = (value: unknown): string | null => {
   if (
     !(value instanceof Date) &&
@@ -106,25 +113,78 @@ export default async function AdminPage() {
   }) => {
     const createdAtIso = parseIsoDate(item.createdAt);
     return {
-    _id: item._id.toString(),
-    name: typeof item.name === "string" ? item.name : "",
-    age: typeof item.age === "number" ? item.age : null,
-    location: typeof item.location === "string" ? item.location : "",
-    email: typeof item.email === "string" ? item.email : "",
-    gender: typeof item.gender === "string" ? item.gender : "",
-    images: Array.isArray(item.images) ? item.images : [],
-    formFields: normalizeFormFields(item.formFields),
-    approvalStatus: normalizeApprovalStatus(item.approvalStatus),
-    createdAt: createdAtIso,
-    createdAtLabel: createdAtIso
-      ? `${createdAtIso.replace("T", " ").slice(0, 16)} UTC`
-      : "No date",
+      _id: item._id.toString(),
+      name: typeof item.name === "string" ? item.name : "",
+      age: typeof item.age === "number" ? item.age : null,
+      location: typeof item.location === "string" ? item.location : "",
+      email: typeof item.email === "string" ? item.email : "",
+      gender: typeof item.gender === "string" ? item.gender : "",
+      images: Array.isArray(item.images) ? item.images : [],
+      formFields: normalizeFormFields(item.formFields),
+      approvalStatus: normalizeApprovalStatus(item.approvalStatus),
+      createdAt: createdAtIso,
+      createdAtLabel: createdAtIso
+        ? `${createdAtIso.replace("T", " ").slice(0, 16)} UTC`
+        : "No date",
+    };
+  };
+
+  const reviews = await db
+    .collection("profile_reviews")
+    .find(
+      { isDeleted: { $ne: true } },
+      {
+        projection: {
+          profileId: 1,
+          profileType: 1,
+          userName: 1,
+          userEmail: 1,
+          rating: 1,
+          comment: 1,
+          approvalStatus: 1,
+          createdAt: 1,
+        },
+      }
+    )
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .toArray();
+
+  const mapReview = (item: {
+    _id: { toString: () => string };
+    profileId?: unknown;
+    profileType?: unknown;
+    userName?: unknown;
+    userEmail?: unknown;
+    rating?: unknown;
+    comment?: unknown;
+    approvalStatus?: unknown;
+    createdAt?: unknown;
+  }) => {
+    const createdAtIso = parseIsoDate(item.createdAt);
+    return {
+      _id: item._id.toString(),
+      profileId: typeof item.profileId === "string" ? item.profileId : "",
+      profileType: typeof item.profileType === "string" ? item.profileType : "",
+      userName: typeof item.userName === "string" ? item.userName : "User",
+      userEmail: typeof item.userEmail === "string" ? item.userEmail : "",
+      rating: typeof item.rating === "number" ? item.rating : 0,
+      comment: typeof item.comment === "string" ? item.comment : "",
+      approvalStatus: normalizeReviewApprovalStatus(item.approvalStatus),
+      createdAt: createdAtIso,
+      createdAtLabel: createdAtIso
+        ? `${createdAtIso.replace("T", " ").slice(0, 16)} UTC`
+        : "No date",
     };
   };
 
   return (
     <PageShell widthClassName="max-w-[88rem]" contentClassName="pt-2 sm:pt-3">
-      <AdminClient girls={girls.map(mapItem)} trans={trans.map(mapItem)} />
+      <AdminClient
+        girls={girls.map(mapItem)}
+        trans={trans.map(mapItem)}
+        reviews={reviews.map(mapReview)}
+      />
     </PageShell>
   );
 }

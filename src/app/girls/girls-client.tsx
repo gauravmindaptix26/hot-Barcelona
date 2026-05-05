@@ -15,6 +15,7 @@ import ProfileOfferBadges, {
   ProfileActiveOfferPhotoBadge,
   readOfferHighlights,
 } from "../../components/ProfileOfferBadges";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
@@ -77,7 +78,7 @@ const gridVariants: Variants = {
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: {},
   show: {
     opacity: 1,
     y: 0,
@@ -660,16 +661,7 @@ export default function GirlsClient({
 
   // Dynamic only: no localStorage fallback.
 
-  useEffect(() => {
-    if (!selectedProfile) {
-      document.body.style.overflow = "";
-      return;
-    }
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [selectedProfile]);
+  useBodyScrollLock(Boolean(selectedProfile));
 
   useEffect(() => {
     if (!selectedProfile) {
@@ -967,7 +959,7 @@ export default function GirlsClient({
 
                   <div className="absolute inset-x-0 bottom-0 px-5 pb-3 pt-4">
                     <div className="mb-2 flex items-center justify-end">
-                      <span className="max-w-full translate-y-1 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.22em] text-black opacity-0 transition duration-500 whitespace-normal break-words group-hover:translate-y-0 group-hover:opacity-100">
+                      <span className="max-w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.22em] text-black opacity-100 transition duration-500 whitespace-normal break-words">
                         View Profile
                       </span>
                     </div>

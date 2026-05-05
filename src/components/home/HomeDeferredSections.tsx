@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import NavIcon from "../NavIcon";
 
-const premiumVipFallbackImages = [
+const premiumVipPlaceholderImages = [
   "/images/hot1.webp",
   "/images/hot2.webp",
   "/images/hot3.webp",
@@ -35,21 +35,6 @@ const prestigeSlider = [
   "/images/hot18.jpg",
   "/images/hot19.jpg",
   "/images/hot20.jpg",
-];
-
-const galleryImages = [
-  "/images/high-class-berlin1.jpg",
-  "/images/hot1.webp",
-  "/images/Frauen%20in%20Limousine.jpeg",
-  "/images/hot2.webp",
-  "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-  "/images/Frau%20im%20Auto%20.jpg",
-  "/images/Frau%20auf%20Sessel.jpg",
-  "/images/hot7.jpg",
-  "/images/Frau%20in%20Body.jpg",
-  "/images/hot8.webp",
-  "/images/hot9.webp",
-  "/images/hot10.webp",
 ];
 
 const infiniteVisualsRows = [
@@ -113,25 +98,6 @@ type PremiumVipProfile = {
   profileType?: "girls" | "trans" | null;
 };
 
-const fallbackPremiumVipProfiles: PremiumVipProfile[] =
-  premiumVipFallbackImages.map((src, index) => ({
-    id: `vip-fallback-${index}`,
-    name: "VIP Profile",
-    age: null,
-    location: "Barcelona",
-    image: src,
-    profileType: null,
-  }));
-
-const fallbackProfiles: LatestProfile[] = galleryImages.slice(0, 12).map((src, index) => ({
-  id: `fallback-${index}`,
-  name: "New profile",
-  age: null,
-  location: "Barcelona",
-  image: src,
-  profileType: null,
-}));
-
 const getPublicProfileHref = (profile: {
   id: string;
   profileType?: "girls" | "trans" | null;
@@ -161,26 +127,20 @@ export default function HomeDeferredSections() {
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const premiumBannerScrollerRef = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
-  const [latestProfiles, setLatestProfiles] =
-    useState<LatestProfile[]>(fallbackProfiles);
-  const [premiumVipProfiles, setPremiumVipProfiles] =
-    useState<PremiumVipProfile[]>(fallbackPremiumVipProfiles);
+  const [latestProfiles, setLatestProfiles] = useState<LatestProfile[]>([]);
+  const [premiumVipProfiles, setPremiumVipProfiles] = useState<
+    PremiumVipProfile[]
+  >([]);
 
   const latestProfilesSafe = useMemo(
     () => latestProfiles.slice(0, 12),
     [latestProfiles]
   );
 
-  const premiumVipProfilesSafe = useMemo(() => {
-    const merged = [...premiumVipProfiles];
-    if (merged.length < 6) {
-      const fillers = fallbackPremiumVipProfiles.filter(
-        (item) => !merged.some((profile) => profile.id === item.id)
-      );
-      merged.push(...fillers);
-    }
-    return merged.slice(0, 6);
-  }, [premiumVipProfiles]);
+  const premiumVipProfilesSafe = useMemo(
+    () => premiumVipProfiles.slice(0, 6),
+    [premiumVipProfiles]
+  );
 
   const { scrollYProgress: lifestyleProgress } = useScroll({
     target: lifestyleRef,
@@ -204,18 +164,11 @@ export default function HomeDeferredSections() {
         const response = await fetch("/api/latest-profiles");
         if (!response.ok) return;
         const data = (await response.json()) as LatestProfile[];
-        if (active && Array.isArray(data) && data.length > 0) {
-          const merged = [...data];
-          if (merged.length < 12) {
-            const fillers = fallbackProfiles.filter(
-              (item) => !merged.some((profile) => profile.id === item.id)
-            );
-            merged.push(...fillers);
-          }
-          setLatestProfiles(merged.slice(0, 12));
+        if (active && Array.isArray(data)) {
+          setLatestProfiles(data.slice(0, 12));
         }
       } catch {
-        // Keep fallback profiles on error.
+        // Keep the section empty on error instead of showing dummy profiles.
       }
     };
 
@@ -226,9 +179,11 @@ export default function HomeDeferredSections() {
         const data = (await response.json()) as PremiumVipProfile[];
         if (active && Array.isArray(data) && data.length > 0) {
           setPremiumVipProfiles(data.slice(0, 6));
+        } else if (active && Array.isArray(data)) {
+          setPremiumVipProfiles([]);
         }
       } catch {
-        // Keep fallback VIP profiles on error.
+        // Keep the section empty on error instead of showing dummy profiles.
       }
     };
 
@@ -329,7 +284,6 @@ export default function HomeDeferredSections() {
           <motion.div style={shouldReduceMotion ? undefined : { y: lifestyleY }} className="w-full">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
               {premiumVipProfilesSafe.map((profile, index) => {
-                const isFallback = profile.id.startsWith("vip-fallback-");
                 const card = (
                   <motion.div
                     initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
@@ -351,8 +305,8 @@ export default function HomeDeferredSections() {
                     <Image
                       src={
                         profile.image ??
-                        premiumVipFallbackImages[
-                          index % premiumVipFallbackImages.length
+                        premiumVipPlaceholderImages[
+                          index % premiumVipPlaceholderImages.length
                         ]
                       }
                       alt={profile.name}
@@ -381,14 +335,6 @@ export default function HomeDeferredSections() {
                   </motion.div>
                 );
 
-                if (isFallback) {
-                  return (
-                    <div key={profile.id} className="cursor-default">
-                      {card}
-                    </div>
-                  );
-                }
-
                 return (
                   <Link key={profile.id} href={getPublicProfileHref(profile)}>
                     {card}
@@ -396,6 +342,11 @@ export default function HomeDeferredSections() {
                 );
               })}
             </div>
+            {premiumVipProfilesSafe.length === 0 && (
+              <div className="rounded-[26px] border border-dashed border-white/15 bg-white/5 p-8 text-center text-sm text-white/60">
+                No premium profiles yet.
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -753,7 +704,6 @@ export default function HomeDeferredSections() {
         </div>
         <div className="mx-auto mt-8 grid w-full max-w-[88rem] gap-4 px-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-4">
           {latestProfilesSafe.map((profile, index) => {
-            const isFallback = profile.id.startsWith("fallback-");
             const card = (
               <motion.div
                 key={profile.id}
@@ -840,14 +790,6 @@ export default function HomeDeferredSections() {
               </motion.div>
             );
 
-            if (isFallback) {
-              return (
-                <div key={profile.id} className="cursor-default">
-                  {card}
-                </div>
-              );
-            }
-
             return (
               <Link key={profile.id} href={getPublicProfileHref(profile)}>
                 {card}
@@ -855,6 +797,13 @@ export default function HomeDeferredSections() {
             );
           })}
         </div>
+        {latestProfilesSafe.length === 0 && (
+          <div className="mx-auto mt-6 w-full max-w-[88rem] px-4 sm:px-6">
+            <div className="rounded-[26px] border border-dashed border-white/15 bg-white/5 p-8 text-center text-sm text-white/60">
+              No latest profiles yet.
+            </div>
+          </div>
+        )}
       </section>
     </>
   );

@@ -27,12 +27,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-body::-webkit-scrollbar {
-  display: none;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 .font-cinzel {
@@ -76,7 +73,49 @@ body {
 
 html {
   top: 0 !important;
+  overflow-y: auto;
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+:where(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    span,
+    a,
+    button,
+    label,
+    li,
+    input,
+    textarea,
+    select
+  ) {
+  overflow-wrap: break-word;
+}
+
+:where(button, a, [role="button"]) {
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  :where([class*="tracking-"]) {
+    letter-spacing: 0.14em !important;
+  }
+
+  :where(button, a, [role="button"], .rounded-full, .rounded-2xl) {
+    overflow-wrap: anywhere;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -110,6 +149,5 @@ html {
 }
 
 .deferred-section {
-  content-visibility: auto;
   contain-intrinsic-size: 1px 1000px;
 }

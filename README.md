@@ -7,6 +7,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - Copy `hot/.env.example` to `hot/.env.local` and fill in values.
 - Contact form email sending: set SMTP vars (`SMTP_HOST` etc) for Nodemailer (preferred), or `EMAIL_WEBHOOK_URL` (webhook).
 - Contact recipient: set `CONTACT_TO_EMAIL` to the owner inbox (supports comma-separated emails). If unset, `ADMIN_EMAILS` is used as a fallback.
+- Registration welcome email: uses the same sender transport, but its support/reply reference comes from `REGISTRATION_SUPPORT_EMAIL` or falls back to `EMAIL_FROM`; it does not use `CONTACT_TO_EMAIL`.
 - If no email sender is configured, contact submissions are stored in MongoDB in `contact_requests` (with a TTL index).
 
 First, run the development server:

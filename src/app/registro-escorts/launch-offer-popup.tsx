@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 const offerTitle = "SPECIAL LAUNCH OFFER:";
-const offerDiscounts = "Week 1: 10% off, Week 2: 15% off, Month 1: 25% off";
-const OFFER_SEEN_KEY = "hb_launch_offer_seen_v1";
+const offerDiscounts = [
+  "Week 1: 10%\u00A0off",
+  "Week 2: 15%\u00A0off",
+  "Month 1: 25%\u00A0off",
+];
+const OFFER_SEEN_KEY = "hb_launch_offer_seen_v2";
 
 const offerLines = [
   "For every new girl/guy you recommend to our site, you'll get 1 week of free advertising.",
@@ -21,16 +26,7 @@ export default function LaunchOfferPopup() {
     }
   });
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    }
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) {
     return null;
@@ -71,8 +67,8 @@ export default function LaunchOfferPopup() {
 
             <div className="relative flex-1 overflow-y-auto p-4 sm:p-7">
               <div className="rounded-[30px] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-8">
-                <div className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
-                  <div>
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="min-w-0 lg:max-w-[42rem]">
                     <h2
                       id="launch-offer-title"
                       className="text-2xl font-semibold leading-tight text-[#fff7df] sm:text-4xl"
@@ -81,15 +77,23 @@ export default function LaunchOfferPopup() {
                       {offerTitle}
                     </h2>
 
-                    <p className="mt-4 text-lg font-medium leading-relaxed text-white/90 sm:text-2xl">
-                      {offerDiscounts}
+                    <p className="mt-4 flex flex-wrap gap-2 text-base font-medium leading-relaxed text-white/90 sm:text-xl xl:text-2xl">
+                      {offerDiscounts.map((discount, index) => (
+                        <span
+                          key={discount}
+                          className="whitespace-nowrap rounded-full border border-[#f5d68c]/22 bg-black/30 px-3 py-1.5"
+                        >
+                          {discount}
+                          {index < offerDiscounts.length - 1 ? "," : ""}
+                        </span>
+                      ))}
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={handleClose}
-                    className="w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-6 py-3.5 text-xs font-semibold uppercase tracking-[0.34em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 lg:w-auto lg:min-w-[190px]"
+                    className="w-full rounded-full border border-[#f8dea4] bg-[#f5d68c] px-6 py-3.5 text-sm font-extrabold uppercase tracking-[0.22em] text-[#07080b] shadow-[0_18px_34px_rgba(245,179,92,0.42)] transition hover:bg-[#ffe5aa] hover:shadow-[0_20px_40px_rgba(245,179,92,0.52)] focus:outline-none focus:ring-2 focus:ring-[#fff3cf] focus:ring-offset-2 focus:ring-offset-[#07080b] sm:text-base lg:w-auto lg:min-w-[190px]"
                   >
                     Thanks
                   </button>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 const AGE_CHECK_KEY = "hb_age_verified_session_v2";
 
@@ -13,15 +14,7 @@ export default function AgeCheckModal() {
     }
   });
 
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const handleConfirm = () => {
     try {

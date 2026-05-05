@@ -15,6 +15,7 @@ import ProfileOfferBadges, {
   ProfileActiveOfferPhotoBadge,
   readOfferHighlights,
 } from "../../components/ProfileOfferBadges";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
@@ -52,7 +53,7 @@ const gridVariants: Variants = {
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: {},
   show: {
     opacity: 1,
     y: 0,
@@ -658,16 +659,7 @@ export default function TransClient({
     didApplyQueryProfileRef.current = true;
   }, [liveProfiles]);
 
-  useEffect(() => {
-    if (!selectedProfile) {
-      document.body.style.overflow = "";
-      return;
-    }
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [selectedProfile]);
+  useBodyScrollLock(Boolean(selectedProfile));
 
   useEffect(() => {
     if (!selectedProfile) {
@@ -1021,7 +1013,7 @@ export default function TransClient({
                     </div>
 
                     <div className="mt-3 flex items-center justify-end">
-                      <span className="translate-y-1 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                      <span className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.3em] text-black opacity-100 transition duration-500">
                         View Profile
                       </span>
                     </div>
