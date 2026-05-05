@@ -50,6 +50,28 @@ export async function PATCH(
   const now = new Date();
   const approvalStatus = action === "accept" ? "approved" : "rejected";
   const db = await getDb();
+
+  if (action === "reject") {
+    const deleteResult = await db.collection("profile_reviews").deleteOne({
+      _id: new ObjectId(id),
+      isDeleted: { $ne: true },
+    });
+
+    if (deleteResult.deletedCount === 0) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    revalidateReviewPages();
+
+    return NextResponse.json({
+      ok: true,
+      approvalStatus,
+      deleted: true,
+      reviewedAt: now.toISOString(),
+      reviewedBy: session.user.email,
+    });
+  }
+
   const result = await db.collection("profile_reviews").findOneAndUpdate(
     {
       _id: new ObjectId(id),
@@ -60,7 +82,7 @@ export async function PATCH(
         approvalStatus,
         reviewedAt: now,
         reviewedBy: session.user.email,
-        isDeleted: action === "reject",
+        isDeleted: false,
       },
     },
     { returnDocument: "after" }

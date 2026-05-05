@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
+type ReviewFilter = ApprovalStatus | "all";
 type PersistedFormFields = Record<string, string | string[]>;
 
 type ProfileItem = {
@@ -364,6 +365,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("pending");
 
   const activeItems = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -419,14 +421,18 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       rejected: 1,
       approved: 2,
     };
-    return [...reviewItems].sort((a, b) => {
+    return reviewItems
+      .filter((item) =>
+        reviewFilter === "all" ? true : item.approvalStatus === reviewFilter
+      )
+      .sort((a, b) => {
       const rankDiff = rank[a.approvalStatus] - rank[b.approvalStatus];
       if (rankDiff !== 0) return rankDiff;
       const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return bTime - aTime;
     });
-  }, [reviewItems]);
+  }, [reviewItems, reviewFilter]);
 
   const otherFieldEntries = useMemo(
     () =>
@@ -739,6 +745,26 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
         ? "border-emerald-300/30 bg-emerald-500/10 text-emerald-200"
         : "border-rose-300/30 bg-rose-500/10 text-rose-200";
 
+  const reviewStatusLabel = (status: ApprovalStatus) =>
+    status === "pending"
+      ? "Awaiting approval"
+      : status === "approved"
+        ? "Approved"
+        : "Not approved";
+
+  const ReviewStar = ({ filled }: { filled: boolean }) => (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={`h-4 w-4 ${filled ? "text-[#f5d68c]" : "text-white/18"}`}
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="1.6"
+    >
+      <path d="M12 3.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.9L12 3.5Z" />
+    </svg>
+  );
+
   useBodyScrollLock(Boolean(editingId));
 
   useEffect(() => {
@@ -959,83 +985,156 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
           </p>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-white/60 sm:tracking-[0.25em]">
-          <span className="rounded-full border border-amber-300/30 bg-amber-500/10 px-3 py-1 text-amber-200">
-            Awaiting approval: {reviewSummary.pending}
-          </span>
-          <span className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-3 py-1 text-emerald-200">
-            Approved: {reviewSummary.approved}
-          </span>
-          <span className="rounded-full border border-rose-300/30 bg-rose-500/10 px-3 py-1 text-rose-200">
-            Not approved: {reviewSummary.rejected}
-          </span>
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            {
+              key: "pending" as const,
+              label: "Awaiting approval",
+              count: reviewSummary.pending,
+              className: "border-amber-300/25 bg-amber-500/10 text-amber-100",
+            },
+            {
+              key: "approved" as const,
+              label: "Approved",
+              count: reviewSummary.approved,
+              className: "border-emerald-300/25 bg-emerald-500/10 text-emerald-100",
+            },
+            {
+              key: "rejected" as const,
+              label: "Not approved",
+              count: reviewSummary.rejected,
+              className: "border-rose-300/25 bg-rose-500/10 text-rose-100",
+            },
+          ].map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setReviewFilter(item.key)}
+              className={`rounded-2xl border p-4 text-left transition hover:bg-white/[0.08] ${item.className} ${
+                reviewFilter === item.key ? "ring-1 ring-white/35" : ""
+              }`}
+            >
+              <span className="block text-[10px] uppercase tracking-[0.24em] text-current/70">
+                {item.label}
+              </span>
+              <span className="mt-2 block text-3xl font-semibold text-white">
+                {item.count}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            {[
+              { key: "pending" as const, label: "Awaiting" },
+              { key: "approved" as const, label: "Approved" },
+              { key: "rejected" as const, label: "Not approved" },
+              { key: "all" as const, label: "All reviews" },
+            ].map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => setReviewFilter(item.key)}
+                className={`rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.22em] transition sm:text-xs ${
+                  reviewFilter === item.key
+                    ? "border-[#f5d68c]/60 bg-[#f5d68c]/15 text-[#f5d68c]"
+                    : "border-white/10 bg-white/5 text-white/55 hover:border-white/25 hover:text-white/80"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-white/45">
+            Showing {sortedReviews.length} of {reviewItems.length}
+          </p>
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           {sortedReviews.map((review) => (
             <article
               key={review._id}
-              className="rounded-[24px] border border-white/10 bg-[#0c0d10] p-5"
+              className={`overflow-hidden rounded-[24px] border bg-[#0c0d10] shadow-[0_20px_45px_rgba(0,0,0,0.22)] ${
+                review.approvalStatus === "pending"
+                  ? "border-amber-300/25"
+                  : "border-white/10"
+              }`}
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="break-words text-sm font-semibold text-white/85">
-                    {review.userName}
-                  </p>
-                  {review.userEmail && (
-                    <p className="mt-1 break-all text-xs text-white/45">
-                      {review.userEmail}
+              <div className="border-b border-white/10 bg-white/[0.03] p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-semibold text-white/90">
+                      {review.userName}
                     </p>
-                  )}
+                    {review.userEmail && (
+                      <p className="mt-1 break-all text-xs text-white/45">
+                        {review.userEmail}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className={`w-fit rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em] ${statusClass(
+                      review.approvalStatus
+                    )}`}
+                  >
+                    {reviewStatusLabel(review.approvalStatus)}
+                  </span>
                 </div>
-                <span
-                  className={`w-fit rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em] ${statusClass(
-                    review.approvalStatus
-                  )}`}
-                >
-                  {review.approvalStatus === "pending"
-                    ? "Awaiting approval"
-                    : review.approvalStatus === "approved"
-                      ? "Approved"
-                      : "Not approved"}
-                </span>
+
+                <div className="mt-4 grid gap-2 text-xs text-white/50 sm:grid-cols-2">
+                  <span>{review.createdAtLabel ?? "No date"}</span>
+                  <span className="break-all sm:text-right">
+                    {review.profileType || "profile"} / {review.profileId}
+                  </span>
+                </div>
               </div>
 
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-white/50">
-                <span>{review.createdAtLabel ?? "No date"}</span>
-                <span>{review.profileType || "profile"} / {review.profileId}</span>
-                <span>Rating: {review.rating}/5</span>
-              </div>
+              <div className="p-5">
+                <div className="flex items-center gap-1 text-[#f5d68c]">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <ReviewStar
+                      key={`${review._id}-star-${index}`}
+                      filled={index < review.rating}
+                    />
+                  ))}
+                  <span className="ml-2 text-xs text-white/45">
+                    {review.rating}/5
+                  </span>
+                </div>
 
-              <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-white/72">
-                {review.comment}
-              </p>
+                <blockquote className="mt-4 rounded-2xl border border-white/10 bg-black/25 p-4">
+                  <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-white/75">
+                    {review.comment}
+                  </p>
+                </blockquote>
 
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleReviewApproval(review._id, "accept")}
-                  disabled={
-                    isUpdatingReviewStatus === review._id ||
-                    review.approvalStatus === "approved" ||
-                    isSavingEdit
-                  }
-                  className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
-                >
-                  {isUpdatingReviewStatus === review._id ? "Saving..." : "Approve"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleReviewApproval(review._id, "reject")}
-                  disabled={
-                    isUpdatingReviewStatus === review._id ||
-                    review.approvalStatus === "rejected" ||
-                    isSavingEdit
-                  }
-                  className="rounded-full border border-rose-300/30 bg-rose-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
-                >
-                  {isUpdatingReviewStatus === review._id ? "Saving..." : "Not approved"}
-                </button>
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleReviewApproval(review._id, "accept")}
+                    disabled={
+                      isUpdatingReviewStatus === review._id ||
+                      review.approvalStatus === "approved" ||
+                      isSavingEdit
+                    }
+                    className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
+                  >
+                    {isUpdatingReviewStatus === review._id ? "Saving..." : "Approve"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleReviewApproval(review._id, "reject")}
+                    disabled={
+                      isUpdatingReviewStatus === review._id ||
+                      review.approvalStatus === "rejected" ||
+                      isSavingEdit
+                    }
+                    className="rounded-full border border-rose-300/30 bg-rose-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
+                  >
+                    {isUpdatingReviewStatus === review._id ? "Saving..." : "Not approved"}
+                  </button>
+                </div>
               </div>
             </article>
           ))}
