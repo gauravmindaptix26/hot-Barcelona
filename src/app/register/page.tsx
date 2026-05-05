@@ -72,19 +72,11 @@ export default function RegisterPage() {
                 return;
               }
 
-              const requestedCallback = new URLSearchParams(
-                window.location.search
-              ).get("callbackUrl");
-              const callbackUrl =
-                requestedCallback && requestedCallback.startsWith("/")
-                  ? requestedCallback
-                  : "/post-login";
-
               const signInResult = await signIn("credentials", {
                 email: payload.email,
                 password: payload.password,
                 redirect: false,
-                callbackUrl,
+                callbackUrl: "/",
               });
 
               if (!signInResult || signInResult.error) {
@@ -93,7 +85,7 @@ export default function RegisterPage() {
                 return;
               }
 
-              router.replace(callbackUrl);
+              router.replace("/");
               setIsSubmitting(false);
             }}
           >
