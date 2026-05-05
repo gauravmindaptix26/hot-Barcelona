@@ -6,7 +6,7 @@ import Navbar from "../../components/Navbar";
 import NavIcon from "../../components/NavIcon";
 
 const supportEmail =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "support@hot-barcelona.com";
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "Support@hotbarcelona.com";
 const whatsappNumber = "+34 621 385 161";
 const whatsappHref = "https://wa.me/34621385161";
 

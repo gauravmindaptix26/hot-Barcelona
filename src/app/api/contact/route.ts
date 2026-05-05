@@ -3,7 +3,7 @@ import { z } from "zod";
 import { rateLimit } from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email";
 
-const fallbackSupportEmail = "support@hot-barcelona.com";
+const fallbackSupportEmail = "Support@hotbarcelona.com";
 
 type ContactRequestRecord = {
   fullName: string;

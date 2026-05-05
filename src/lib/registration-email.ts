@@ -18,7 +18,7 @@ function getRegistrationSupportEmail() {
   return (
     process.env.REGISTRATION_SUPPORT_EMAIL?.trim() ||
     (process.env.EMAIL_FROM ? extractEmailAddress(process.env.EMAIL_FROM) : "") ||
-    "no-reply@hot-barcelona.com"
+    "Support@hotbarcelona.com"
   );
 }
 
