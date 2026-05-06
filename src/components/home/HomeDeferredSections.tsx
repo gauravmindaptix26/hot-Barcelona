@@ -15,28 +15,6 @@ const premiumVipPlaceholderImages = [
   "/images/hot6.jpeg",
 ];
 
-const prestigeSlider = [
-  "/images/high-class-berlin1.jpg",
-  "/images/Frauen%20in%20Limousine.jpeg",
-  "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-  "/images/Frau%20im%20Auto%20.jpg",
-  "/images/Frau%20auf%20Sessel.jpg",
-  "/images/Frau%20in%20Body.jpg",
-  "/images/Frau%20in%20Dessous.jpg",
-  "/images/hot8.webp",
-  "/images/hot9.webp",
-  "/images/hot10.webp",
-  "/images/hot11.webp",
-  "/images/hot12.webp",
-  "/images/hot13.webp",
-  "/images/hot14.jpeg",
-  "/images/hot15.jpeg",
-  "/images/hot17.jpg",
-  "/images/hot18.jpg",
-  "/images/hot19.jpg",
-  "/images/hot20.jpg",
-];
-
 const infiniteVisualsRows = [
   [
     "/images/Frau%20im%20schwarzen%20Kleid.jpg",
@@ -98,6 +76,16 @@ type PremiumVipProfile = {
   profileType?: "girls" | "trans" | null;
 };
 
+type PremiumBannerProfile = {
+  id: string;
+  name: string;
+  age: number | null;
+  location: string;
+  image: string | null;
+  gender?: string | null;
+  profileType?: "girls" | "trans" | null;
+};
+
 const getPublicProfileHref = (profile: {
   id: string;
   profileType?: "girls" | "trans" | null;
@@ -131,6 +119,9 @@ export default function HomeDeferredSections() {
   const [premiumVipProfiles, setPremiumVipProfiles] = useState<
     PremiumVipProfile[]
   >([]);
+  const [premiumBannerProfiles, setPremiumBannerProfiles] = useState<
+    PremiumBannerProfile[]
+  >([]);
 
   const latestProfilesSafe = useMemo(
     () => latestProfiles.slice(0, 12),
@@ -140,6 +131,11 @@ export default function HomeDeferredSections() {
   const premiumVipProfilesSafe = useMemo(
     () => premiumVipProfiles.slice(0, 6),
     [premiumVipProfiles]
+  );
+
+  const premiumBannerProfilesSafe = useMemo(
+    () => premiumBannerProfiles.filter((profile) => profile.image).slice(0, 12),
+    [premiumBannerProfiles]
   );
 
   const { scrollYProgress: lifestyleProgress } = useScroll({
@@ -187,9 +183,23 @@ export default function HomeDeferredSections() {
       }
     };
 
+    const loadPremiumBannerProfiles = async () => {
+      try {
+        const response = await fetch("/api/premium-banner-profiles");
+        if (!response.ok) return;
+        const data = (await response.json()) as PremiumBannerProfile[];
+        if (active && Array.isArray(data)) {
+          setPremiumBannerProfiles(data.slice(0, 12));
+        }
+      } catch {
+        // Keep the section empty on error instead of showing dummy profiles.
+      }
+    };
+
     const loadDeferredContent = () => {
       loadLatestProfiles();
       loadPremiumVipProfiles();
+      loadPremiumBannerProfiles();
     };
 
     const scheduleDeferredLoad = () => {
@@ -485,31 +495,47 @@ export default function HomeDeferredSections() {
             className="no-scrollbar snap-x snap-mandatory overflow-x-auto scroll-smooth px-4 pb-2 sm:px-6"
           >
             <div className="flex w-max gap-4 pr-4 sm:gap-6 sm:pr-6">
-              {prestigeSlider.map((src, index) => (
+              {premiumBannerProfilesSafe.map((profile) => (
                 <motion.div
-                  key={`${src}-${index}`}
+                  key={profile.id}
                   whileHover={shouldReduceMotion ? undefined : { y: -6 }}
                   whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
                   className="snap-start"
                 >
-                  <div className="group relative h-[280px] w-[200px] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.75)_100%)] opacity-90" />
-                    <Image
-                      src={src}
-                      alt="Premium showcase"
-                      fill
-                      sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"
-                      quality={68}
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
-                    <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.9)_100%)]" />
-                    <span className="pointer-events-none absolute bottom-5 left-5 text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/80 sm:bottom-6 sm:left-6 sm:text-[11px] sm:tracking-[0.35em]">
-                      Private Edition
-                    </span>
-                  </div>
+                  <Link href={getPublicProfileHref(profile)}>
+                    <div className="group relative h-[280px] w-[200px] flex-shrink-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#111216] sm:h-[380px] sm:w-[280px] lg:h-[440px] lg:w-[320px]">
+                      <Image
+                        src={profile.image as string}
+                        alt={profile.name}
+                        fill
+                        sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"
+                        quality={72}
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.76)_100%)] opacity-90" />
+                      <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
+                      <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.94)_100%)]" />
+                      <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                        <span className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/80 sm:text-[11px] sm:tracking-[0.35em]">
+                          Banner Premium Superior
+                        </span>
+                        <p className="mt-2 text-lg font-semibold leading-tight text-white sm:text-xl">
+                          {profile.name}
+                          {profile.age ? `, ${profile.age}` : ""}
+                        </p>
+                        <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/62">
+                          {profile.location || "Barcelona"}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
                 </motion.div>
               ))}
+              {premiumBannerProfilesSafe.length === 0 && (
+                <div className="w-[min(42rem,calc(100vw-2rem))] rounded-[24px] border border-dashed border-white/15 bg-white/5 px-6 py-10 text-center text-sm text-white/60">
+                  No Banner Premium Superior profiles yet.
+                </div>
+              )}
             </div>
           </div>
         </div>

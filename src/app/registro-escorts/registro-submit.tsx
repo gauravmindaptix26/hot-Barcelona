@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type UploadItem = {
   id: string;
@@ -20,7 +19,7 @@ function serializeFormFields(formData: FormData): SavedFormFields {
 
   for (const [key, rawValue] of formData.entries()) {
     if (typeof rawValue !== "string") continue;
-    if (key === "password") continue;
+    if (key === "password" || key.toLowerCase().includes("email")) continue;
 
     const value = rawValue.trim();
     const existing = serialized[key];
@@ -38,7 +37,6 @@ function serializeFormFields(formData: FormData): SavedFormFields {
 }
 
 export default function RegistroSubmit({ initialImages = [] }: Props) {
-  const router = useRouter();
   const minImages = 4;
   const maxImages = 20;
   const [uploads, setUploads] = useState<UploadItem[]>(
@@ -52,9 +50,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveOk, setSaveOk] = useState(false);
-  const [savedTarget, setSavedTarget] = useState<"girls" | "trans">("girls");
   const [securityAnswer, setSecurityAnswer] = useState("");
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
+  const successTimeoutRef = useRef<number | null>(null);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
 
@@ -101,15 +99,12 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!saveOk) return;
-
-    const targetPath = savedTarget === "trans" ? "/trans-escorts" : "/girls";
-    const timeout = window.setTimeout(() => {
-      router.push(targetPath);
-    }, 1500);
-
-    return () => window.clearTimeout(timeout);
-  }, [router, saveOk, savedTarget]);
+    return () => {
+      if (successTimeoutRef.current !== null) {
+        window.clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const removeUpload = (id: string) => {
     setUploads((prev) => prev.filter((item) => item.id !== id));
@@ -167,6 +162,10 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   };
 
   const handleSave = async () => {
+    if (successTimeoutRef.current !== null) {
+      window.clearTimeout(successTimeoutRef.current);
+      successTimeoutRef.current = null;
+    }
     setSaveError("");
     setSaveOk(false);
     setMissingLabels([]);
@@ -204,7 +203,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     const fieldLabels: Record<string, string> = {
       gender: "Gender",
       stageName: "Stage name",
-      email: "Email",
+      email: "Advertiser email",
       password: "Password",
       phone: "Phone number",
       age: "Age",
@@ -240,10 +239,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "attentionLevel",
       "specialFilters",
       "languages",
-      "rate20",
-      "rate30",
-      "rate45",
-      "rate60",
       "subscriptionPlan",
       "subscriptionDuration",
       "paymentMethod",
@@ -354,8 +349,11 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
 
       await response.json().catch(() => null);
       const target = gender === "trans" ? "trans" : "girls";
-      setSavedTarget(target);
       setSaveOk(true);
+      successTimeoutRef.current = window.setTimeout(() => {
+        setSaveOk(false);
+        successTimeoutRef.current = null;
+      }, 20_000);
       try {
         const payload = {
           name,
@@ -488,12 +486,13 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           </p>
         )}
         {saveOk && (
-          <p className="mt-4 text-sm text-green-300">
-            Saved successfully. Your ad is now pending admin approval. It will
-            appear on the {savedTarget === "trans" ? "trans" : "girls"} page
-            after approval. Redirecting to the{" "}
-            {savedTarget === "trans" ? "trans" : "girls"} page...
-          </p>
+          <div
+            role="status"
+            className="mt-5 rounded-2xl border border-green-300/30 bg-green-300/10 px-4 py-4 text-sm leading-relaxed text-green-100 shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
+          >
+            We have received your registration and the Hot Barcelona Admin Team
+            will contact you soon by WhatsApp and/or email.
+          </div>
         )}
 
         <button

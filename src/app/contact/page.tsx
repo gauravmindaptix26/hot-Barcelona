@@ -246,10 +246,13 @@ export default function ContactPage() {
                   </label>
                 ))}
 
-                <label className="group relative">
+                <label className="grid gap-2">
+                  <span className="text-xs uppercase tracking-[0.3em] text-white/50">
+                    Contact Purpose
+                  </span>
                   <select
                     name="purpose"
-                    className="peer w-full rounded-2xl border border-white/10 bg-black/40 px-4 pb-3 pt-6 text-sm text-white/90 outline-none transition focus:border-[#f5d68c]/60 focus:shadow-[0_0_0_1px_rgba(245,179,92,0.35)]"
+                    className="w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-4 text-sm text-white/90 outline-none transition focus:border-[#f5d68c]/60 focus:shadow-[0_0_0_1px_rgba(245,179,92,0.35)]"
                     defaultValue=""
                     required
                   >
@@ -261,9 +264,6 @@ export default function ContactPage() {
                     <option>Booking / Access</option>
                     <option>Business & Partnerships</option>
                   </select>
-                  <span className="pointer-events-none absolute left-4 top-4 text-xs uppercase tracking-[0.3em] text-white/50 transition peer-focus:-translate-y-2 peer-focus:text-[#f5d68c]">
-                    Contact Purpose
-                  </span>
                 </label>
 
                 <label className="group relative">

@@ -215,7 +215,7 @@ export default function Navbar({
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               href="/registro-escorts"
-              className="rounded-full border border-white/20 bg-black/45 px-8 py-3 text-base font-semibold uppercase tracking-[0.34em] text-white/95 shadow-[0_14px_34px_rgba(0,0,0,0.45)] transition hover:border-[#f5d68c]/45 hover:bg-black/65"
+              className="flex min-h-[4.25rem] min-w-[15.25rem] items-center justify-center rounded-full border border-white/20 bg-black/45 px-10 text-base font-semibold uppercase tracking-[0.34em] text-white/95 shadow-[0_14px_34px_rgba(0,0,0,0.45)] transition hover:border-[#f5d68c]/45 hover:bg-black/65"
               onMouseEnter={() => prefetchRoute("/registro-escorts")}
               onFocus={() => prefetchRoute("/registro-escorts")}
               onTouchStart={() => prefetchRoute("/registro-escorts")}
@@ -242,14 +242,6 @@ export default function Navbar({
             ref={accountRef}
             className="relative hidden items-center gap-3 rounded-full border border-white/20 bg-black/40 px-4 py-2.5 text-white/90 shadow-[0_14px_34px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:flex"
           >
-            <button
-              type="button"
-              aria-label="Search profiles"
-              className="rounded-full p-2 transition hover:bg-black/60"
-            >
-              <NavIcon path="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35" />
-            </button>
-            <div className="h-5 w-px bg-white/15" />
             <div className="min-h-10 min-w-[6rem]">
               <LanguageSwitcher />
             </div>

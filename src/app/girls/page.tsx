@@ -14,7 +14,7 @@ export const revalidate = 120;
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
-  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+  approvalStatus: "approved",
 };
 const profileProjection = {
   _id: 1,

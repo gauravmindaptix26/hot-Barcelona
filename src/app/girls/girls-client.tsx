@@ -121,6 +121,7 @@ const isVisibleFormField = (key: string) => {
   const normalized = key.toLowerCase().replace(/\s+/g, "");
   if (hiddenFormFieldKeys.has(normalized)) return false;
   if (normalized.includes("password")) return false;
+  if (normalized.includes("email")) return false;
   if (
     normalized.includes("phone") ||
     normalized.includes("mobile") ||

@@ -7,7 +7,7 @@ import { revalidateTag } from "next/cache";
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
-  $or: [{ approvalStatus: "approved" }, { approvalStatus: { $exists: false } }],
+  approvalStatus: "approved",
 };
 const listingProjection = {
   _id: 1,
@@ -38,7 +38,7 @@ function sanitizeFormFields(input: unknown): PersistedFormFields {
 
   const fields: PersistedFormFields = {};
   for (const [key, value] of Object.entries(input)) {
-    if (key === "password") continue;
+    if (key === "password" || key.toLowerCase().includes("email")) continue;
 
     if (typeof value === "string") {
       fields[key] = value.trim();

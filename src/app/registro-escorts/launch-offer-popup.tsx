@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
@@ -11,6 +11,7 @@ const offerDiscounts = [
   "Month 1: 25%\u00A0off",
 ];
 const OFFER_SEEN_KEY = "hb_launch_offer_seen_v2";
+const OFFER_SEEN_EVENT = "hb-launch-offer-seen-change";
 
 const offerLines = [
   "For every new girl/guy you recommend to our site, you'll get 1 week of free advertising.",
@@ -18,13 +19,24 @@ const offerLines = [
 ];
 
 export default function LaunchOfferPopup() {
-  const [isOpen, setIsOpen] = useState(() => {
-    try {
-      return window.sessionStorage.getItem(OFFER_SEEN_KEY) !== "true";
-    } catch {
-      return true;
-    }
-  });
+  const isOpen = useSyncExternalStore(
+    (onStoreChange) => {
+      window.addEventListener("storage", onStoreChange);
+      window.addEventListener(OFFER_SEEN_EVENT, onStoreChange);
+      return () => {
+        window.removeEventListener("storage", onStoreChange);
+        window.removeEventListener(OFFER_SEEN_EVENT, onStoreChange);
+      };
+    },
+    () => {
+      try {
+        return window.sessionStorage.getItem(OFFER_SEEN_KEY) !== "true";
+      } catch {
+        return true;
+      }
+    },
+    () => false
+  );
 
   useBodyScrollLock(isOpen);
 
@@ -38,7 +50,7 @@ export default function LaunchOfferPopup() {
     } catch {
       // Ignore storage errors.
     }
-    setIsOpen(false);
+    window.dispatchEvent(new Event(OFFER_SEEN_EVENT));
   };
 
   return (

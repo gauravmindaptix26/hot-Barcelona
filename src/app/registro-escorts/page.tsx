@@ -8,6 +8,7 @@ import GenderToggle from "./gender-toggle";
 import LocationMapField from "./location-map-field";
 import ProfileLoader from "./profile-loader";
 import ServicesMultiSelect from "./services-multi-select";
+import NationalitySelect from "./nationality-select";
 import DescriptionHelper from "./description-helper";
 import ContactPreferences from "./contact-preferences";
 import SubscriptionSelector from "./subscription-selector";
@@ -21,7 +22,7 @@ const steps = [
     note: "Select gender, add your display name, contact channels, and a short bio.",
     fields: [
       "Stage name",
-      "Email (not public)",
+      "Advertiser email (not public)",
       "Password",
       "Phone number",
       "WhatsApp / Telegram",
@@ -280,12 +281,12 @@ const attributeOptions = [
   "Perky butt",
   "Big",
   "Large and natural",
-  "Young women. Escorts in Valencia",
+  "Young women. Escorts in Barcelona",
   "Mulatto",
   "Natural",
   "Black",
-  "Mature prostitutes in Valencia",
-  "Outstanding. Big-bootied escorts in Valencia",
+  "Mature prostitutes in Barcelona",
+  "Outstanding. Big-bootied escorts in Barcelona",
   "Submissive",
 ];
 
@@ -380,7 +381,7 @@ const languageOptions = [
 ];
 
 const specialFilterOptions = [
-  "Available now in Valencia",
+  "Available now in Barcelona",
   "Show your face",
   "To meet without commitment",
   "Sexcam",
@@ -431,7 +432,14 @@ const rate30Options = [
   "30 min. / €200",
 ];
 
-const rate45Options = [
+const buildRateOptions = (minutes: number, start: number, end: number) =>
+  Array.from(
+    { length: (end - start) / 10 + 1 },
+    (_, index) => `${minutes} min. / €${start + index * 10}`
+  );
+
+const rate45Options = buildRateOptions(45, 120, 300);
+const legacyRate45Options = [
   "45 min. / €30",
   "45 min. / €40",
   "45 min. / €50",
@@ -448,7 +456,10 @@ const rate45Options = [
   "45 min. / €190",
 ];
 
-const rate60Options = [
+void legacyRate45Options;
+
+const rate60Options = buildRateOptions(60, 120, 400);
+const legacyRate60Options = [
   "60 min. / €50",
   "60 min. / €60",
   "60 min. / €70",
@@ -469,6 +480,8 @@ const rate60Options = [
   "60 min. / €220",
   "60 min. / €230",
 ];
+
+void legacyRate60Options;
 
 const scheduleDays = [
   "Monday",
@@ -497,6 +510,8 @@ const scheduleOptions = [
   "20:00",
   "21:00",
   "22:00",
+  "23:00",
+  "00:00",
 ];
 
 export default async function RegistroEscortsPage() {
@@ -657,7 +672,7 @@ export default async function RegistroEscortsPage() {
                   <input
                     name="email"
                     type="email"
-                    placeholder="Your email (not public)"
+                    placeholder="Advertiser email (not public)"
                     className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
@@ -780,8 +795,8 @@ export default async function RegistroEscortsPage() {
                               defaultValue=""
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
-                              <option value="" disabled>
-                                Select rate 20 min
+                              <option value="">
+                                None selected
                               </option>
                               {rate20Options.map((option) => (
                                 <option key={option} value={option}>
@@ -800,8 +815,8 @@ export default async function RegistroEscortsPage() {
                               defaultValue=""
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
-                              <option value="" disabled>
-                                Select rate 30 min
+                              <option value="">
+                                None selected
                               </option>
                               {rate30Options.map((option) => (
                                 <option key={option} value={option}>
@@ -820,8 +835,8 @@ export default async function RegistroEscortsPage() {
                               defaultValue=""
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
-                              <option value="" disabled>
-                                Select rate 45 min
+                              <option value="">
+                                None selected
                               </option>
                               {rate45Options.map((option) => (
                                 <option key={option} value={option}>
@@ -840,8 +855,8 @@ export default async function RegistroEscortsPage() {
                               defaultValue=""
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
-                              <option value="" disabled>
-                                Select rate 60 min
+                              <option value="">
+                                None selected
                               </option>
                               {rate60Options.map((option) => (
                                 <option key={option} value={option}>
@@ -854,25 +869,12 @@ export default async function RegistroEscortsPage() {
 
                         if (step.number === "2" && field === "Nationality") {
                           return (
-                            <div key={field} className="space-y-2">
-                              <div className="text-sm font-medium uppercase tracking-[0.24em] text-white/58">
-                                Nationality
-                              </div>
-                              <select
-                                name="nationality"
-                                defaultValue=""
-                                className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
-                              >
-                                <option value="">
-                                  Your nationality
-                                </option>
-                                {nationalityOptions.map((option) => (
-                                  <option key={option} value={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                            <NationalitySelect
+                              key={field}
+                              name="nationality"
+                              options={nationalityOptions}
+                              label="Nationality"
+                            />
                           );
                         }
 
@@ -945,7 +947,7 @@ export default async function RegistroEscortsPage() {
                           );
                         }
 
-                        if (step.number === "1" && field === "Email (not public)") {
+                        if (step.number === "1" && field === "Advertiser email (not public)") {
                           return (
                             <input
                               key={field}
@@ -1009,7 +1011,7 @@ export default async function RegistroEscortsPage() {
                             <input
                               key={field}
                               name="mapConfirmation"
-                              placeholder={field}
+                              placeholder="Advertiser email (not public)"
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );

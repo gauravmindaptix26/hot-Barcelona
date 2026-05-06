@@ -215,7 +215,7 @@ const sanitizeFormFields = (input: unknown): PersistedFormFields => {
 
   const fields: PersistedFormFields = {};
   for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
-    if (key === "password") continue;
+    if (key === "password" || key.toLowerCase().includes("email")) continue;
 
     if (typeof value === "string") {
       fields[key] = value.trim();
@@ -238,14 +238,12 @@ const syncCanonicalFormFields = ({
   name,
   age,
   location,
-  email,
   gender,
 }: {
   formFields: PersistedFormFields;
   name: string;
   age: number;
   location: string;
-  email: string;
   gender: string;
 }): PersistedFormFields => {
   const next: PersistedFormFields = { ...formFields };
@@ -254,11 +252,7 @@ const syncCanonicalFormFields = ({
   next.age = String(age);
   next.address = location;
 
-  if (email) {
-    next.email = email;
-  } else {
-    delete next.email;
-  }
+  delete next.email;
 
   if (gender) {
     next.gender = gender;
@@ -306,7 +300,6 @@ export async function PUT(
     name,
     age,
     location,
-    email,
     gender,
   });
   const imagePublicIds = deriveCloudinaryPublicIds(images);
