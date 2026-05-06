@@ -112,7 +112,7 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   placeholder="Email"
-                  autoComplete="off"
+                  autoComplete="email"
                   className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
                   required
                 />
@@ -120,7 +120,7 @@ export default function LoginPage() {
                   name="password"
                   type="password"
                   placeholder="Password"
-                  autoComplete="new-password"
+                  autoComplete="current-password"
                   className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
                   required
                 />

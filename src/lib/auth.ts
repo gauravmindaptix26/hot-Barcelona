@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { ensureUsersIndexes, getDb } from "./db";
 import { isAdminEmail } from "./admin";
+import { rateLimit } from "./rate-limit";
 
 export type AppSession = Session & {
   user: NonNullable<Session["user"]> & {
@@ -27,10 +28,16 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const normalizedEmail = credentials.email.trim().toLowerCase();
+        const limiter = rateLimit(`login:${normalizedEmail}`, 10, 60_000);
+        if (!limiter.allowed) {
+          return null;
+        }
+
         void ensureUsersIndexes();
         const db = await getDb();
         const user = await db.collection("users").findOne({
-          email: credentials.email.toLowerCase(),
+          email: normalizedEmail,
         });
 
         if (!user || !user.passwordHash) {

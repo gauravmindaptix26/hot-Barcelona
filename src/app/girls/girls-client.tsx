@@ -16,6 +16,7 @@ import ProfileOfferBadges, {
   readOfferHighlights,
 } from "../../components/ProfileOfferBadges";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-image";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
@@ -925,7 +926,10 @@ export default function GirlsClient({
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   {profile.image ? (
                     <Image
-                      src={profile.image}
+                      src={getCloudinaryImageUrl(profile.image, {
+                        width: 520,
+                        height: 700,
+                      })}
                       alt={profile.name}
                       fill
                       sizes="(max-width: 1024px) 50vw, 25vw"
@@ -1113,7 +1117,10 @@ export default function GirlsClient({
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
                 {selectedProfile.image ? (
                   <Image
-                    src={selectedProfile.image}
+                    src={getCloudinaryImageUrl(selectedProfile.image, {
+                      width: 1200,
+                      height: 900,
+                    })}
                     alt={selectedProfile.name}
                     fill
                     sizes="(max-width: 640px) 100vw, 80vw"
@@ -1430,7 +1437,10 @@ export default function GirlsClient({
                         className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
                       >
                         <Image
-                          src={src}
+                          src={getCloudinaryImageUrl(src, {
+                            width: 640,
+                            height: 800,
+                          })}
                           alt={`${selectedProfile.name} gallery`}
                           fill
                           sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"

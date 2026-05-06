@@ -1,5 +1,4 @@
 import TransClient from "./trans-client";
-import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { stripPrivateContactFields } from "@/lib/profile-contact";
 import {
@@ -7,7 +6,6 @@ import {
   normalizeSubscriptionPlanValue,
   SUBSCRIPTION_PLAN_ORDER,
 } from "@/lib/subscription";
-import { ObjectId } from "mongodb";
 import { unstable_cache } from "next/cache";
 
 export const revalidate = 120;
@@ -304,34 +302,11 @@ const getCachedTransProfiles = unstable_cache(
 );
 
 export default async function TransPage() {
-  const [session, initialProfiles] = await Promise.all([
-    getAppServerSession(),
-    getCachedTransProfiles(),
-  ]);
-
-  const initialFavoriteIds =
-    session?.user?.id
-      ? (
-          await (await getDb()).collection("profile_favorites")
-            .find({
-              userId: session.user.id,
-              profileType: "trans",
-              profileId: { $type: "string" },
-            }, { projection: { _id: 0, profileId: 1, profileType: 1 } })
-            .toArray()
-        )
-          .map((item) =>
-            typeof item.profileId === "string" && ObjectId.isValid(item.profileId)
-              ? `db-${item.profileId}`
-              : null
-          )
-          .filter((item): item is string => Boolean(item))
-      : [];
+  const initialProfiles = await getCachedTransProfiles();
 
   return (
     <TransClient
       initialProfiles={initialProfiles}
-      initialFavoriteIds={initialFavoriteIds}
     />
   );
 }

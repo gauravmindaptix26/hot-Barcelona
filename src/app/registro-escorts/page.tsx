@@ -438,50 +438,8 @@ const buildRateOptions = (minutes: number, start: number, end: number) =>
     (_, index) => `${minutes} min. / €${start + index * 10}`
   );
 
-const rate45Options = buildRateOptions(45, 120, 300);
-const legacyRate45Options = [
-  "45 min. / €30",
-  "45 min. / €40",
-  "45 min. / €50",
-  "45 min. / €60",
-  "45 min. / €70",
-  "45 min. / €80",
-  "45 min. / €90",
-  "45 min. / €100",
-  "45 min. / €110",
-  "45 min. / €150",
-  "45 min. / €160",
-  "45 min. / €170",
-  "45 min. / €180",
-  "45 min. / €190",
-];
-
-void legacyRate45Options;
-
-const rate60Options = buildRateOptions(60, 120, 400);
-const legacyRate60Options = [
-  "60 min. / €50",
-  "60 min. / €60",
-  "60 min. / €70",
-  "60 min. / €80",
-  "60 min. / €90",
-  "60 min. / €100",
-  "60 min. / €110",
-  "60 min. / €120",
-  "60 min. / €130",
-  "60 min. / €140",
-  "60 min. / €150",
-  "60 min. / €160",
-  "60 min. / €170",
-  "60 min. / €180",
-  "60 min. / €190",
-  "60 min. / €200",
-  "60 min. / €210",
-  "60 min. / €220",
-  "60 min. / €230",
-];
-
-void legacyRate60Options;
+const rate45Options = buildRateOptions(45, 30, 300);
+const rate60Options = buildRateOptions(60, 50, 400);
 
 const scheduleDays = [
   "Monday",
@@ -495,23 +453,9 @@ const scheduleDays = [
 
 const scheduleOptions = [
   "Rest",
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-  "20:00",
-  "21:00",
-  "22:00",
-  "23:00",
-  "00:00",
+  ...Array.from({ length: 24 }, (_, hour) =>
+    `${hour.toString().padStart(2, "0")}:00`,
+  ),
 ];
 
 export default async function RegistroEscortsPage() {
@@ -796,7 +740,7 @@ export default async function RegistroEscortsPage() {
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="">
-                                None selected
+                                Select rate 20 min
                               </option>
                               {rate20Options.map((option) => (
                                 <option key={option} value={option}>
@@ -816,7 +760,7 @@ export default async function RegistroEscortsPage() {
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="">
-                                None selected
+                                Select rate 30 min
                               </option>
                               {rate30Options.map((option) => (
                                 <option key={option} value={option}>
@@ -836,7 +780,7 @@ export default async function RegistroEscortsPage() {
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="">
-                                None selected
+                                Select rate 45 min
                               </option>
                               {rate45Options.map((option) => (
                                 <option key={option} value={option}>
@@ -856,7 +800,7 @@ export default async function RegistroEscortsPage() {
                               className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 focus:border-[#f5d68c]/60 focus:outline-none"
                             >
                               <option value="">
-                                None selected
+                                Select rate 60 min
                               </option>
                               {rate60Options.map((option) => (
                                 <option key={option} value={option}>

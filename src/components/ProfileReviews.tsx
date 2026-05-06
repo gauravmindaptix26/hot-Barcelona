@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
+import { getCloudinaryImageUrl } from "@/lib/cloudinary-image";
 
 type ProfileType = "girls" | "trans" | "profiles";
 
@@ -261,7 +262,10 @@ export default function ProfileReviews({
                       <div className="relative min-h-[160px] border-b border-white/10 bg-black/40 sm:min-h-full sm:border-b-0 sm:border-r">
                         {cardImage ? (
                           <Image
-                            src={cardImage}
+                            src={getCloudinaryImageUrl(cardImage, {
+                              width: 300,
+                              height: 320,
+                            })}
                             alt={`${profileName} review visual`}
                             fill
                             sizes="(max-width: 640px) 100vw, 150px"
@@ -299,7 +303,10 @@ export default function ProfileReviews({
             <div className="relative min-h-[220px] overflow-hidden rounded-[24px] border border-white/10 bg-black/40">
               {mediaItems[0] ? (
                 <Image
-                  src={mediaItems[0]}
+                  src={getCloudinaryImageUrl(mediaItems[0], {
+                    width: 640,
+                    height: 520,
+                  })}
                   alt={`${profileName} profile preview`}
                   fill
                   sizes="(max-width: 1024px) 100vw, 320px"
@@ -326,7 +333,10 @@ export default function ProfileReviews({
                   className="relative aspect-[4/5] overflow-hidden rounded-[20px] border border-white/10 bg-black/40"
                 >
                   <Image
-                    src={item}
+                    src={getCloudinaryImageUrl(item, {
+                      width: 300,
+                      height: 380,
+                    })}
                     alt={`${profileName} gallery preview ${index + 2}`}
                     fill
                     sizes="(max-width: 1024px) 50vw, 150px"

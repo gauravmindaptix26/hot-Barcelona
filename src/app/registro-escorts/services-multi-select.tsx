@@ -87,7 +87,7 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
         </button>
 
         {open && (
-          <div className="no-scrollbar absolute z-10 mt-2 max-h-72 w-full overflow-y-auto rounded-[22px] border border-white/10 bg-[#0b0c10] p-3 shadow-[0_22px_48px_rgba(0,0,0,0.5)]">
+          <div className="select-menu-scroll absolute z-30 mt-2 max-h-72 w-full overflow-y-scroll overscroll-contain rounded-[22px] border border-white/10 bg-[#0b0c10] p-3 shadow-[0_22px_48px_rgba(0,0,0,0.5)]">
             {options.map((option) => {
               const checked = selected.includes(option);
               return (

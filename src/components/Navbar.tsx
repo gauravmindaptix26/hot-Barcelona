@@ -68,54 +68,6 @@ export default function Navbar({
   }, []);
 
   useEffect(() => {
-    const isSmallScreen = (() => {
-      if (typeof window === "undefined") return false;
-      if (typeof window.matchMedia === "function") {
-        return window.matchMedia("(max-width: 767px)").matches;
-      }
-      return window.innerWidth < 768;
-    })();
-
-    const connection = (
-      navigator as Navigator & {
-        connection?: { saveData?: boolean; effectiveType?: string };
-      }
-    ).connection;
-
-    const isDataSaver = Boolean(connection?.saveData);
-    const effectiveType = connection?.effectiveType ?? "";
-    const isSlowConnection = effectiveType === "slow-2g" || effectiveType === "2g";
-
-    if (isSmallScreen || isDataSaver || isSlowConnection) {
-      return;
-    }
-
-    const routesToPrefetch = ["/girls", "/trans-escorts", "/contact"];
-
-    let timeoutId: ReturnType<typeof globalThis.setTimeout> | null = null;
-    let idleId: number | null = null;
-
-    const runPrefetch = () => {
-      routesToPrefetch.forEach((route) => prefetchRoute(route));
-    };
-
-    if ("requestIdleCallback" in globalThis) {
-      idleId = globalThis.requestIdleCallback(runPrefetch, { timeout: 1200 });
-    } else {
-      timeoutId = globalThis.setTimeout(runPrefetch, 0);
-    }
-
-    return () => {
-      if (timeoutId !== null) {
-        globalThis.clearTimeout(timeoutId);
-      }
-      if (idleId !== null && "cancelIdleCallback" in globalThis) {
-        globalThis.cancelIdleCallback(idleId);
-      }
-    };
-  }, [prefetchRoute, session]);
-
-  useEffect(() => {
     return () => {
       if (pendingResetTimeoutRef.current) {
         window.clearTimeout(pendingResetTimeoutRef.current);

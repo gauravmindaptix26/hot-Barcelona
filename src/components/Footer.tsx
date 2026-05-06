@@ -73,7 +73,7 @@ export default function Footer() {
                     +34 621 385 161
                   </a>
                 </p>
-                <p>support@hotbarcelona.com</p>
+                <p>Support@hot-barcelona.com</p>
               </div>
             </div>
 

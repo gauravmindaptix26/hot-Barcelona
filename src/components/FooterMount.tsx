@@ -22,7 +22,7 @@ export default function FooterMount() {
 
     const timeoutId = window.setTimeout(() => {
       setShouldRender(true);
-    }, 4000);
+    }, 12000);
 
     if (typeof IntersectionObserver === "undefined") {
       return () => window.clearTimeout(timeoutId);
