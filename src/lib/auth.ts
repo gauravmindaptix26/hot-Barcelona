@@ -29,7 +29,12 @@ export const authOptions: NextAuthOptions = {
         }
 
         const normalizedEmail = credentials.email.trim().toLowerCase();
-        const limiter = rateLimit(`login:${normalizedEmail}`, 10, 60_000);
+        const normalizedPassword = credentials.password.trim();
+        if (!normalizedEmail || !normalizedPassword) {
+          return null;
+        }
+
+        const limiter = rateLimit(`login:${normalizedEmail}`, 20, 60_000);
         if (!limiter.allowed) {
           return null;
         }
@@ -45,7 +50,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isValid = await bcrypt.compare(
-          credentials.password,
+          normalizedPassword,
           user.passwordHash
         );
 

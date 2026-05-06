@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    ["/", "/register", "/forgot-password", "/my-ad", "/profile/me", "/admin"].forEach((route) => {
+    ["/", "/forgot-password"].forEach((route) => {
       router.prefetch(route);
     });
   }, [router]);

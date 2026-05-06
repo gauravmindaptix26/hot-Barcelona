@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
@@ -345,6 +345,8 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
     trans,
   });
   const [reviewItems, setReviewItems] = useState<ReviewItem[]>(reviews);
+  const [hasLoadedReviews, setHasLoadedReviews] = useState(reviews.length > 0);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [isUpdatingReviewStatus, setIsUpdatingReviewStatus] = useState<string | null>(null);
@@ -557,6 +559,38 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       setIsUpdatingStatus(null);
     }
   };
+
+  const loadReviews = useCallback(async () => {
+    if (hasLoadedReviews || isLoadingReviews) {
+      return;
+    }
+
+    setIsLoadingReviews(true);
+    try {
+      const response = await fetch("/api/admin/reviews", {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        return;
+      }
+
+      const data = (await response.json()) as { reviews?: ReviewItem[] };
+      setReviewItems(Array.isArray(data.reviews) ? data.reviews : []);
+      setHasLoadedReviews(true);
+    } catch {
+      // Keep the profile moderation screen usable if reviews fail to load.
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  }, [hasLoadedReviews, isLoadingReviews]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadReviews();
+    }, 1500);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [loadReviews]);
 
   const handleReviewApproval = async (id: string, action: "accept" | "reject") => {
     setIsUpdatingReviewStatus(id);
@@ -969,7 +1003,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
             </h2>
           </div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-white/50 sm:text-xs sm:tracking-[0.3em]">
-            {sortedReviews.length} reviews
+            {isLoadingReviews ? "Loading reviews..." : `${sortedReviews.length} reviews`}
           </p>
         </div>
 
@@ -1130,7 +1164,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
 
         {sortedReviews.length === 0 && (
           <div className="mt-6 rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-sm text-white/60">
-            No reviews found.
+            {hasLoadedReviews ? "No reviews found." : "Reviews will load after the profile list."}
           </div>
         )}
       </section>

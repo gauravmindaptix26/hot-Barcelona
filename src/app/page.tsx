@@ -22,6 +22,7 @@ export default function Home() {
               alt="Barcelona nightlife"
               fill
               priority
+              loading="eager"
               fetchPriority="high"
               sizes="100vw"
               quality={68}
