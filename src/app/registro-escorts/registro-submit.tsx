@@ -51,6 +51,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
   const [saveError, setSaveError] = useState("");
   const [saveOk, setSaveOk] = useState(false);
   const [securityAnswer, setSecurityAnswer] = useState("");
+  const [legalAccepted, setLegalAccepted] = useState(false);
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
   const successTimeoutRef = useRef<number | null>(null);
 
@@ -170,6 +171,14 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
     setSaveOk(false);
     setMissingLabels([]);
 
+    if (!legalAccepted) {
+      setSaveError(
+        "Please accept the terms, conditions, legal notice and private policies before saving."
+      );
+      setMissingLabels(["Terms and privacy acceptance"]);
+      return;
+    }
+
     const normalizedAnswer = securityAnswer.replace(/\s+/g, "").toLowerCase();
     if (normalizedAnswer !== "90") {
       setSaveError("Security answer is incorrect. Please try again.");
@@ -225,6 +234,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       nextOffer: "Next offer",
       specialOffer: "Special offer",
       featuredBanner: "Featured banner",
+      legalAcceptance: "Terms and privacy acceptance",
     };
     const requiredFields = [
       "gender",
@@ -242,6 +252,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "subscriptionPlan",
       "subscriptionDuration",
       "paymentMethod",
+      "legalAcceptance",
     ];
 
     const missing: string[] = [];
@@ -412,7 +423,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
               100 minus 10 = ?
             </label>
             <div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-black/70 px-4 py-3 focus-within:border-[#f5d68c]/60">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 sm:text-xs sm:tracking-[0.3em]">
+              <span className="shrink-0 whitespace-nowrap text-[10px] uppercase tracking-[0.16em] text-white/40 sm:text-xs sm:tracking-[0.24em]">
                 Answer
               </span>
               <input
@@ -479,6 +490,45 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           </div>
         </div>
 
+        <div className="mt-6 overflow-hidden rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.14),rgba(245,179,92,0.04)_35%,rgba(0,0,0,0.62))] p-1 text-left shadow-[0_22px_52px_rgba(0,0,0,0.35)] sm:mt-8">
+          <label className="group flex cursor-pointer flex-col gap-4 rounded-[24px] border border-white/10 bg-[#090a0d]/80 p-4 transition hover:border-[#f5d68c]/45 sm:flex-row sm:items-start sm:p-5">
+            <span className="relative mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#f5d68c]/40 bg-black/45 text-[#f5d68c] shadow-[0_12px_28px_rgba(245,214,140,0.12)] transition group-hover:border-[#f5d68c]/70">
+              <input
+                type="checkbox"
+                name="legalAcceptance"
+                value="accepted"
+                checked={legalAccepted}
+                onChange={(event) => setLegalAccepted(event.target.checked)}
+                className="peer absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-5 w-5 scale-75 opacity-0 transition peer-checked:scale-100 peer-checked:opacity-100"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+              >
+                <path d="m5 12 4 4L19 6" />
+              </svg>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.28em] text-[#f5d68c] sm:text-xs">
+                Legal confirmation
+              </span>
+              <span className="mt-2 block text-sm leading-relaxed text-white/78 sm:text-base">
+                I accept all terms, conditions, legal notice and private
+                policies as described on this website and by law.
+              </span>
+            </span>
+          </label>
+          {!legalAccepted && (
+            <p className="px-4 pb-4 pt-3 text-center text-xs uppercase tracking-[0.18em] text-[#f5d68c]/70 sm:text-left">
+              Accept this confirmation to unlock profile submission.
+            </p>
+          )}
+        </div>
+
         {saveError && <p className="mt-4 text-sm text-red-300">{saveError}</p>}
         {missingLabels.length > 0 && (
           <p className="mt-2 text-xs text-red-300">
@@ -498,8 +548,8 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
         <button
           type="button"
           onClick={handleSave}
-          disabled={isSaving}
-          className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
+          disabled={isSaving || !legalAccepted}
+          className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-45 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
         >
           {isSaving ? "Saving..." : "Save ad & upload photos"}
         </button>

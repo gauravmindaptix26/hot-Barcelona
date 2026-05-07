@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { normalizeSubscriptionPlanValue } from "@/lib/subscription";
 
 export const revalidate = 120;
 
@@ -16,7 +17,11 @@ const latestProfileProjection = {
   createdAt: 1,
   gender: 1,
   formFields: 1,
+  subscriptionPlan: 1,
+  premiumPlan: 1,
 } as const;
+
+const TOP_PREMIUM_STANDARD_PLAN = "TOP PREMIUM STANDARD";
 
 const readFormFields = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -32,6 +37,23 @@ const readFirstStringValue = (value: unknown) => {
     return first?.trim() ?? "";
   }
   return "";
+};
+
+const readItemValue = (item: unknown, key: string) =>
+  item && typeof item === "object" && !Array.isArray(item)
+    ? (item as Record<string, unknown>)[key]
+    : undefined;
+
+const readSubscriptionPlan = (value: unknown) =>
+  normalizeSubscriptionPlanValue(readFirstStringValue(value));
+
+const readCreatedAtMs = (value: unknown) => {
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === "string" || typeof value === "number") {
+    const parsed = new Date(value).getTime();
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  return 0;
 };
 
 const hasSpecialOffer = (fields: Record<string, unknown>) =>
@@ -63,21 +85,32 @@ export async function GET() {
     ...trans.map((profile) => ({ profile, profileType: "trans" as const })),
   ]
     .filter((item) => item?.profile)
-    .sort((a, b) => {
-      const aTime = a.profile.createdAt instanceof Date ? a.profile.createdAt.getTime() : 0;
-      const bTime = b.profile.createdAt instanceof Date ? b.profile.createdAt.getTime() : 0;
-      return bTime - aTime;
+    .map(({ profile, profileType }) => {
+      const formFields = readFormFields(profile.formFields);
+      const premiumPlan =
+        readSubscriptionPlan(formFields.subscriptionPlan) ??
+        readSubscriptionPlan(readItemValue(profile, "subscriptionPlan")) ??
+        readSubscriptionPlan(readItemValue(profile, "premiumPlan"));
+
+      return {
+        profile,
+        profileType,
+        premiumPlan,
+        createdAtMs: readCreatedAtMs(profile.createdAt),
+      };
     })
-    .slice(0, 9);
+    .filter((item) => item.premiumPlan === TOP_PREMIUM_STANDARD_PLAN)
+    .sort((a, b) => b.createdAtMs - a.createdAtMs)
+    .slice(0, 12);
 
   return NextResponse.json(
-    combined.map(({ profile, profileType }) => ({
+    combined.map(({ profile, profileType, createdAtMs }) => ({
       id: profile._id.toString(),
       name: profile.name ?? "New profile",
       age: typeof profile.age === "number" ? profile.age : null,
       location: profile.location ?? "",
       image: Array.isArray(profile.images) ? profile.images[0] ?? null : null,
-      createdAt: profile.createdAt ?? null,
+      createdAt: createdAtMs || null,
       gender: profile.gender ?? null,
       profileType,
       hasSpecialOffer: hasSpecialOffer(readFormFields(profile.formFields)),

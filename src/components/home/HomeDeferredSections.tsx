@@ -15,45 +15,6 @@ const premiumVipPlaceholderImages = [
   "/images/hot6.jpeg",
 ];
 
-const infiniteVisualsRows = [
-  [
-    "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-    "/images/Frau%20im%20Auto%20.jpg",
-    "/images/Frau%20auf%20Sessel.jpg",
-    "/images/Frau%20in%20Body.jpg",
-    "/images/Frau%20in%20Dessous.jpg",
-    "/images/hot8.webp",
-    "/images/hot9.webp",
-    "/images/hot8.webp",
-    "/images/hot9.webp",
-    "/images/hot10.webp",
-  ],
-  [
-    "/images/hot11.webp",
-    "/images/hot12.webp",
-    "/images/hot13.webp",
-    "/images/hot14.jpeg",
-    "/images/hot15.jpeg",
-    "/images/hot17.jpg",
-    "/images/hot18.jpg",
-    "/images/hot19.jpg",
-    "/images/hot20.jpg",
-    "/images/high-class-berlin1.jpg",
-  ],
-  [
-    "/images/Frau%20in%20Dessous%20mit%20Schleife.jpeg",
-    "/images/Frau%20mit%20Koffer%20Kopie%202.jpeg",
-    "/images/Frau%20sitzt%20auf%20Mann.jpg",
-    "/images/Frauen%20in%20Limousine.jpeg",
-    "/images/Frau%20im%20schwarzen%20Kleid.jpg",
-    "/images/Frau%20im%20Auto%20.jpg",
-    "/images/Frau%20auf%20Sessel.jpg",
-    "/images/Frau%20in%20Body.jpg",
-    "/images/Frau%20in%20Dessous.jpg",
-    "/images/Paar.jpeg",
-  ],
-];
-
 type LatestProfile = {
   id: string;
   name: string;
@@ -77,6 +38,16 @@ type PremiumVipProfile = {
 };
 
 type PremiumBannerProfile = {
+  id: string;
+  name: string;
+  age: number | null;
+  location: string;
+  image: string | null;
+  gender?: string | null;
+  profileType?: "girls" | "trans" | null;
+};
+
+type PremiumSuperiorProfile = {
   id: string;
   name: string;
   age: number | null;
@@ -122,6 +93,9 @@ export default function HomeDeferredSections() {
   const [premiumBannerProfiles, setPremiumBannerProfiles] = useState<
     PremiumBannerProfile[]
   >([]);
+  const [premiumSuperiorProfiles, setPremiumSuperiorProfiles] = useState<
+    PremiumSuperiorProfile[]
+  >([]);
 
   const latestProfilesSafe = useMemo(
     () => latestProfiles.slice(0, 12),
@@ -136,6 +110,11 @@ export default function HomeDeferredSections() {
   const premiumBannerProfilesSafe = useMemo(
     () => premiumBannerProfiles.filter((profile) => profile.image).slice(0, 12),
     [premiumBannerProfiles]
+  );
+
+  const premiumSuperiorProfilesSafe = useMemo(
+    () => premiumSuperiorProfiles.slice(0, 24),
+    [premiumSuperiorProfiles]
   );
 
   const { scrollYProgress: lifestyleProgress } = useScroll({
@@ -196,10 +175,24 @@ export default function HomeDeferredSections() {
       }
     };
 
+    const loadPremiumSuperiorProfiles = async () => {
+      try {
+        const response = await fetch("/api/premium-superior-profiles");
+        if (!response.ok) return;
+        const data = (await response.json()) as PremiumSuperiorProfile[];
+        if (active && Array.isArray(data)) {
+          setPremiumSuperiorProfiles(data.slice(0, 24));
+        }
+      } catch {
+        // Keep the section empty on error instead of showing dummy profiles.
+      }
+    };
+
     const loadDeferredContent = () => {
       loadLatestProfiles();
       loadPremiumVipProfiles();
       loadPremiumBannerProfiles();
+      loadPremiumSuperiorProfiles();
     };
 
     const scheduleDeferredLoad = () => {
@@ -559,58 +552,65 @@ export default function HomeDeferredSections() {
           </div>
         </div>
 
-        <div className="mt-8 space-y-4 overflow-hidden sm:mt-12 sm:space-y-6">
-          {[
-            { direction: 1, duration: 42 },
-            { direction: -1, duration: 48 },
-            { direction: 1, duration: 54 },
-          ].map((row, rowIndex) => (
-            <motion.div
-              key={`row-${rowIndex}`}
-              className="flex gap-3 px-4 sm:gap-6 sm:px-6"
-              animate={
-                shouldReduceMotion
-                  ? undefined
-                  : {
-                      x: row.direction === 1 ? ["0%", "-50%"] : ["-50%", "0%"],
-                    }
-              }
-              transition={
-                shouldReduceMotion
-                  ? undefined
-                  : {
-                      duration: row.duration,
-                      repeat: Number.POSITIVE_INFINITY,
-                      ease: "linear",
-                    }
-              }
-            >
-              {[...infiniteVisualsRows[rowIndex], ...infiniteVisualsRows[rowIndex]].map(
-                (src, index) => (
-                  <motion.div
-                    key={`${src}-${rowIndex}-${index}`}
-                    whileHover={shouldReduceMotion ? undefined : { scale: 1.03 }}
-                    className="group relative h-[150px] w-[180px] flex-shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition sm:h-[230px] sm:w-[300px] lg:h-[260px] lg:w-[380px]"
-                  >
-                    <Image
-                      src={src}
-                      alt="Luxury gallery"
-                      fill
-                      sizes="(max-width: 640px) 180px, (max-width: 1024px) 300px, 380px"
-                      quality={66}
-                      className="object-cover transition duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.6)_100%)] opacity-70 transition group-hover:opacity-90" />
-                    <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_30%,rgba(245,214,140,0.35),rgba(10,11,13,0)_55%)]" />
-                    </div>
-                    <div className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 rotate-6 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)] opacity-0 transition duration-700 group-hover:left-full group-hover:opacity-100" />
-                  </motion.div>
-                )
-              )}
-            </motion.div>
+        <div className="mx-auto mt-8 grid w-full max-w-[88rem] gap-4 px-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-3 xl:grid-cols-4">
+          {premiumSuperiorProfilesSafe.map((profile, index) => (
+            <Link key={profile.id} href={getPublicProfileHref(profile)}>
+              <motion.div
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        duration: 0.75,
+                        delay: Math.min(index * 0.04, 0.28),
+                        ease: [0.16, 1, 0.3, 1],
+                      }
+                }
+                viewport={{ once: true, amount: 0.25 }}
+                whileHover={shouldReduceMotion ? undefined : { y: -6 }}
+                className="group relative aspect-[3/4] overflow-hidden rounded-[22px] border border-white/10 bg-[#111216] shadow-[0_18px_40px_rgba(0,0,0,0.35)] transition"
+              >
+                {profile.image ? (
+                  <Image
+                    src={profile.image}
+                    alt={profile.name}
+                    fill
+                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, (max-width: 1280px) 31vw, 23vw"
+                    quality={70}
+                    className="object-cover transition duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />
+                )}
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0.08)_0%,rgba(10,11,13,0.82)_100%)] opacity-90 transition group-hover:opacity-95" />
+                <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_60%_30%,rgba(245,214,140,0.28),rgba(10,11,13,0)_55%)]" />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 p-5">
+                  <span className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/82 sm:text-[11px] sm:tracking-[0.3em]">
+                    Premium Superior
+                  </span>
+                  <p className="mt-2 text-lg font-semibold leading-tight text-white sm:text-xl">
+                    {profile.name}
+                    {profile.age ? `, ${profile.age}` : ""}
+                  </p>
+                  <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/62">
+                    <NavIcon path="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                    {profile.location || "Barcelona"}
+                  </div>
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </div>
+        {premiumSuperiorProfilesSafe.length === 0 && (
+          <div className="mx-auto mt-8 w-full max-w-[88rem] px-4 sm:px-6">
+            <div className="rounded-[26px] border border-dashed border-white/15 bg-white/5 p-8 text-center text-sm text-white/60">
+              No Premium Superior profiles yet.
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="deferred-section relative z-10 bg-[#0c0d10] py-14 sm:py-20">
@@ -750,14 +750,18 @@ export default function HomeDeferredSections() {
               >
                 <div className="relative aspect-[3/4] w-full overflow-hidden">
                   {profile.hasSpecialOffer && <SpecialOfferBadge />}
-                  <Image
-                    src={profile.image ?? "/images/hot1.webp"}
-                    alt={profile.name}
-                    fill
-                    sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 24vw"
-                    quality={70}
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                  />
+                  {profile.image ? (
+                    <Image
+                      src={profile.image}
+                      alt={profile.name}
+                      fill
+                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 24vw"
+                      quality={70}
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />
+                  )}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_15%,rgba(10,11,13,0.75)_100%)] opacity-80 transition duration-500 group-hover:opacity-90" />
                   <span
                     aria-hidden="true"
@@ -776,7 +780,7 @@ export default function HomeDeferredSections() {
 
                   <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                     <p className="text-[10px] uppercase tracking-[0.35em] text-white/60">
-                      New
+                      Top Premium Standard
                     </p>
                     <p className="mt-2 text-lg font-semibold text-white">
                       {profile.name}
@@ -826,7 +830,7 @@ export default function HomeDeferredSections() {
         {latestProfilesSafe.length === 0 && (
           <div className="mx-auto mt-6 w-full max-w-[88rem] px-4 sm:px-6">
             <div className="rounded-[26px] border border-dashed border-white/15 bg-white/5 p-8 text-center text-sm text-white/60">
-              No latest profiles yet.
+              No Top Premium Standard profiles yet.
             </div>
           </div>
         )}

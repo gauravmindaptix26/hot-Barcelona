@@ -1,6 +1,7 @@
 import TransClient from "./trans-client";
 import { getDb } from "@/lib/db";
 import { stripPrivateContactFields } from "@/lib/profile-contact";
+import { normalizeProfileLabel } from "@/lib/profile-labels";
 import {
   normalizeSubscriptionDurationValue,
   normalizeSubscriptionPlanValue,
@@ -78,25 +79,25 @@ const readStringArray = (value: unknown) => {
       new Set(
         value
           .filter((item): item is string => typeof item === "string")
-          .map((item) => item.trim())
+          .map(normalizeProfileLabel)
           .filter(Boolean)
       )
     );
   }
   if (typeof value === "string" && value.trim()) {
-    return [value.trim()];
+    return [normalizeProfileLabel(value)];
   }
   return [];
 };
 
 const readFieldText = (fields: Record<string, unknown>, key: string) => {
   const raw = fields[key];
-  if (typeof raw === "string") return raw.trim();
+  if (typeof raw === "string") return normalizeProfileLabel(raw);
   if (Array.isArray(raw)) {
     const first = raw.find(
       (item): item is string => typeof item === "string" && item.trim().length > 0
     );
-    return first?.trim() ?? "";
+    return first ? normalizeProfileLabel(first) : "";
   }
   return "";
 };
@@ -297,7 +298,7 @@ const getCachedTransProfiles = unstable_cache(
     };
   });
   },
-  ["trans-public-profiles-v3"],
+  ["trans-public-profiles-v4"],
   { revalidate: 120, tags: ["trans-public-profiles"] }
 );
 

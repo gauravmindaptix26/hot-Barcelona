@@ -17,6 +17,7 @@ import ProfileOfferBadges, {
 } from "../../components/ProfileOfferBadges";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { getCloudinaryImageUrl } from "@/lib/cloudinary-image";
+import { normalizeProfileLabel } from "@/lib/profile-labels";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
@@ -116,6 +117,7 @@ const hiddenFormFieldKeys = new Set([
   "descriptionhelp",
   "whatsappenabled",
   "telegramenabled",
+  "legalacceptance",
 ]);
 const offerFormFieldKeys = new Set(["activeoffer", "nextoffer"]);
 const isVisibleFormField = (key: string) => {
@@ -150,7 +152,7 @@ const formatFieldValue = (value: unknown): string => {
   }
   if (typeof value === "boolean") return value ? "Yes" : "No";
   if (typeof value === "number") return Number.isFinite(value) ? String(value) : "";
-  if (typeof value === "string") return value.trim();
+  if (typeof value === "string") return normalizeProfileLabel(value);
   if (typeof value === "object") {
     return Object.entries(value as Record<string, unknown>)
       .map(([nestedKey, nestedValue]) => {

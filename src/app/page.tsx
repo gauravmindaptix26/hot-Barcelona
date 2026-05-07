@@ -30,7 +30,7 @@ export default function Home() {
             />
           </div>
 
-          <Navbar />
+          <Navbar logoPriority />
 
           <div className="relative z-10 mx-auto flex h-[calc(100vh-4.5rem)] h-[calc(100svh-4.5rem)] w-full max-w-[80rem] flex-col items-center justify-center px-4 pb-8 pt-3 text-center sm:h-[calc(100vh-6rem)] sm:h-[calc(100svh-6rem)] sm:px-6 sm:pb-10 sm:pt-8 lg:-mt-40 lg:h-[calc(100vh-7rem)] lg:h-[calc(100svh-7rem)] lg:items-start lg:justify-start lg:pb-16 lg:pl-[8rem] lg:pr-8 lg:pt-12 lg:text-left xl:-mt-44 xl:pl-[9rem] xl:pr-10">
             <p className="flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.28em] text-[#f5d68c] sm:gap-4 sm:text-base sm:tracking-[0.45em] lg:justify-start">

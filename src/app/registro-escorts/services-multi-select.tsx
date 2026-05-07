@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { normalizeProfileLabel } from "@/lib/profile-labels";
 
 type Props = {
   name: string;
@@ -35,12 +36,14 @@ export default function ServicesMultiSelect({ name, options, label }: Props) {
       const raw = formFields[name];
       if (Array.isArray(raw)) {
         setSelected(
-          raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+          raw
+            .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+            .map(normalizeProfileLabel)
         );
         return;
       }
       if (typeof raw === "string" && raw.trim()) {
-        setSelected([raw.trim()]);
+        setSelected([normalizeProfileLabel(raw)]);
         return;
       }
       setSelected([]);

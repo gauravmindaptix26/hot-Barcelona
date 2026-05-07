@@ -285,7 +285,7 @@ const attributeOptions = [
   "Mulatto",
   "Natural",
   "Black",
-  "Mature prostitutes in Barcelona",
+  "Mature companion in Barcelona",
   "Outstanding. Big-bootied escorts in Barcelona",
   "Submissive",
 ];
@@ -553,7 +553,11 @@ export default async function RegistroEscortsPage() {
                 src="/images/Frau in Body.jpg"
                 alt="Registration"
                 fill
+                priority
+                loading="eager"
+                fetchPriority="high"
                 sizes="100vw"
+                quality={70}
                 className="object-cover"
               />
             <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(10,11,13,0.65),rgba(10,11,13,0)_55%)]" />

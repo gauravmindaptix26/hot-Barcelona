@@ -39,7 +39,13 @@ export default function Navbar({
   const accountRef = useRef<HTMLDivElement | null>(null);
   const pendingResetTimeoutRef = useRef<number | null>(null);
   const accountItemClass =
-    "rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm uppercase tracking-[0.22em] text-white/85 transition hover:text-white";
+    "flex w-full items-center justify-center rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm uppercase tracking-[0.22em] text-white/85 transition hover:text-white";
+  const accountPrimaryItemClass =
+    "flex w-full items-center justify-center rounded-xl border border-[#f5d68c]/55 bg-[#f5d68c] px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.22em] !text-[#07080b] shadow-[0_10px_24px_rgba(245,214,140,0.22)] transition hover:border-[#f7ddb1]/80 hover:bg-[#f7ddb1]";
+  const mobileAccountItemClass =
+    "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white";
+  const mobileAccountPrimaryItemClass =
+    "rounded-2xl border border-[#f5d68c]/55 bg-[#f5d68c] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] !text-[#07080b] shadow-[0_12px_28px_rgba(245,214,140,0.22)] transition hover:border-[#f7ddb1]/80 hover:bg-[#f7ddb1]";
 
   const prefetchRoute = useCallback((route: string) => {
     router.prefetch(route);
@@ -264,7 +270,7 @@ export default function Navbar({
                     </Link>
                     <Link
                       href="/register"
-                      className="rounded-xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-2.5 text-sm font-semibold uppercase tracking-[0.22em] text-black"
+                      className={accountPrimaryItemClass}
                     >
                       <span>Register</span>
                     </Link>
@@ -331,7 +337,7 @@ export default function Navbar({
                   {session.user.isAdmin && (
                     <Link
                       href="/admin"
-                      className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                      className={mobileAccountItemClass}
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Admin
@@ -339,21 +345,21 @@ export default function Navbar({
                   )}
                   <Link
                     href="/my-ad"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    className={mobileAccountItemClass}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Ad
                   </Link>
                   <Link
                     href="/profile/me"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    className={mobileAccountItemClass}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Profile
                   </Link>
                   <Link
                     href="/account/password"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    className={mobileAccountItemClass}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Change Password
@@ -361,7 +367,7 @@ export default function Navbar({
                   <button
                     type="button"
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    className={mobileAccountItemClass}
                   >
                     Logout
                   </button>
@@ -370,14 +376,14 @@ export default function Navbar({
                 <div className="grid gap-2">
                   <Link
                     href="/login"
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white"
+                    className={mobileAccountItemClass}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Login
                   </Link>
                   <Link
                     href="/register"
-                    className="rounded-2xl bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-black"
+                    className={mobileAccountPrimaryItemClass}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Register
