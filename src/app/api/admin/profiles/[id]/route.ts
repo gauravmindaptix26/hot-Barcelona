@@ -9,6 +9,10 @@ import {
   deriveCloudinaryPublicIds,
   extractCloudinaryPublicId,
 } from "@/lib/cloudinary";
+import {
+  normalizeImageApprovals,
+  type ImageApprovals,
+} from "@/lib/profile-images";
 
 const allowedCollections = new Set(["girls", "trans"]);
 const allowedActions = new Set(["accept", "reject"]);
@@ -171,6 +175,7 @@ type AdminProfileUpdatePayload = {
   email?: unknown;
   gender?: unknown;
   images?: unknown;
+  imageApprovals?: unknown;
   formFields?: unknown;
 };
 
@@ -181,6 +186,10 @@ function revalidateProfilePages() {
   revalidatePath("/admin");
   revalidatePath("/girls");
   revalidatePath("/trans-escorts");
+  revalidatePath("/api/latest-profiles");
+  revalidatePath("/api/premium-vip-profiles");
+  revalidatePath("/api/premium-banner-profiles");
+  revalidatePath("/api/premium-superior-profiles");
   revalidatePath("/profile/me");
   revalidatePath("/registro-escorts");
   revalidatePath("/my-ad");
@@ -295,6 +304,7 @@ export async function PUT(
   const gender = sanitizeGender(payload.gender);
   const age = Number(payload.age);
   const images = sanitizeImages(payload.images);
+  const imageApprovals = normalizeImageApprovals(payload.imageApprovals);
   const formFields = syncCanonicalFormFields({
     formFields: sanitizeFormFields(payload.formFields),
     name,
@@ -303,6 +313,10 @@ export async function PUT(
     gender,
   });
   const imagePublicIds = deriveCloudinaryPublicIds(images);
+  const syncedImageApprovals: ImageApprovals = {};
+  for (const image of images) {
+    syncedImageApprovals[image] = imageApprovals[image] ?? "pending";
+  }
 
   if (!name || !location || !Number.isFinite(age)) {
     return NextResponse.json(
@@ -338,6 +352,7 @@ export async function PUT(
         ...(email ? { email } : {}),
         ...(gender ? { gender } : {}),
         images,
+        imageApprovals: syncedImageApprovals,
         imagePublicIds,
         formFields,
         updatedAt: new Date(),
@@ -363,6 +378,7 @@ export async function PUT(
       images: Array.isArray(result.images)
         ? result.images.filter((item: unknown) => typeof item === "string")
         : [],
+      imageApprovals: normalizeImageApprovals(result.imageApprovals),
       formFields: sanitizeFormFields(result.formFields),
     },
   });

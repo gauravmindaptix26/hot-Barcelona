@@ -1,6 +1,7 @@
 import TransClient from "./trans-client";
 import { getDb } from "@/lib/db";
 import { stripPrivateContactFields } from "@/lib/profile-contact";
+import { getPublicProfileImages } from "@/lib/profile-images";
 import { normalizeProfileLabel } from "@/lib/profile-labels";
 import {
   normalizeSubscriptionDurationValue,
@@ -21,6 +22,7 @@ const profileProjection = {
   age: 1,
   location: 1,
   images: 1,
+  imageApprovals: 1,
   createdAt: 1,
   status: 1,
   gender: 1,
@@ -201,12 +203,7 @@ const getCachedTransProfiles = unstable_cache(
   return sortedItems.map((item) => {
     const formFields = readFormFields(item.formFields);
     const publicFormFields = stripPrivateContactFields(formFields);
-    const images = Array.isArray(item.images)
-      ? item.images.filter(
-          (image): image is string =>
-            typeof image === "string" && image.trim().length > 0
-        )
-      : [];
+    const images = getPublicProfileImages(item.images, readItemValue(item, "imageApprovals"));
 
     const services = readStringArray(formFields.servicesOffered);
     const physicalAttributes = readStringArray(formFields.physicalAttributes);
@@ -298,7 +295,7 @@ const getCachedTransProfiles = unstable_cache(
     };
   });
   },
-  ["trans-public-profiles-v4"],
+  ["trans-public-profiles-v5"],
   { revalidate: 120, tags: ["trans-public-profiles"] }
 );
 

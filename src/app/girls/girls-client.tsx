@@ -1080,21 +1080,27 @@ export default function GirlsClient({
 
       {selectedProfile && (
         <motion.div
+          ref={modalRef}
+          onScroll={(event) => {
+            const target = event.currentTarget;
+            const maxScroll = target.scrollHeight - target.clientHeight;
+            scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
+          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
+          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain px-4 py-8"
         >
           <motion.button
             type="button"
             aria-label="Close profile"
             onClick={closeProfile}
-            className="absolute inset-0 bg-black/70 backdrop-blur-2xl"
+            className="fixed inset-0 bg-black/70 backdrop-blur-2xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
-          <div className="absolute right-3 top-1/2 z-20 -translate-y-1/2 sm:right-4 lg:right-6">
+          <div className="fixed right-3 top-1/2 z-20 -translate-y-1/2 sm:right-4 lg:right-6">
             <ProfileSectionSidebar
               sections={profileSidebarSections}
               scrollContainerRef={modalRef}
@@ -1103,17 +1109,11 @@ export default function GirlsClient({
           </div>
 
           <motion.div
-            ref={modalRef}
-              onScroll={(event) => {
-                const target = event.currentTarget;
-                const maxScroll = target.scrollHeight - target.clientHeight;
-                scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
-              }}
               initial={{ opacity: 0, scale: 0.98, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 24 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="no-scrollbar relative z-10 max-h-[96svh] w-full max-w-6xl overflow-y-auto rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:max-h-[92vh] sm:rounded-[32px]"
+              className="relative z-10 mx-auto w-full max-w-6xl rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:rounded-[32px]"
             >
             <div className="relative h-[48vh] min-h-[300px] overflow-hidden sm:h-[55vh] sm:min-h-[380px]">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">

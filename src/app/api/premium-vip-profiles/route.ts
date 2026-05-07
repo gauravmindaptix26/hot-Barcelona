@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getPublicProfileImages } from "@/lib/profile-images";
 
 export const revalidate = 120;
 
@@ -13,6 +14,7 @@ const premiumVipProjection = {
   age: 1,
   location: 1,
   images: 1,
+  imageApprovals: 1,
   createdAt: 1,
   gender: 1,
   formFields: 1,
@@ -121,7 +123,10 @@ export async function GET() {
       name: item.name ?? "VIP Profile",
       age: typeof item.age === "number" ? item.age : null,
       location: item.location ?? "Barcelona",
-      image: Array.isArray(item.images) ? item.images[0] ?? null : null,
+      image: getPublicProfileImages(
+        item.images,
+        readItemValue(item, "imageApprovals")
+      )[0] ?? null,
       createdAt: createdAtMs || null,
       gender: item.gender ?? null,
       profileType,

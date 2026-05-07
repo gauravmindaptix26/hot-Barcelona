@@ -3,6 +3,10 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import {
+  normalizeImageApprovalStatus,
+  type ImageApprovals,
+} from "@/lib/profile-images";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 type ReviewFilter = ApprovalStatus | "all";
@@ -16,6 +20,7 @@ type ProfileItem = {
   email: string;
   gender: string;
   images: string[];
+  imageApprovals: ImageApprovals;
   formFields: PersistedFormFields;
   approvalStatus: ApprovalStatus;
   createdAt: string | null;
@@ -50,6 +55,7 @@ type EditFormState = {
   email: string;
   gender: string;
   imagesText: string;
+  imageApprovals: ImageApprovals;
   formFields: PersistedFormFields;
 };
 
@@ -209,6 +215,7 @@ const createEmptyEditForm = (): EditFormState => ({
   email: "",
   gender: "",
   imagesText: "",
+  imageApprovals: {},
   formFields: {},
 });
 
@@ -349,6 +356,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [isUpdatingImage, setIsUpdatingImage] = useState<string | null>(null);
   const [isUpdatingReviewStatus, setIsUpdatingReviewStatus] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<EditFormState>(createEmptyEditForm);
@@ -560,6 +568,73 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
     }
   };
 
+  const handleImageDecision = async (
+    item: ProfileItem,
+    imageUrl: string,
+    status: ApprovalStatus
+  ) => {
+    const imageKey = `${item._id}:${imageUrl}`;
+    setIsUpdatingImage(imageKey);
+    setError("");
+
+    const nextImageApprovals: ImageApprovals = {
+      ...item.imageApprovals,
+      [imageUrl]: status,
+    };
+    const fallbackAge = Number(item.formFields.age);
+    const age = item.age ?? (Number.isFinite(fallbackAge) ? fallbackAge : 0);
+
+    try {
+      const response = await fetch(
+        `/api/admin/profiles/${item._id}?type=${activeTab}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: item.name,
+            age,
+            location: item.location,
+            email: item.email,
+            gender: item.gender,
+            images: item.images,
+            imageApprovals: nextImageApprovals,
+            formFields: item.formFields,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to update image status.");
+        return;
+      }
+
+      const data = (await response.json()) as {
+        profile?: { _id?: string; imageApprovals?: ImageApprovals };
+      };
+
+      setItems((prev) => ({
+        ...prev,
+        [activeTab]: prev[activeTab].map((profile) =>
+          profile._id === item._id
+            ? {
+                ...profile,
+                imageApprovals:
+                  data.profile?.imageApprovals &&
+                  typeof data.profile.imageApprovals === "object"
+                    ? data.profile.imageApprovals
+                    : nextImageApprovals,
+              }
+            : profile
+        ),
+      }));
+    } catch {
+      setError("Failed to update image status.");
+    } finally {
+      setIsUpdatingImage(null);
+    }
+  };
+
   const loadReviews = useCallback(async () => {
     if (hasLoadedReviews || isLoadingReviews) {
       return;
@@ -643,6 +718,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       email: item.email,
       gender: item.gender,
       imagesText: item.images.join("\n"),
+      imageApprovals: { ...item.imageApprovals },
       formFields: cloneFormFields(item.formFields ?? {}),
     });
     setError("");
@@ -689,6 +765,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
             email: editForm.email.trim().toLowerCase(),
             gender: editForm.gender.trim().toLowerCase(),
             images,
+            imageApprovals: editForm.imageApprovals,
             formFields: normalizedFormFields,
           }),
         }
@@ -709,6 +786,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
           email?: string;
           gender?: string;
           images?: string[];
+          imageApprovals?: ImageApprovals;
           formFields?: PersistedFormFields;
         };
       };
@@ -736,6 +814,10 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
                 gender:
                   typeof updated.gender === "string" ? updated.gender : item.gender,
                 images: Array.isArray(updated.images) ? updated.images : item.images,
+                imageApprovals:
+                  updated.imageApprovals && typeof updated.imageApprovals === "object"
+                    ? updated.imageApprovals
+                    : item.imageApprovals,
                 formFields:
                   updated.formFields && typeof updated.formFields === "object"
                     ? updated.formFields
@@ -925,6 +1007,99 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
                 <span className="break-words">
                   {item.images.length} photos / {Object.keys(item.formFields ?? {}).length} fields
                 </span>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]">
+                    Picture moderation
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-white/45">
+                    First image is top picture
+                  </p>
+                </div>
+                {item.images.length > 0 ? (
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    {item.images.map((imageUrl, imageIndex) => {
+                      const imageStatus = normalizeImageApprovalStatus(
+                        item.imageApprovals[imageUrl]
+                      );
+                      const imageKey = `${item._id}:${imageUrl}`;
+                      const isImageSaving = isUpdatingImage === imageKey;
+
+                      return (
+                        <div
+                          key={`${item._id}-${imageUrl}`}
+                          className={`overflow-hidden rounded-2xl border bg-black/40 ${
+                            imageStatus === "rejected"
+                              ? "border-rose-300/30 opacity-75"
+                              : imageStatus === "approved"
+                                ? "border-emerald-300/30"
+                                : "border-white/10"
+                          }`}
+                        >
+                          <div className="relative h-36">
+                            <Image
+                              src={imageUrl}
+                              alt={`${item.name || "Profile"} picture ${imageIndex + 1}`}
+                              fill
+                              sizes="(max-width: 640px) 80vw, (max-width: 1280px) 36vw, 18vw"
+                              className="object-cover"
+                            />
+                            <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
+                              {imageIndex === 0 && (
+                                <span className="rounded-full bg-[#f5d68c] px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-black">
+                                  Top
+                                </span>
+                              )}
+                              <span
+                                className={`rounded-full border px-2 py-1 text-[9px] uppercase tracking-[0.14em] ${statusClass(
+                                  imageStatus
+                                )}`}
+                              >
+                                {statusLabel(imageStatus)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 p-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleImageDecision(item, imageUrl, "approved")
+                              }
+                              disabled={
+                                isImageSaving ||
+                                imageStatus === "approved" ||
+                                isSavingEdit
+                              }
+                              className="rounded-full border border-emerald-300/30 bg-emerald-500/10 px-2 py-1.5 text-[9px] uppercase tracking-[0.16em] text-emerald-200 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {isImageSaving ? "Saving" : "Approve"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleImageDecision(item, imageUrl, "rejected")
+                              }
+                              disabled={
+                                isImageSaving ||
+                                imageStatus === "rejected" ||
+                                isSavingEdit
+                              }
+                              className="rounded-full border border-rose-300/30 bg-rose-500/10 px-2 py-1.5 text-[9px] uppercase tracking-[0.16em] text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {isImageSaving ? "Saving" : "Reject"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="rounded-xl border border-dashed border-white/10 p-4 text-sm text-white/45">
+                    No uploaded pictures on this profile.
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">

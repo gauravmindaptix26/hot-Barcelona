@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getPublicProfileImages } from "@/lib/profile-images";
 import { normalizeSubscriptionPlanValue } from "@/lib/subscription";
 
 export const revalidate = 120;
@@ -14,7 +15,10 @@ const latestProfileProjection = {
   age: 1,
   location: 1,
   images: 1,
+  imageApprovals: 1,
   createdAt: 1,
+  submittedAt: 1,
+  updatedAt: 1,
   gender: 1,
   formFields: 1,
   subscriptionPlan: 1,
@@ -22,6 +26,7 @@ const latestProfileProjection = {
 } as const;
 
 const TOP_PREMIUM_STANDARD_PLAN = "TOP PREMIUM STANDARD";
+const SOURCE_PROFILE_LIMIT = 100;
 
 const readFormFields = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -47,7 +52,7 @@ const readItemValue = (item: unknown, key: string) =>
 const readSubscriptionPlan = (value: unknown) =>
   normalizeSubscriptionPlanValue(readFirstStringValue(value));
 
-const readCreatedAtMs = (value: unknown) => {
+const readDateMs = (value: unknown) => {
   if (value instanceof Date) return value.getTime();
   if (typeof value === "string" || typeof value === "number") {
     const parsed = new Date(value).getTime();
@@ -55,6 +60,13 @@ const readCreatedAtMs = (value: unknown) => {
   }
   return 0;
 };
+
+const readProfileTimestampMs = (profile: unknown) =>
+  Math.max(
+    readDateMs(readItemValue(profile, "submittedAt")),
+    readDateMs(readItemValue(profile, "updatedAt")),
+    readDateMs(readItemValue(profile, "createdAt"))
+  );
 
 const hasSpecialOffer = (fields: Record<string, unknown>) =>
   Boolean(
@@ -69,14 +81,14 @@ export async function GET() {
     db
       .collection("girls")
       .find(publicVisibilityQuery, { projection: latestProfileProjection })
-      .sort({ createdAt: -1 })
-      .limit(25)
+      .sort({ submittedAt: -1, updatedAt: -1, createdAt: -1 })
+      .limit(SOURCE_PROFILE_LIMIT)
       .toArray(),
     db
       .collection("trans")
       .find(publicVisibilityQuery, { projection: latestProfileProjection })
-      .sort({ createdAt: -1 })
-      .limit(25)
+      .sort({ submittedAt: -1, updatedAt: -1, createdAt: -1 })
+      .limit(SOURCE_PROFILE_LIMIT)
       .toArray(),
   ]);
 
@@ -96,7 +108,7 @@ export async function GET() {
         profile,
         profileType,
         premiumPlan,
-        createdAtMs: readCreatedAtMs(profile.createdAt),
+        createdAtMs: readProfileTimestampMs(profile),
       };
     })
     .filter((item) => item.premiumPlan === TOP_PREMIUM_STANDARD_PLAN)
@@ -109,7 +121,10 @@ export async function GET() {
       name: profile.name ?? "New profile",
       age: typeof profile.age === "number" ? profile.age : null,
       location: profile.location ?? "",
-      image: Array.isArray(profile.images) ? profile.images[0] ?? null : null,
+      image: getPublicProfileImages(
+        profile.images,
+        readItemValue(profile, "imageApprovals")
+      )[0] ?? null,
       createdAt: createdAtMs || null,
       gender: profile.gender ?? null,
       profileType,

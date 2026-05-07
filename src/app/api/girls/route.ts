@@ -3,7 +3,8 @@ import { getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { deriveCloudinaryPublicIds } from "@/lib/cloudinary";
-import { revalidateTag } from "next/cache";
+import { getPublicProfileImages } from "@/lib/profile-images";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
@@ -15,6 +16,7 @@ const listingProjection = {
   age: 1,
   location: 1,
   images: 1,
+  imageApprovals: 1,
   createdAt: 1,
 } as const;
 
@@ -71,7 +73,7 @@ export async function GET() {
       name: item.name ?? "",
       age: item.age ?? null,
       location: item.location ?? "",
-      images: Array.isArray(item.images) ? item.images : [],
+      images: getPublicProfileImages(item.images, item.imageApprovals),
       createdAt: item.createdAt ?? null,
     }))
   );
@@ -173,6 +175,8 @@ export async function POST(req: Request) {
       }
     );
     revalidateTag("girls-public-profiles", { expire: 0 });
+    revalidatePath("/");
+    revalidatePath("/api/latest-profiles");
     return NextResponse.json({
       ok: true,
       id: existing._id.toString(),
@@ -201,6 +205,8 @@ export async function POST(req: Request) {
     createdAt: now,
   });
   revalidateTag("girls-public-profiles", { expire: 0 });
+  revalidatePath("/");
+  revalidatePath("/api/latest-profiles");
 
   return NextResponse.json({
     ok: true,

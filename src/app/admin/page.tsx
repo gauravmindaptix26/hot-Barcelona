@@ -4,6 +4,7 @@ import { isAdminEmail } from "@/lib/admin";
 import { getDb } from "@/lib/db";
 import AdminClient from "./AdminClient";
 import PageShell from "@/components/PageShell";
+import { normalizeImageApprovals, readImageArray } from "@/lib/profile-images";
 
 type ApprovalStatus = "pending" | "approved" | "rejected";
 type PersistedFormFields = Record<string, string | string[]>;
@@ -72,6 +73,7 @@ export default async function AdminPage() {
       email: 1,
       gender: 1,
       images: 1,
+      imageApprovals: 1,
       formFields: 1,
       createdAt: 1,
       approvalStatus: 1,
@@ -100,6 +102,7 @@ export default async function AdminPage() {
     email?: unknown;
     gender?: unknown;
     images?: unknown;
+    imageApprovals?: unknown;
     formFields?: unknown;
     createdAt?: unknown;
     approvalStatus?: unknown;
@@ -112,7 +115,8 @@ export default async function AdminPage() {
       location: typeof item.location === "string" ? item.location : "",
       email: typeof item.email === "string" ? item.email : "",
       gender: typeof item.gender === "string" ? item.gender : "",
-      images: Array.isArray(item.images) ? item.images : [],
+      images: readImageArray(item.images),
+      imageApprovals: normalizeImageApprovals(item.imageApprovals),
       formFields: normalizeFormFields(item.formFields),
       approvalStatus: normalizeApprovalStatus(item.approvalStatus),
       createdAt: createdAtIso,

@@ -443,6 +443,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
               <p className="mt-1 text-xs text-white/60">
                 Minimum 4, maximum 20 images. Stored in Cloudinary.
               </p>
+              <p className="mt-2 max-w-2xl text-xs leading-relaxed text-[#f5d68c]/85">
+                Important: the first uploaded picture will be used as your profile Top Picture on cards and profile previews. Upload your best main photo first.
+              </p>
             </div>
             <label className="cursor-pointer rounded-full border border-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:text-white sm:px-5 sm:text-xs sm:tracking-[0.35em]">
               Select Images
@@ -461,7 +464,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           )}
 
           <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2 lg:grid-cols-4">
-            {uploads.map((item) => (
+            {uploads.map((item, index) => (
               <div
                 key={item.id}
                 className="relative h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/50"
@@ -473,6 +476,11 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
                   sizes="(max-width: 640px) 88vw, (max-width: 1024px) 42vw, 18vw"
                   className="object-cover"
                 />
+                {index === 0 && (
+                  <span className="absolute left-2 top-2 rounded-full bg-[#f5d68c] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black shadow-[0_10px_22px_rgba(0,0,0,0.35)]">
+                    Top Picture
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => removeUpload(item.id)}
