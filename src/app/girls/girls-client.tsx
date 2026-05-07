@@ -1080,16 +1080,10 @@ export default function GirlsClient({
 
       {selectedProfile && (
         <motion.div
-          ref={modalRef}
-          onScroll={(event) => {
-            const target = event.currentTarget;
-            const maxScroll = target.scrollHeight - target.clientHeight;
-            scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
-          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain px-4 py-8"
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:py-8"
         >
           <motion.button
             type="button"
@@ -1109,11 +1103,17 @@ export default function GirlsClient({
           </div>
 
           <motion.div
+              ref={modalRef}
+              onScroll={(event) => {
+                const target = event.currentTarget;
+                const maxScroll = target.scrollHeight - target.clientHeight;
+                scrollProgress.set(maxScroll > 0 ? target.scrollTop / maxScroll : 0);
+              }}
               initial={{ opacity: 0, scale: 0.98, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 24 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-10 mx-auto w-full max-w-6xl rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:rounded-[32px]"
+              className="relative z-10 mx-auto max-h-[calc(100svh-3rem)] w-full max-w-6xl overflow-y-auto overscroll-contain rounded-[26px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] [scrollbar-color:rgba(245,214,140,0.55)_rgba(255,255,255,0.08)] [scrollbar-width:thin] sm:max-h-[92vh] sm:rounded-[32px]"
             >
             <div className="relative h-[48vh] min-h-[300px] overflow-hidden sm:h-[55vh] sm:min-h-[380px]">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
