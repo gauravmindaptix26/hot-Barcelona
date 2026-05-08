@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { getPublicProfileImages } from "@/lib/profile-images";
-import { normalizeSubscriptionPlanValue } from "@/lib/subscription";
 
 export const revalidate = 120;
 
@@ -25,8 +24,8 @@ const latestProfileProjection = {
   premiumPlan: 1,
 } as const;
 
-const TOP_PREMIUM_STANDARD_PLAN = "TOP PREMIUM STANDARD";
 const SOURCE_PROFILE_LIMIT = 100;
+const NEW_COMER_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
 const readFormFields = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -49,9 +48,6 @@ const readItemValue = (item: unknown, key: string) =>
     ? (item as Record<string, unknown>)[key]
     : undefined;
 
-const readSubscriptionPlan = (value: unknown) =>
-  normalizeSubscriptionPlanValue(readFirstStringValue(value));
-
 const readDateMs = (value: unknown) => {
   if (value instanceof Date) return value.getTime();
   if (typeof value === "string" || typeof value === "number") {
@@ -61,10 +57,9 @@ const readDateMs = (value: unknown) => {
   return 0;
 };
 
-const readProfileTimestampMs = (profile: unknown) =>
+const readNewComerTimestampMs = (profile: unknown) =>
   Math.max(
     readDateMs(readItemValue(profile, "submittedAt")),
-    readDateMs(readItemValue(profile, "updatedAt")),
     readDateMs(readItemValue(profile, "createdAt"))
   );
 
@@ -77,41 +72,38 @@ const hasSpecialOffer = (fields: Record<string, unknown>) =>
 
 export async function GET() {
   const db = await getDb();
-  const [girls, trans] = await Promise.all([
-    db
-      .collection("girls")
-      .find(publicVisibilityQuery, { projection: latestProfileProjection })
-      .sort({ submittedAt: -1, updatedAt: -1, createdAt: -1 })
-      .limit(SOURCE_PROFILE_LIMIT)
-      .toArray(),
-    db
-      .collection("trans")
-      .find(publicVisibilityQuery, { projection: latestProfileProjection })
-      .sort({ submittedAt: -1, updatedAt: -1, createdAt: -1 })
-      .limit(SOURCE_PROFILE_LIMIT)
-      .toArray(),
-  ]);
+  const cutoffDate = new Date(Date.now() - NEW_COMER_WINDOW_MS);
+  const girls = await db
+    .collection("girls")
+    .find(
+      {
+        $and: [
+          publicVisibilityQuery,
+          {
+            $or: [
+              { submittedAt: { $gte: cutoffDate } },
+              { createdAt: { $gte: cutoffDate } },
+            ],
+          },
+        ],
+      },
+      { projection: latestProfileProjection }
+    )
+    .sort({ submittedAt: -1, createdAt: -1, updatedAt: -1 })
+    .limit(SOURCE_PROFILE_LIMIT)
+    .toArray();
 
-  const combined = [
-    ...girls.map((profile) => ({ profile, profileType: "girls" as const })),
-    ...trans.map((profile) => ({ profile, profileType: "trans" as const })),
-  ]
+  const combined = girls
+    .map((profile) => ({ profile, profileType: "girls" as const }))
     .filter((item) => item?.profile)
     .map(({ profile, profileType }) => {
-      const formFields = readFormFields(profile.formFields);
-      const premiumPlan =
-        readSubscriptionPlan(formFields.subscriptionPlan) ??
-        readSubscriptionPlan(readItemValue(profile, "subscriptionPlan")) ??
-        readSubscriptionPlan(readItemValue(profile, "premiumPlan"));
-
       return {
         profile,
         profileType,
-        premiumPlan,
-        createdAtMs: readProfileTimestampMs(profile),
+        createdAtMs: readNewComerTimestampMs(profile),
       };
     })
-    .filter((item) => item.premiumPlan === TOP_PREMIUM_STANDARD_PLAN)
+    .filter((item) => item.createdAtMs >= cutoffDate.getTime())
     .sort((a, b) => b.createdAtMs - a.createdAtMs)
     .slice(0, 12);
 

@@ -469,20 +469,33 @@ export default async function RegistroEscortsPage() {
   if (session?.user?.id) {
     const db = await getDb();
     const userId = new ObjectId(session.user.id);
-    const userEmail = session.user.email?.trim().toLowerCase() ?? "";
-    const ownerQuery = userEmail
-      ? {
-          isDeleted: { $ne: true },
-          $or: [{ _id: userId }, { userId }, { email: userEmail }, { userEmail }],
-        }
-      : {
-          isDeleted: { $ne: true },
-          $or: [{ _id: userId }, { userId }],
-        };
-    const [girlsAd, transAd] = await Promise.all([
-      db.collection("girls").findOne(ownerQuery),
-      db.collection("trans").findOne(ownerQuery),
-    ]);
+    const advertiserType = session.user.advertiserType;
+    const [girlsAd, transAd] =
+      session.user.accountType === "advertiser" && advertiserType
+        ? await Promise.all([
+            advertiserType === "girls"
+              ? db.collection("girls").findOne({
+                  _id: userId,
+                  isDeleted: { $ne: true },
+                })
+              : null,
+            advertiserType === "trans"
+              ? db.collection("trans").findOne({
+                  _id: userId,
+                  isDeleted: { $ne: true },
+                })
+              : null,
+          ])
+        : await Promise.all([
+            db.collection("girls").findOne({
+              userId,
+              isDeleted: { $ne: true },
+            }),
+            db.collection("trans").findOne({
+              userId,
+              isDeleted: { $ne: true },
+            }),
+          ]);
 
     const ad = girlsAd ?? transAd;
     if (ad) {

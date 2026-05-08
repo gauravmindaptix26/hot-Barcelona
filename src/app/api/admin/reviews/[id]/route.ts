@@ -16,6 +16,11 @@ const readEmail = (value: unknown) =>
 const readName = (value: unknown) =>
   typeof value === "string" && value.trim() ? value.trim() : "User";
 
+const supportEmail =
+  process.env.REGISTRATION_SUPPORT_EMAIL?.trim() ||
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() ||
+  "support@hot-barcelone.co";
+
 async function sendReviewApprovalEmail(review: unknown) {
   if (!review || typeof review !== "object" || Array.isArray(review)) return;
 
@@ -34,6 +39,7 @@ async function sendReviewApprovalEmail(review: unknown) {
         <p>It can now appear in the public review section for the profile you reviewed.</p>
       `,
       text: `Hello ${name}, your feedback has been approved by the Hot Barcelona admin team and can now appear publicly.`,
+      replyTo: supportEmail,
     });
   } catch (error) {
     console.error(

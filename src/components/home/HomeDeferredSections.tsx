@@ -85,6 +85,7 @@ export default function HomeDeferredSections() {
   const lifestyleRef = useRef<HTMLDivElement | null>(null);
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const premiumBannerScrollerRef = useRef<HTMLDivElement | null>(null);
+  const latestProfilesScrollerRef = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const [latestProfiles, setLatestProfiles] = useState<LatestProfile[]>([]);
   const [premiumVipProfiles, setPremiumVipProfiles] = useState<
@@ -241,6 +242,17 @@ export default function HomeDeferredSections() {
     if (!node) return;
 
     const step = Math.max(280, Math.round(node.clientWidth * 0.78));
+    node.scrollBy({
+      left: direction === "left" ? -step : step,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollLatestProfiles = (direction: "left" | "right") => {
+    const node = latestProfilesScrollerRef.current;
+    if (!node) return;
+
+    const step = Math.max(260, Math.round(node.clientWidth * 0.82));
     node.scrollBy({
       left: direction === "left" ? -step : step,
       behavior: "smooth",
@@ -715,117 +727,152 @@ export default function HomeDeferredSections() {
 
       <section className="deferred-section relative z-10 pb-20 pt-10 sm:pb-24 sm:pt-12">
         <div className="mx-auto w-full max-w-[88rem] px-4 sm:px-6">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="w-full">
+          <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+            <div className="max-w-4xl">
               <p className="font-cinzel text-[1.8rem] uppercase tracking-[0.16em] text-[#f5d68c] sm:text-5xl sm:tracking-[0.3em] lg:text-6xl">
                 New Comers-Latest Addition
               </p>
-              <p className="mb-4 mt-4 max-w-4xl text-sm leading-relaxed text-white/75 sm:mb-5 sm:mt-6 sm:text-lg lg:text-xl">
-                Discover our newest arrivals featuring fresh faces, verified
-                profiles, and exciting premium experiences, carefully curated for
-                style, quality, and discretion.
+              <p className="mt-4 text-sm leading-relaxed text-white/75 sm:mt-6 sm:text-lg lg:text-xl">
+                Discover the newest approved girls in the order they uploaded
+                their profiles. Each newcomer is featured here for one week.
               </p>
+            </div>
+            <div className="flex items-center gap-3 self-end sm:self-auto">
+              <button
+                type="button"
+                onClick={() => scrollLatestProfiles("left")}
+                aria-label="Scroll newcomers left"
+                className="group flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/75 shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-[#f5d68c]/45 hover:text-[#f5d68c]"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 transition group-hover:-translate-x-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <path d="M15 6 9 12l6 6" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollLatestProfiles("right")}
+                aria-label="Scroll newcomers right"
+                className="group flex h-12 w-12 items-center justify-center rounded-full border border-[#f5d68c]/30 bg-[#f5d68c]/10 text-[#f5d68c] shadow-[0_12px_30px_rgba(0,0,0,0.35)] backdrop-blur transition hover:border-[#f5d68c]/55 hover:bg-[#f5d68c]/14"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 transition group-hover:translate-x-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
-        <div className="mx-auto mt-8 grid w-full max-w-[88rem] gap-4 px-4 sm:mt-10 sm:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-4">
-          {latestProfilesSafe.map((profile, index) => {
-            const card = (
-              <motion.div
-                key={profile.id}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
-                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-                transition={
-                  shouldReduceMotion
-                    ? undefined
-                    : {
-                        duration: 0.8,
-                        delay: index * 0.08,
-                        ease: [0.16, 1, 0.3, 1],
-                      }
-                }
-                viewport={{ once: true, amount: 0.35 }}
-                className="group relative overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)]"
-                whileHover={shouldReduceMotion ? undefined : { y: -6 }}
-              >
-                <div className="relative aspect-[3/4] w-full overflow-hidden">
-                  {profile.hasSpecialOffer && <SpecialOfferBadge />}
-                  {profile.image ? (
-                    <Image
-                      src={profile.image}
-                      alt={profile.name}
-                      fill
-                      sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 24vw"
-                      quality={70}
-                      className="object-cover transition duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />
-                  )}
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_15%,rgba(10,11,13,0.75)_100%)] opacity-80 transition duration-500 group-hover:opacity-90" />
-                  <span
-                    aria-hidden="true"
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
+        <div className="relative mt-8 sm:mt-10">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-[#0a0b0d] to-transparent sm:w-12" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-[#0a0b0d] to-transparent sm:w-12" />
+          <div
+            ref={latestProfilesScrollerRef}
+            className="no-scrollbar snap-x snap-mandatory overflow-x-auto scroll-smooth px-4 pb-2 sm:px-6"
+          >
+            <div className="flex w-max gap-4 pr-4 sm:gap-6 sm:pr-6">
+              {latestProfilesSafe.map((profile, index) => {
+                const card = (
+                  <motion.div
+                    key={profile.id}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
+                    whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                    transition={
+                      shouldReduceMotion
+                        ? undefined
+                        : {
+                            duration: 0.8,
+                            delay: Math.min(index * 0.06, 0.3),
+                            ease: [0.16, 1, 0.3, 1],
+                          }
+                    }
+                    viewport={{ once: true, amount: 0.35 }}
+                    className="group relative h-[320px] w-[230px] flex-shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-white/5 text-left shadow-[0_24px_50px_rgba(0,0,0,0.35)] sm:h-[390px] sm:w-[280px] lg:h-[430px] lg:w-[310px]"
+                    whileHover={shouldReduceMotion ? undefined : { y: -6 }}
                   >
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                    >
-                      <path d="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
-                    </svg>
-                  </span>
-
-                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-                    <p className="text-[10px] uppercase tracking-[0.35em] text-white/60">
-                      Top Premium Standard
-                    </p>
-                    <p className="mt-2 text-lg font-semibold text-white">
-                      {profile.name}
-                      {profile.age ? `, ${profile.age}` : ""}
-                    </p>
-                    {profile.location && (
-                      <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/60">
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-3.5 w-3.5"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.6"
-                        >
-                          <path d="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
-                        </svg>
-                        {profile.location}
-                      </div>
+                    {profile.hasSpecialOffer && <SpecialOfferBadge />}
+                    {profile.image ? (
+                      <Image
+                        src={profile.image}
+                        alt={profile.name}
+                        fill
+                        sizes="(max-width: 640px) 230px, (max-width: 1024px) 280px, 310px"
+                        quality={70}
+                        className="object-cover transition duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />
                     )}
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center gap-1 text-xs text-[#f5d68c]">
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-3.5 w-3.5"
-                          fill="currentColor"
-                        >
-                          <path d="M12 3.5l2.6 5.4 6 .9-4.3 4.2 1 6-5.3-2.8-5.3 2.8 1-6-4.3-4.2 6-.9L12 3.5Z" />
-                        </svg>
-                        4.7
-                      </div>
-                      <span className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-black opacity-100 transition duration-500 sm:translate-y-2 sm:opacity-0 sm:tracking-[0.3em] sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
-                        View Profile
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_15%,rgba(10,11,13,0.78)_100%)] opacity-82 transition duration-500 group-hover:opacity-95" />
+                    <span
+                      aria-hidden="true"
+                      className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white/80 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                      >
+                        <path d="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
+                      </svg>
+                    </span>
 
-            return (
-              <Link key={profile.id} href={getPublicProfileHref(profile)}>
-                {card}
-              </Link>
-            );
-          })}
+                    <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                      <p className="text-[10px] uppercase tracking-[0.35em] text-white/60">
+                        New Comer
+                      </p>
+                      <p className="mt-2 text-lg font-semibold text-white">
+                        {profile.name}
+                        {profile.age ? `, ${profile.age}` : ""}
+                      </p>
+                      {profile.location && (
+                        <div className="mt-1 flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-white/60">
+                          <svg
+                            viewBox="0 0 24 24"
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                          >
+                            <path d="M12 21s6-5.1 6-9.5A6 6 0 1 0 6 11.5C6 15.9 12 21 12 21Z" />
+                          </svg>
+                          {profile.location}
+                        </div>
+                      )}
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <span className="rounded-full border border-[#f5d68c]/30 bg-black/45 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]">
+                          7 days only
+                        </span>
+                        <span className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-black opacity-100 transition duration-500 sm:translate-y-2 sm:opacity-0 sm:tracking-[0.3em] sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
+                          View Profile
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+
+                return (
+                  <Link key={profile.id} href={getPublicProfileHref(profile)} className="snap-start">
+                    {card}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </div>
         {latestProfilesSafe.length === 0 && (
           <div className="mx-auto mt-6 w-full max-w-[88rem] px-4 sm:px-6">

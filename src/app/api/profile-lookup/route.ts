@@ -54,12 +54,6 @@ export async function POST(req: Request) {
   }
 
   const db = await getDb();
-  const user = await db.collection("users").findOne(
-    { email },
-    { projection: { passwordHash: 1 } }
-  );
-  const userHash = typeof user?.passwordHash === "string" ? user.passwordHash : "";
-  const userPasswordMatches = userHash ? await bcrypt.compare(password, userHash) : false;
   const preferredCollection =
     gender === "girl" ? "girls" : gender === "trans" ? "trans" : null;
   const collections = preferredCollection
@@ -68,9 +62,9 @@ export async function POST(req: Request) {
   let foundProfileForEmail = false;
 
   for (const collection of collections) {
-    const doc = await db
+    const docs = await db
       .collection(collection)
-      .findOne(
+      .find(
         { email, isDeleted: { $ne: true } },
         {
           projection: {
@@ -84,31 +78,37 @@ export async function POST(req: Request) {
             passwordHash: 1,
           },
         }
-      );
-    if (!doc) continue;
+      )
+      .sort({ updatedAt: -1, createdAt: -1 })
+      .toArray();
+    if (docs.length === 0) continue;
     foundProfileForEmail = true;
 
-    const hash = typeof doc.passwordHash === "string" ? doc.passwordHash : "";
-    const ok = hash ? await bcrypt.compare(password, hash) : userPasswordMatches;
-    if (!ok) continue;
+    for (const doc of docs) {
+      const hash = typeof doc.passwordHash === "string" ? doc.passwordHash : "";
+      if (!hash) continue;
 
-    const formFields = readFormFields(doc.formFields);
-    const savedAddress = readFieldText(formFields, "address");
-    const fallbackLocation =
-      typeof doc.location === "string" ? doc.location.trim() : "";
+      const ok = await bcrypt.compare(password, hash);
+      if (!ok) continue;
 
-    return NextResponse.json({
-      ok: true,
-      profile: {
-        gender: doc.gender ?? (collection === "trans" ? "trans" : "girl"),
-        name: doc.name ?? "",
-        age: doc.age ?? null,
-        location: savedAddress || fallbackLocation,
-        images: Array.isArray(doc.images) ? doc.images : [],
-        email,
-        formFields,
-      },
-    });
+      const formFields = readFormFields(doc.formFields);
+      const savedAddress = readFieldText(formFields, "address");
+      const fallbackLocation =
+        typeof doc.location === "string" ? doc.location.trim() : "";
+
+      return NextResponse.json({
+        ok: true,
+        profile: {
+          gender: doc.gender ?? (collection === "trans" ? "trans" : "girl"),
+          name: doc.name ?? "",
+          age: doc.age ?? null,
+          location: savedAddress || fallbackLocation,
+          images: Array.isArray(doc.images) ? doc.images : [],
+          email,
+          formFields,
+        },
+      });
+    }
   }
 
   if (foundProfileForEmail) {

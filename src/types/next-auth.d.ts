@@ -6,6 +6,8 @@ declare module "next-auth" {
       id: string;
       gender?: "female" | "male";
       isAdmin?: boolean;
+      accountType?: "user" | "advertiser";
+      advertiserType?: "girls" | "trans";
     };
   }
 }
@@ -15,6 +17,8 @@ declare module "next-auth/jwt" {
     id?: string;
     gender?: "female" | "male" | null;
     isAdmin?: boolean;
+    accountType?: "user" | "advertiser";
+    advertiserType?: "girls" | "trans" | null;
   }
 }
 

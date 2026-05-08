@@ -17,7 +17,6 @@ const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
-const passwordCollections = ["users", "girls", "trans"] as const;
 type PasswordAccountDoc = {
   _id: ObjectId;
   passwordHash?: unknown;
@@ -68,24 +67,19 @@ export async function POST(request: Request) {
   void ensureUsersIndexes();
   const db = await getDb();
   const userId = new ObjectId(session.user.id);
-  const sessionEmail = session.user.email?.trim().toLowerCase() ?? "";
-  let account:
-    | {
-        collection: (typeof passwordCollections)[number];
-        doc: PasswordAccountDoc;
-      }
-    | null = null;
-
-  for (const collection of passwordCollections) {
-    const doc = await db.collection(collection).findOne({
-      isDeleted: { $ne: true },
-      $or: sessionEmail ? [{ _id: userId }, { email: sessionEmail }] : [{ _id: userId }],
-    });
-    if (doc?._id instanceof ObjectId) {
-      account = { collection, doc };
-      break;
-    }
-  }
+  const collection =
+    session.user.accountType === "advertiser" &&
+    (session.user.advertiserType === "girls" || session.user.advertiserType === "trans")
+      ? session.user.advertiserType
+      : "users";
+  const doc = await db.collection(collection).findOne({
+    _id: userId,
+    isDeleted: { $ne: true },
+  });
+  const account =
+    doc?._id instanceof ObjectId
+      ? { collection, doc: doc as PasswordAccountDoc }
+      : null;
 
   const passwordHash = typeof account?.doc?.passwordHash === "string" ? account.doc.passwordHash : "";
   if (!account?.doc || !passwordHash) {

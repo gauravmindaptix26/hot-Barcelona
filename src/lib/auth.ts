@@ -11,6 +11,8 @@ export type AppSession = Session & {
     id: string;
     gender?: "female" | "male";
     isAdmin?: boolean;
+    accountType?: "user" | "advertiser";
+    advertiserType?: "girls" | "trans";
   };
 };
 
@@ -22,6 +24,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        accountType: { label: "Account type", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials.password) {
@@ -30,6 +33,12 @@ export const authOptions: NextAuthOptions = {
 
         const normalizedEmail = credentials.email.trim().toLowerCase();
         const normalizedPassword = credentials.password.trim();
+        const requestedAccountType =
+          credentials.accountType === "users" ||
+          credentials.accountType === "girls" ||
+          credentials.accountType === "trans"
+            ? credentials.accountType
+            : null;
         if (!normalizedEmail || !normalizedPassword) {
           return null;
         }
@@ -41,9 +50,12 @@ export const authOptions: NextAuthOptions = {
 
         void ensureUsersIndexes();
         const db = await getDb();
-        const user = await db.collection("users").findOne({
-          email: normalizedEmail,
-        });
+        const user =
+          !requestedAccountType || requestedAccountType === "users"
+            ? await db.collection("users").findOne({
+                email: normalizedEmail,
+              })
+            : null;
 
         if (user?.passwordHash) {
           const isValid = await bcrypt.compare(
@@ -57,30 +69,58 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               email: user.email,
               gender: user.gender,
+              accountType: "user",
             };
           }
         }
 
-        for (const collectionName of ["girls", "trans"]) {
-          const advertiser = await db.collection(collectionName).findOne({
-            email: normalizedEmail,
-            isDeleted: { $ne: true },
-          });
+        if (requestedAccountType === "users") {
+          return null;
+        }
 
-          if (!advertiser?.passwordHash) continue;
+        const advertiserCollections =
+          requestedAccountType === "girls" || requestedAccountType === "trans"
+            ? [requestedAccountType]
+            : ["girls", "trans"];
 
-          const isValidAdvertiser = await bcrypt.compare(
-            normalizedPassword,
-            advertiser.passwordHash
-          );
+        for (const collectionName of advertiserCollections) {
+          const advertisers = await db
+            .collection(collectionName)
+            .find(
+              {
+                email: normalizedEmail,
+                isDeleted: { $ne: true },
+              },
+              {
+                projection: {
+                  _id: 1,
+                  name: 1,
+                  email: 1,
+                  formFields: 1,
+                  passwordHash: 1,
+                },
+              }
+            )
+            .toArray();
 
-          if (!isValidAdvertiser) continue;
+          for (const advertiser of advertisers) {
+            if (!advertiser?.passwordHash) continue;
 
-          return {
-            id: advertiser._id.toString(),
-            name: advertiser.name || advertiser.formFields?.stageName || "Advertiser",
-            email: advertiser.email,
-          };
+            const isValidAdvertiser = await bcrypt.compare(
+              normalizedPassword,
+              advertiser.passwordHash
+            );
+
+            if (!isValidAdvertiser) continue;
+
+            return {
+              id: advertiser._id.toString(),
+              name: advertiser.name || advertiser.formFields?.stageName || "Advertiser",
+              email: advertiser.email,
+              accountType: "advertiser",
+              advertiserType: collectionName,
+            };
+          }
         }
 
         return null;
@@ -98,6 +138,14 @@ export const authOptions: NextAuthOptions = {
         token.gender = rawGender === "female" || rawGender === "male" ? rawGender : null;
         const rawEmail = (user as { email?: string | null }).email ?? null;
         token.isAdmin = isAdminEmail(rawEmail);
+        const rawAccountType = (user as { accountType?: string }).accountType;
+        token.accountType =
+          rawAccountType === "advertiser" ? "advertiser" : "user";
+        const rawAdvertiserType = (user as { advertiserType?: string }).advertiserType;
+        token.advertiserType =
+          rawAdvertiserType === "girls" || rawAdvertiserType === "trans"
+            ? rawAdvertiserType
+            : null;
       }
       return token;
     },
@@ -106,6 +154,12 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.gender = token.gender as "female" | "male" | undefined;
         session.user.isAdmin = Boolean(token.isAdmin);
+        session.user.accountType =
+          token.accountType === "advertiser" ? "advertiser" : "user";
+        session.user.advertiserType =
+          token.advertiserType === "girls" || token.advertiserType === "trans"
+            ? token.advertiserType
+            : undefined;
       }
       return session;
     },

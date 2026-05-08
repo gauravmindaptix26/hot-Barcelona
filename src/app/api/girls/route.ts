@@ -134,27 +134,24 @@ export async function POST(req: Request) {
 
   const db = await getDb();
   const now = new Date();
-  const existing = await db.collection("girls").findOne(
+  const existingProfiles = await db.collection("girls").find(
     {
       email,
       isDeleted: { $ne: true },
     },
     { projection: { _id: 1, passwordHash: 1 } }
-  );
+  ).toArray();
+  let existing = null;
+  for (const candidate of existingProfiles) {
+    const existingHash =
+      typeof candidate.passwordHash === "string" ? candidate.passwordHash : "";
+    if (existingHash && (await bcrypt.compare(password, existingHash))) {
+      existing = candidate;
+      break;
+    }
+  }
 
   if (existing) {
-    const existingHash =
-      typeof existing.passwordHash === "string" ? existing.passwordHash : "";
-    const ok = existingHash
-      ? await bcrypt.compare(password, existingHash)
-      : false;
-    if (!ok) {
-      return NextResponse.json(
-        { error: "Email or password is incorrect." },
-        { status: 401 }
-      );
-    }
-
     await db.collection("girls").updateOne(
       { _id: existing._id },
       {

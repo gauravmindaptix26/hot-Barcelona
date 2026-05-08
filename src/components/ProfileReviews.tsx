@@ -18,8 +18,10 @@ type Review = {
 
 type ReviewResponse = {
   averageRating: number;
+  totalRatings?: number;
   totalReviews: number;
   reviews: Review[];
+  myRating?: number | null;
   myReview?: {
     rating: number;
     comment: string;
@@ -71,20 +73,26 @@ export default function ProfileReviews({
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [ratingSuccess, setRatingSuccess] = useState("");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [data, setData] = useState<ReviewResponse>({
     averageRating: 0,
+    totalRatings: 0,
     totalReviews: 0,
     reviews: [],
+    myRating: null,
     myReview: null,
   });
 
   const canSubmit = useMemo(() => {
-    return comment.trim().length >= 3 && rating >= 1 && rating <= 5;
-  }, [comment, rating]);
+    return comment.trim().length >= 3;
+  }, [comment]);
+  const canGiveFeedback =
+    status === "authenticated" && session?.user?.accountType === "user";
   const mediaItems = useMemo(() => {
     return Array.from(new Set([heroImage, ...gallery].filter((item): item is string => Boolean(item))))
       .map((item) => item.trim())
@@ -109,11 +117,14 @@ export default function ProfileReviews({
       }
       setData(payload);
       if (payload.myReview) {
-        setRating(payload.myReview.rating);
         setComment(payload.myReview.comment);
       } else {
-        setRating(5);
         setComment("");
+      }
+      if (payload.myRating) {
+        setRating(payload.myRating);
+      } else {
+        setRating(5);
       }
     } catch {
       setError("Failed to load reviews.");
@@ -127,10 +138,40 @@ export default function ProfileReviews({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileId, profileType, session?.user?.id]);
 
+  const submitRating = async (nextRating: number) => {
+    setRating(nextRating);
+    setRatingSubmitting(true);
+    setError("");
+    setRatingSuccess("");
+    try {
+      const response = await fetch("/api/profile-reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "rating",
+          profileId,
+          profileType,
+          rating: nextRating,
+        }),
+      });
+      const payload = (await response.json()) as ReviewResponse & { error?: string };
+      if (!response.ok) {
+        setError(payload.error ?? "Failed to submit rating.");
+        return;
+      }
+      setData(payload);
+      setRatingSuccess("Rating saved.");
+    } catch {
+      setError("Failed to submit rating.");
+    } finally {
+      setRatingSubmitting(false);
+    }
+  };
+
   const submitReview = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canSubmit) {
-      setError("Please set rating and write at least 3 characters.");
+      setError("Please write at least 3 characters.");
       return;
     }
 
@@ -142,9 +183,9 @@ export default function ProfileReviews({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          mode: "review",
           profileId,
           profileType,
-          rating,
           comment: comment.trim(),
         }),
       });
@@ -179,28 +220,29 @@ export default function ProfileReviews({
               ))}
             </div>
             <p className="text-[10px] uppercase tracking-[0.28em] text-white/60 sm:text-xs">
-              {data.totalReviews} reviews
+              {data.totalRatings ?? 0} ratings
             </p>
           </div>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/60">
-            Reviews for {profileName} are shown with profile images so the section feels like part of the profile, not a separate plain box.
+            Ratings and written reviews require a registered user login. Visitors can read public feedback.
           </p>
 
-          {status === "authenticated" ? (
-            <form onSubmit={submitReview} className="mt-6 grid gap-3 rounded-[24px] border border-white/10 bg-black/25 p-4 sm:p-5">
+          {canGiveFeedback ? (
+            <div className="mt-6 grid gap-3 rounded-[24px] border border-white/10 bg-black/25 p-4 sm:p-5">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs uppercase tracking-[0.25em] text-white/60">
-                  Your rating
+                  Star rating
                 </span>
                 <div className="flex items-center gap-1 text-[#f5d68c]">
                   {Array.from({ length: 5 }).map((_, index) => {
                     const current = index + 1;
                     return (
                       <button
-                        key={`select-${current}`}
+                        key={`rating-${current}`}
                         type="button"
-                        onClick={() => setRating(current)}
-                        className="rounded p-1 transition hover:bg-white/10"
+                        onClick={() => submitRating(current)}
+                        disabled={ratingSubmitting}
+                        className="rounded p-1 transition hover:bg-white/10 disabled:cursor-wait disabled:opacity-70"
                         aria-label={`Set rating ${current}`}
                       >
                         <Star filled={current <= rating} />
@@ -208,6 +250,22 @@ export default function ProfileReviews({
                     );
                   })}
                 </div>
+                {ratingSubmitting && (
+                  <span className="text-xs text-white/50">Saving...</span>
+                )}
+              </div>
+              {ratingSuccess && (
+                <p className="text-sm text-green-300">{ratingSuccess}</p>
+              )}
+            </div>
+          ) : null}
+
+          {canGiveFeedback ? (
+            <form onSubmit={submitReview} className="mt-4 grid gap-3 rounded-[24px] border border-white/10 bg-black/25 p-4 sm:p-5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs uppercase tracking-[0.25em] text-white/60">
+                  Written review
+                </span>
               </div>
 
               <textarea
@@ -230,7 +288,7 @@ export default function ProfileReviews({
             <p className="mt-6 text-sm text-white/60">Loading account status...</p>
           ) : (
             <p className="mt-6 text-sm text-white/60">
-              Login required to post review.{" "}
+              Login as a registered user to rate or write a review.{" "}
               <Link href="/login" className="text-[#f5d68c]">
                 Login
               </Link>
@@ -249,7 +307,9 @@ export default function ProfileReviews({
             {loading ? (
               <p className="text-sm text-white/60">Loading reviews...</p>
             ) : data.reviews.length === 0 ? (
-              <p className="text-sm text-white/60">No reviews yet.</p>
+              <p className="text-sm text-white/60">
+                No written reviews yet.
+              </p>
             ) : (
               data.reviews.map((review, index) => {
                 const cardImage = mediaItems[index % Math.max(mediaItems.length, 1)];
@@ -283,11 +343,13 @@ export default function ProfileReviews({
                             {formatDate(review.createdAt)}
                           </p>
                         </div>
-                        <div className="mt-2 flex items-center gap-1 text-[#f5d68c]">
-                          {Array.from({ length: 5 }).map((_, starIndex) => (
-                            <Star key={`${review.id}-${starIndex}`} filled={starIndex < review.rating} />
-                          ))}
-                        </div>
+                        {review.rating > 0 && (
+                          <div className="mt-2 flex items-center gap-1 text-[#f5d68c]">
+                            {Array.from({ length: 5 }).map((_, starIndex) => (
+                              <Star key={`${review.id}-${starIndex}`} filled={starIndex < review.rating} />
+                            ))}
+                          </div>
+                        )}
                         <p className="mt-3 text-sm leading-relaxed text-white/72">{review.comment}</p>
                       </div>
                     </div>

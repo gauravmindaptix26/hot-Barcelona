@@ -187,6 +187,9 @@ export default async function ProfileMePage() {
   if (!session?.user) {
     redirect("/login");
   }
+  if (session.user.accountType === "advertiser") {
+    redirect("/my-ad");
+  }
 
   const genderLabel =
     session.user.gender === "female"
@@ -200,38 +203,19 @@ export default async function ProfileMePage() {
     typeof session.user.id === "string" && ObjectId.isValid(session.user.id)
       ? new ObjectId(session.user.id)
       : null;
-  const normalizedEmail = (session.user.email ?? "").trim().toLowerCase();
-
-  const loadBy = async (collection: AdCollection, by: "userId" | "email") => {
-    if (by === "userId") {
-      if (!userId) return null;
-      return db
-        .collection(collection)
-        .findOne({ userId, isDeleted: { $ne: true } }, { projection: adDocProjection });
-    }
-    if (!normalizedEmail) return null;
-    return db.collection(collection).findOne(
-      {
-        email: normalizedEmail,
-        isDeleted: { $ne: true },
-      },
-      { projection: adDocProjection }
-    );
+  const loadByUserId = async (collection: AdCollection) => {
+    if (!userId) return null;
+    return db
+      .collection(collection)
+      .findOne({ userId, isDeleted: { $ne: true } }, { projection: adDocProjection });
   };
 
   const [girlsByUserId, transByUserId] = await Promise.all([
-    loadBy("girls", "userId"),
-    loadBy("trans", "userId"),
+    loadByUserId("girls"),
+    loadByUserId("trans"),
   ]);
 
-  let adResult = pickLatest(girlsByUserId, transByUserId);
-  if (!adResult) {
-    const [girlsByEmail, transByEmail] = await Promise.all([
-      loadBy("girls", "email"),
-      loadBy("trans", "email"),
-    ]);
-    adResult = pickLatest(girlsByEmail, transByEmail);
-  }
+  const adResult = pickLatest(girlsByUserId, transByUserId);
 
   const adDoc = adResult?.doc as
     | {

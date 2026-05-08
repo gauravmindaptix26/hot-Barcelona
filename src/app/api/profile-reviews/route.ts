@@ -48,7 +48,23 @@ const buildReviewSummary = async (
   currentUserId?: string
 ) => {
   const db = await getDb();
-  const docs = await db
+  const [ratingDocs, reviewDocs] = await Promise.all([
+    db
+      .collection("profile_ratings")
+      .find(
+        {
+          profileId,
+          profileType,
+          isDeleted: { $ne: true },
+        },
+        {
+          projection: {
+            rating: 1,
+          },
+        }
+      )
+      .toArray(),
+    db
     .collection("profile_reviews")
     .find({
       profileId,
@@ -66,12 +82,16 @@ const buildReviewSummary = async (
     })
     .sort({ createdAt: -1 })
     .limit(50)
-    .toArray();
+    .toArray(),
+  ]);
 
   let totalRating = 0;
-  const reviews: SummaryReview[] = docs.map((doc) => {
+  for (const doc of ratingDocs) {
+    totalRating += toSafeRating(doc.rating) ?? 0;
+  }
+
+  const reviews: SummaryReview[] = reviewDocs.map((doc) => {
     const rating = toSafeRating(doc.rating) ?? 0;
-    totalRating += rating;
     return {
       id: doc._id.toString(),
       userName: toSafeText(doc.userName, 80) || "User",
@@ -82,12 +102,14 @@ const buildReviewSummary = async (
     };
   });
 
+  const totalRatings = ratingDocs.length;
   const totalReviews = reviews.length;
   const averageRating =
-    totalReviews > 0 ? Number((totalRating / totalReviews).toFixed(1)) : 0;
+    totalRatings > 0 ? Number((totalRating / totalRatings).toFixed(1)) : 0;
 
-  const myDoc = currentUserId
-    ? await db.collection("profile_reviews").findOne(
+  const [myDoc, myRatingDoc] = await Promise.all([
+    currentUserId
+      ? db.collection("profile_reviews").findOne(
         {
           profileId,
           profileType,
@@ -102,7 +124,23 @@ const buildReviewSummary = async (
           },
         }
       )
-    : null;
+      : null,
+    currentUserId
+      ? db.collection("profile_ratings").findOne(
+          {
+            profileId,
+            profileType,
+            userId: currentUserId,
+            isDeleted: { $ne: true },
+          },
+          {
+            projection: {
+              rating: 1,
+            },
+          }
+        )
+      : null,
+  ]);
 
   const myReview = myDoc
     ? {
@@ -114,9 +152,11 @@ const buildReviewSummary = async (
 
   return {
     averageRating,
+    totalRatings,
     totalReviews,
     reviews,
     myReview,
+    myRating: myRatingDoc ? toSafeRating(myRatingDoc.rating) : null,
   };
 };
 
@@ -133,29 +173,19 @@ export async function GET(req: Request) {
   }
 
   const session = await getAppServerSession();
-  const summary = await buildReviewSummary(profileId, profileType, session?.user?.id);
+  const summary = await buildReviewSummary(
+    profileId,
+    profileType,
+    session?.user?.accountType === "user" ? session.user.id : undefined
+  );
 
   return NextResponse.json(summary);
 }
 
 export async function POST(req: Request) {
   const session = await getAppServerSession();
-  if (!session?.user?.id || !session.user.email) {
-    return NextResponse.json(
-      { error: "Login required to post a review." },
-      { status: 401 }
-    );
-  }
-
-  const limiter = rateLimit(`profile-review:${session.user.id}`, 20, 60_000);
-  if (!limiter.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Try again later." },
-      { status: 429 }
-    );
-  }
-
   let payload: {
+    mode?: string;
     profileId?: string;
     profileType?: string;
     rating?: number;
@@ -163,6 +193,7 @@ export async function POST(req: Request) {
   };
   try {
     payload = (await req.json()) as {
+      mode?: string;
       profileId?: string;
       profileType?: string;
       rating?: number;
@@ -172,6 +203,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid payload." }, { status: 400 });
   }
 
+  const mode = payload.mode === "review" ? "review" : "rating";
   const profileId = toSafeText(payload.profileId, 64);
   const profileType = toProfileType(payload.profileType ?? null);
   const rating = toSafeRating(payload.rating);
@@ -183,21 +215,61 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
-  if (!rating) {
+
+  if (!session?.user?.id || !session.user.email || session.user.accountType !== "user") {
     return NextResponse.json(
-      { error: "Rating must be between 1 and 5." },
-      { status: 400 }
-    );
-  }
-  if (comment.length < 3) {
-    return NextResponse.json(
-      { error: "Comment must be at least 3 characters." },
-      { status: 400 }
+      { error: "Please register and login as a user to submit feedback." },
+      { status: 401 }
     );
   }
 
+  const db = await getDb();
+  const user = ObjectId.isValid(session.user.id)
+    ? await db.collection("users").findOne(
+        { _id: new ObjectId(session.user.id) },
+        { projection: { _id: 1 } }
+      )
+    : null;
+  if (!user) {
+    return NextResponse.json(
+      { error: "Please register and login as a user to submit feedback." },
+      { status: 403 }
+    );
+  }
+
+  if (mode === "review") {
+    if (comment.length < 3) {
+      return NextResponse.json(
+        { error: "Comment must be at least 3 characters." },
+        { status: 400 }
+      );
+    }
+
+    const limiter = rateLimit(`profile-review:${session.user.id}`, 20, 60_000);
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+  } else {
+    if (!rating) {
+      return NextResponse.json(
+        { error: "Rating must be between 1 and 5." },
+        { status: 400 }
+      );
+    }
+
+    const limiter = rateLimit(`profile-rating:${session.user.id}`, 20, 60_000);
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        { status: 429 }
+      );
+    }
+  }
+
   try {
-    const db = await getDb();
     const targetQuery =
       profileType === "profiles"
         ? { _id: new ObjectId(profileId), isComplete: true }
@@ -217,6 +289,47 @@ export async function POST(req: Request) {
     }
 
     const now = new Date();
+
+    if (mode === "rating") {
+      if (!rating) {
+        return NextResponse.json(
+          { error: "Rating must be between 1 and 5." },
+          { status: 400 }
+        );
+      }
+
+      await db.collection("profile_ratings").updateOne(
+        {
+          profileId,
+          profileType,
+          userId: session.user.id,
+          isDeleted: { $ne: true },
+        },
+        {
+          $set: {
+            rating,
+            updatedAt: now,
+            isDeleted: false,
+          },
+          $setOnInsert: {
+            profileId,
+            profileType,
+            userId: session.user.id,
+            userEmail: session.user.email,
+            createdAt: now,
+          },
+        },
+        { upsert: true }
+      );
+
+      const summary = await buildReviewSummary(
+        profileId,
+        profileType,
+        session.user.id
+      );
+      return NextResponse.json({ ok: true, ...summary });
+    }
+
     const userName = toSafeText(session.user.name, 80) || "User";
 
     await db.collection("profile_reviews").updateOne(
@@ -228,7 +341,7 @@ export async function POST(req: Request) {
       },
       {
         $set: {
-          rating,
+          ...(rating ? { rating } : {}),
           comment,
           approvalStatus: "pending",
           userName,
@@ -248,12 +361,16 @@ export async function POST(req: Request) {
       { upsert: true }
     );
 
-    const summary = await buildReviewSummary(profileId, profileType, session.user.id);
+    const summary = await buildReviewSummary(
+      profileId,
+      profileType,
+      session.user.id
+    );
     return NextResponse.json({ ok: true, ...summary });
   } catch (error) {
-    console.error("Failed to save profile review", error);
+    console.error("Failed to save profile feedback", error);
     return NextResponse.json(
-      { error: "Failed to save review. Please try again." },
+      { error: "Failed to save feedback. Please try again." },
       { status: 500 }
     );
   }
