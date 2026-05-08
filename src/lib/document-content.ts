@@ -9,7 +9,7 @@ export const legalNoticeContent: DocumentPageContent = {
   summaryCards: [
     { label: "Owner", value: "HL Publication 2026 SL" },
     { label: "Access", value: "Strictly 18+ only" },
-    { label: "Contact", value: "support@hotbarcelona.com" },
+    { label: "Contact", value: "support@hot-barcelona.com" },
   ],
   sections: [
     {
@@ -21,7 +21,7 @@ export const legalNoticeContent: DocumentPageContent = {
       list: [
         "Address: Edf. Mediterraneo 4-2, C/ EDf. Mediterraneo 1, 29692 Marbella (Malaga)",
         "Phone: 621 385161",
-        "Mail: support@hotbarcelona.com",
+        "Mail: support@hot-barcelona.com",
       ],
     },
     {
@@ -91,7 +91,7 @@ export const privacyPolicyContent: DocumentPageContent = {
   summaryCards: [
     { label: "Holder", value: "HL Publication 2026 SL" },
     { label: "Phone", value: "621 385161" },
-    { label: "Mail", value: "support@hotbarcelona.com" },
+    { label: "Mail", value: "support@hot-barcelona.com" },
   ],
   sections: [
     {
@@ -103,7 +103,7 @@ export const privacyPolicyContent: DocumentPageContent = {
       ],
       list: [
         "Phone: 621 385161",
-        "Mail: support@hotbarcelona.com",
+        "Mail: support@hot-barcelona.com",
       ],
     },
     {
@@ -149,7 +149,7 @@ export const privacyPolicyContent: DocumentPageContent = {
   ],
   asideTitle: "Privacy Requests And Support",
   asideParagraphs: [
-    "The USER and/or ADVERTISER may request amendment or deletion of personal data by contacting the HOLDER through support@hotbarcelona.com.",
+    "The USER and/or ADVERTISER may request amendment or deletion of personal data by contacting the HOLDER through support@hot-barcelona.com.",
     "Paragraph spacing on this page is intentionally preserved for readability so the policy text appears clearly section by section.",
   ],
 };

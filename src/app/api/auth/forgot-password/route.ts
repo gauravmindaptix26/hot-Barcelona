@@ -12,6 +12,8 @@ const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Invalid email."),
 });
 
+const resettableCollections = ["users", "girls", "trans"] as const;
+
 export async function POST(request: Request) {
   const ipKey = request.headers.get("x-forwarded-for") ?? "local";
   const limiter = rateLimit(`forgot-password:${ipKey}`, 5, 60_000);
@@ -39,10 +41,20 @@ export async function POST(request: Request) {
 
   const email = parsed.data.email.toLowerCase();
   const db = await getDb();
-  const user = await db.collection("users").findOne({ email });
+  let account: { collection: (typeof resettableCollections)[number]; id: unknown } | null = null;
+  for (const collection of resettableCollections) {
+    const doc = await db.collection(collection).findOne(
+      { email, isDeleted: { $ne: true } },
+      { projection: { _id: 1 } }
+    );
+    if (doc?._id) {
+      account = { collection, id: doc._id };
+      break;
+    }
+  }
 
   // Always return a generic success response to prevent account enumeration.
-  if (!user?._id) {
+  if (!account?.id) {
     return NextResponse.json({
       ok: true,
       message:
@@ -53,12 +65,14 @@ export async function POST(request: Request) {
   const { rawToken, tokenHash, expiresAt } = createPasswordResetToken();
 
   await db.collection("password_reset_tokens").deleteMany({
-    userId: user._id,
+    userId: account.id,
+    accountType: account.collection,
     usedAt: null,
   });
 
   await db.collection("password_reset_tokens").insertOne({
-    userId: user._id,
+    userId: account.id,
+    accountType: account.collection,
     email,
     tokenHash,
     expiresAt,

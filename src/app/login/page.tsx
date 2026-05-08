@@ -11,6 +11,7 @@ export default function LoginPage() {
 
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     ["/", "/forgot-password"].forEach((route) => {
@@ -116,14 +117,55 @@ export default function LoginPage() {
                   className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
                   required
                 />
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  autoComplete="current-password"
-                  className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    autoComplete="current-password"
+                    className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 pr-12 text-white focus:border-[#f5d68c]/70 focus:outline-none"
+                    required
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword((current) => !current)}
+                    className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 transition hover:border-[#f5d68c]/45 hover:text-[#f5d68c]"
+                  >
+                    {showPassword ? (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-4.5 w-4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M3 3l18 18" />
+                        <path d="M10.58 10.58A2 2 0 0 0 12 14a2 2 0 0 0 1.42-.58" />
+                        <path d="M9.88 5.09A9.73 9.73 0 0 1 12 4.86c5.38 0 8.5 5.14 8.5 5.14a13.1 13.1 0 0 1-2.16 2.71" />
+                        <path d="M6.61 6.62A13.22 13.22 0 0 0 3.5 10s3.12 5.14 8.5 5.14a9.68 9.68 0 0 0 3.43-.64" />
+                      </svg>
+                    ) : (
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-4.5 w-4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M3.5 12s3.12-5.14 8.5-5.14S20.5 12 20.5 12s-3.12 5.14-8.5 5.14S3.5 12 3.5 12Z" />
+                        <path d="M12 14.25A2.25 2.25 0 1 0 12 9.75a2.25 2.25 0 0 0 0 4.5Z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
                 <div className="-mt-1 text-right">
                   <Link href="/forgot-password" className="text-xs text-white/60 transition hover:text-[#f5d68c]">
                     Forgot Password?

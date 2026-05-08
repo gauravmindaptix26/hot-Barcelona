@@ -64,6 +64,31 @@ body {
   background: rgba(245, 214, 140, 0.65);
 }
 
+.profile-modal-scroll {
+  scrollbar-gutter: stable;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(245, 214, 140, 0.9) rgba(255, 255, 255, 0.12);
+}
+
+.profile-modal-scroll::-webkit-scrollbar {
+  width: 14px;
+}
+
+.profile-modal-scroll::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.profile-modal-scroll::-webkit-scrollbar-thumb {
+  border: 3px solid rgba(11, 12, 16, 0.95);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f5d68c, #f5b35c);
+}
+
+.profile-modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffe5a6, #f5b35c);
+}
+
 #google_translate_element {
   position: fixed;
   bottom: 0;

@@ -4,8 +4,44 @@ import { ObjectId } from "mongodb";
 import { isAdminEmail } from "@/lib/admin";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import { sendEmail } from "@/lib/email";
 
 const allowedActions = new Set(["accept", "reject"]);
+
+const readEmail = (value: unknown) =>
+  typeof value === "string" && value.trim().includes("@")
+    ? value.trim().toLowerCase()
+    : "";
+
+const readName = (value: unknown) =>
+  typeof value === "string" && value.trim() ? value.trim() : "User";
+
+async function sendReviewApprovalEmail(review: unknown) {
+  if (!review || typeof review !== "object" || Array.isArray(review)) return;
+
+  const record = review as Record<string, unknown>;
+  const to = readEmail(record.userEmail);
+  if (!to) return;
+
+  const name = readName(record.userName);
+  try {
+    await sendEmail({
+      to,
+      subject: "Your Hot Barcelona feedback has been approved",
+      html: `
+        <p>Hello ${name},</p>
+        <p>Your feedback has been approved by the Hot Barcelona admin team.</p>
+        <p>It can now appear in the public review section for the profile you reviewed.</p>
+      `,
+      text: `Hello ${name}, your feedback has been approved by the Hot Barcelona admin team and can now appear publicly.`,
+    });
+  } catch (error) {
+    console.error(
+      "[admin review approval] email failed:",
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+}
 
 async function assertAdmin() {
   const session = await getAppServerSession();
@@ -93,6 +129,7 @@ export async function PATCH(
   }
 
   revalidateReviewPages();
+  await sendReviewApprovalEmail(result);
 
   return NextResponse.json({
     ok: true,

@@ -206,7 +206,12 @@ export default function ContactPreferences() {
           toggleName="whatsappEnabled"
           inputName="whatsapp"
           inputValue={whatsappValue}
-          onInputChange={setWhatsappValue}
+          onInputChange={(value) => {
+            setWhatsappValue(value);
+            if (value.trim()) {
+              setWhatsappEnabled("yes");
+            }
+          }}
           placeholder="WhatsApp number for profile button"
           helperText=""
         />
@@ -218,7 +223,13 @@ export default function ContactPreferences() {
           toggleName="telegramEnabled"
           inputName="telegramUsername"
           inputValue={telegramValue}
-          onInputChange={(value) => setTelegramValue(value.replace(/^@+/, ""))}
+          onInputChange={(value) => {
+            const nextValue = value.replace(/^@+/, "");
+            setTelegramValue(nextValue);
+            if (nextValue.trim()) {
+              setTelegramEnabled("yes");
+            }
+          }}
           placeholder="Telegram username (without @)"
           helperText=""
         />

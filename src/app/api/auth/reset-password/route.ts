@@ -17,6 +17,8 @@ const resetPasswordSchema = z
     message: "Passwords do not match.",
   });
 
+const resettableCollections = new Set(["users", "girls", "trans"]);
+
 export async function POST(request: Request) {
   const ipKey = request.headers.get("x-forwarded-for") ?? "local";
   const limiter = rateLimit(`reset-password:${ipKey}`, 10, 60_000);
@@ -60,9 +62,13 @@ export async function POST(request: Request) {
     );
   }
 
-  const user = await db.collection("users").findOne({ _id: tokenDoc.userId });
+  const accountType =
+    typeof tokenDoc.accountType === "string" && resettableCollections.has(tokenDoc.accountType)
+      ? tokenDoc.accountType
+      : "users";
+  const user = await db.collection(accountType).findOne({ _id: tokenDoc.userId });
   if (!user || typeof user.passwordHash !== "string") {
-    return NextResponse.json({ error: "User account not found." }, { status: 404 });
+    return NextResponse.json({ error: "Account not found." }, { status: 404 });
   }
 
   const sameAsCurrent = await bcrypt.compare(password, user.passwordHash);
@@ -75,7 +81,7 @@ export async function POST(request: Request) {
 
   const nextHash = await bcrypt.hash(password, 12);
 
-  await db.collection("users").updateOne(
+  await db.collection(accountType).updateOne(
     { _id: tokenDoc.userId },
     {
       $set: {
@@ -96,6 +102,7 @@ export async function POST(request: Request) {
 
   await db.collection("password_reset_tokens").deleteMany({
     userId: tokenDoc.userId,
+    accountType,
     usedAt: null,
   });
 

@@ -32,10 +32,17 @@ export default async function MyAdPage() {
 
   const db = await getDb();
   const userId = new ObjectId(session.user.id);
+  const userEmail = session.user.email?.trim().toLowerCase() ?? "";
+  const ownerQuery = userEmail
+    ? {
+        isDeleted: { $ne: true },
+        $or: [{ userId }, { email: userEmail }, { userEmail }],
+      }
+    : { userId, isDeleted: { $ne: true } };
 
   const [girlsAd, transAd] = await Promise.all([
-    db.collection("girls").findOne({ userId, isDeleted: { $ne: true } }),
-    db.collection("trans").findOne({ userId, isDeleted: { $ne: true } }),
+    db.collection("girls").findOne(ownerQuery),
+    db.collection("trans").findOne(ownerQuery),
   ]);
 
   const mapAd = (doc: AdDoc, type: "girls" | "trans") => ({

@@ -213,7 +213,6 @@ const getCachedTransProfiles = unstable_cache(
 
     const nationality = readFieldText(formFields, "nationality");
     const descriptionText = readFieldText(formFields, "descriptionText");
-    const paymentMethod = readFieldText(formFields, "paymentMethod");
 
     const rates = uniqueStrings(
       [
@@ -250,7 +249,6 @@ const getCachedTransProfiles = unstable_cache(
       ...services,
       ...specialFilters,
       ...attentionLevel,
-      ...(paymentMethod ? [paymentMethod] : []),
       ...rates.map((rate) => `Rate: ${rate}`),
     ]);
 

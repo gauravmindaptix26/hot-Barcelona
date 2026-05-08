@@ -54,12 +54,18 @@ export async function POST(req: Request) {
   }
 
   const db = await getDb();
-  const collections =
-    gender === "girl"
-      ? ["girls"]
-      : gender === "trans"
-        ? ["trans"]
-        : ["girls", "trans"];
+  const user = await db.collection("users").findOne(
+    { email },
+    { projection: { passwordHash: 1 } }
+  );
+  const userHash = typeof user?.passwordHash === "string" ? user.passwordHash : "";
+  const userPasswordMatches = userHash ? await bcrypt.compare(password, userHash) : false;
+  const preferredCollection =
+    gender === "girl" ? "girls" : gender === "trans" ? "trans" : null;
+  const collections = preferredCollection
+    ? [preferredCollection, ...["girls", "trans"].filter((item) => item !== preferredCollection)]
+    : ["girls", "trans"];
+  let foundProfileForEmail = false;
 
   for (const collection of collections) {
     const doc = await db
@@ -80,15 +86,11 @@ export async function POST(req: Request) {
         }
       );
     if (!doc) continue;
+    foundProfileForEmail = true;
 
     const hash = typeof doc.passwordHash === "string" ? doc.passwordHash : "";
-    const ok = hash ? await bcrypt.compare(password, hash) : false;
-    if (!ok) {
-      return NextResponse.json(
-        { error: "Email or password is incorrect." },
-        { status: 401 }
-      );
-    }
+    const ok = hash ? await bcrypt.compare(password, hash) : userPasswordMatches;
+    if (!ok) continue;
 
     const formFields = readFormFields(doc.formFields);
     const savedAddress = readFieldText(formFields, "address");
@@ -107,6 +109,13 @@ export async function POST(req: Request) {
         formFields,
       },
     });
+  }
+
+  if (foundProfileForEmail) {
+    return NextResponse.json(
+      { error: "Email or password is incorrect." },
+      { status: 401 }
+    );
   }
 
   return NextResponse.json(

@@ -45,25 +45,45 @@ export const authOptions: NextAuthOptions = {
           email: normalizedEmail,
         });
 
-        if (!user || !user.passwordHash) {
-          return null;
+        if (user?.passwordHash) {
+          const isValid = await bcrypt.compare(
+            normalizedPassword,
+            user.passwordHash
+          );
+
+          if (isValid) {
+            return {
+              id: user._id.toString(),
+              name: user.name,
+              email: user.email,
+              gender: user.gender,
+            };
+          }
         }
 
-        const isValid = await bcrypt.compare(
-          normalizedPassword,
-          user.passwordHash
-        );
+        for (const collectionName of ["girls", "trans"]) {
+          const advertiser = await db.collection(collectionName).findOne({
+            email: normalizedEmail,
+            isDeleted: { $ne: true },
+          });
 
-        if (!isValid) {
-          return null;
+          if (!advertiser?.passwordHash) continue;
+
+          const isValidAdvertiser = await bcrypt.compare(
+            normalizedPassword,
+            advertiser.passwordHash
+          );
+
+          if (!isValidAdvertiser) continue;
+
+          return {
+            id: advertiser._id.toString(),
+            name: advertiser.name || advertiser.formFields?.stageName || "Advertiser",
+            email: advertiser.email,
+          };
         }
 
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          gender: user.gender,
-        };
+        return null;
       },
     }),
   ],

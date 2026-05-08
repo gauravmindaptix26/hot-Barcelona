@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
+import { sendEmail } from "@/lib/email";
 import {
   deriveCloudinaryPublicIds,
   extractCloudinaryPublicId,
@@ -16,6 +17,42 @@ import {
 
 const allowedCollections = new Set(["girls", "trans"]);
 const allowedActions = new Set(["accept", "reject"]);
+
+const readEmail = (value: unknown) =>
+  typeof value === "string" && value.trim().includes("@")
+    ? value.trim().toLowerCase()
+    : "";
+
+const readName = (value: unknown) =>
+  typeof value === "string" && value.trim() ? value.trim() : "Advertiser";
+
+async function sendProfileApprovalEmail(profile: unknown) {
+  if (!profile || typeof profile !== "object" || Array.isArray(profile)) return;
+
+  const record = profile as Record<string, unknown>;
+  const to = readEmail(record.email);
+  if (!to) return;
+
+  const name = readName(record.name);
+  try {
+    await sendEmail({
+      to,
+      subject: "Your Hot Barcelona profile has been approved",
+      html: `
+        <p>Hello ${name},</p>
+        <p>Your Hot Barcelona profile has been approved by the admin team.</p>
+        <p>Your profile can now appear publicly on the website according to your selected plan and visibility settings.</p>
+        <p>You can log in or use the Advertise page with the same email and password to edit your details.</p>
+      `,
+      text: `Hello ${name}, your Hot Barcelona profile has been approved by the admin team. You can log in or use the Advertise page with the same email and password to edit your details.`,
+    });
+  } catch (error) {
+    console.error(
+      "[admin profile approval] email failed:",
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+}
 
 async function assertAdmin() {
   const session = await getAppServerSession();
@@ -159,6 +196,10 @@ export async function PATCH(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   revalidateProfilePages();
+
+  if (approvalStatus === "approved") {
+    await sendProfileApprovalEmail(result);
+  }
 
   return NextResponse.json({
     ok: true,

@@ -17,6 +17,12 @@ const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
+const passwordCollections = ["users", "girls", "trans"] as const;
+type PasswordAccountDoc = {
+  _id: ObjectId;
+  passwordHash?: unknown;
+};
+
 export async function POST(request: Request) {
   const session = await getAppServerSession();
   if (!session?.user?.id) {
@@ -62,11 +68,28 @@ export async function POST(request: Request) {
   void ensureUsersIndexes();
   const db = await getDb();
   const userId = new ObjectId(session.user.id);
-  const user = await db.collection("users").findOne({ _id: userId });
+  const sessionEmail = session.user.email?.trim().toLowerCase() ?? "";
+  let account:
+    | {
+        collection: (typeof passwordCollections)[number];
+        doc: PasswordAccountDoc;
+      }
+    | null = null;
 
-  const passwordHash = typeof user?.passwordHash === "string" ? user.passwordHash : "";
-  if (!user || !passwordHash) {
-    return NextResponse.json({ error: "User account not found." }, { status: 404 });
+  for (const collection of passwordCollections) {
+    const doc = await db.collection(collection).findOne({
+      isDeleted: { $ne: true },
+      $or: sessionEmail ? [{ _id: userId }, { email: sessionEmail }] : [{ _id: userId }],
+    });
+    if (doc?._id instanceof ObjectId) {
+      account = { collection, doc };
+      break;
+    }
+  }
+
+  const passwordHash = typeof account?.doc?.passwordHash === "string" ? account.doc.passwordHash : "";
+  if (!account?.doc || !passwordHash) {
+    return NextResponse.json({ error: "Account not found." }, { status: 404 });
   }
 
   const isCurrentPasswordValid = await bcrypt.compare(currentPassword, passwordHash);
@@ -78,8 +101,8 @@ export async function POST(request: Request) {
   }
 
   const nextHash = await bcrypt.hash(newPassword, 12);
-  await db.collection("users").updateOne(
-    { _id: userId },
+  await db.collection(account.collection).updateOne(
+    { _id: account.doc._id },
     {
       $set: {
         passwordHash: nextHash,

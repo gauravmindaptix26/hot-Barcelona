@@ -18,7 +18,6 @@ import ProfileOfferBadges, {
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { getCloudinaryImageUrl } from "@/lib/cloudinary-image";
 import { normalizeProfileLabel } from "@/lib/profile-labels";
-import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
 
 const ProfileReviews = dynamic(() => import("../../components/ProfileReviews"));
 
@@ -77,8 +76,6 @@ const formatPremiumPlanLabel = (value: string | null | undefined) => {
   if (normalized === "PREMIUM SUPERIOR") return "Premium superior";
   return value.trim();
 };
-const formatPremiumDurationLabel = (value: string | null | undefined) =>
-  normalizeSubscriptionDurationValue(value) ?? "";
 const filterMatches = (profile: Profile, filter: string) => {
   switch (filter) {
     case "Age 20-60":
@@ -561,12 +558,6 @@ export default function TransClient({
       (a, b) => detailGroupOrder.indexOf(a.id) - detailGroupOrder.indexOf(b.id)
     );
   }, [groupedFormEntries, selectedProfileSpecialOffer]);
-  const publicVisibleEntryCount = useMemo(
-    () =>
-      detailGroupsForDisplay.reduce((total, group) => total + group.entries.length, 0) +
-      selectedLocationEntries.length,
-    [detailGroupsForDisplay, selectedLocationEntries]
-  );
   const selectedProfileInfoSectionId =
     selectedProfile?.about.trim() ? "profile-about-section" : "profile-details-section";
   const profileSidebarSections = useMemo(
@@ -1141,7 +1132,7 @@ export default function TransClient({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 24 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-10 mx-auto max-h-[calc(100svh-3rem)] w-full max-w-6xl overflow-y-auto overscroll-contain rounded-[32px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] [scrollbar-color:rgba(245,214,140,0.55)_rgba(255,255,255,0.08)] [scrollbar-width:thin] sm:max-h-[92vh]"
+              className="profile-modal-scroll relative z-10 mx-auto max-h-[calc(100svh-3rem)] w-full max-w-6xl overflow-y-scroll overscroll-contain rounded-[32px] border border-white/10 bg-[#0b0c10]/95 shadow-[0_40px_90px_rgba(0,0,0,0.55)] sm:max-h-[92vh]"
             >
             <div className="relative h-[55vh] min-h-[380px] overflow-hidden">
               <motion.div style={{ y: heroParallax }} className="absolute inset-0">
@@ -1199,21 +1190,8 @@ export default function TransClient({
                         <span className="rounded-full border border-[#f5d68c]/40 bg-black/55 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f5d68c] shadow-[0_12px_24px_rgba(0,0,0,0.28)] sm:text-[11px] sm:tracking-[0.26em]">
                           {formatPremiumPlanLabel(selectedProfile.premiumPlan)}
                         </span>
-                        {selectedProfile.premiumDuration && (
-                          <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/75 sm:text-[11px] sm:tracking-[0.24em]">
-                            {formatPremiumDurationLabel(selectedProfile.premiumDuration)}
-                          </span>
-                        )}
                       </div>
                     )}
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-[#f5d68c]/35 bg-black/55 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-[#f5d68c]">
-                        {publicVisibleEntryCount} filled fields
-                      </span>
-                      <span className="rounded-full border border-white/15 bg-black/45 px-4 py-2 text-[10px] uppercase tracking-[0.26em] text-white/70">
-                        {selectedProfile.gallery.length} photos
-                      </span>
-                    </div>
                   </div>
                   {hasRatingData(selectedProfile) && (
                     <div className="flex flex-col items-start gap-3 rounded-2xl border border-white/10 bg-black/50 px-6 py-4">

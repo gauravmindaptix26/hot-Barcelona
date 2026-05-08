@@ -11,6 +11,7 @@ const privateContactFieldKeys = new Set([
 const nonPublicProfileFieldKeys = new Set([
   ...privateContactFieldKeys,
   "email",
+  "paymentmethod",
 ]);
 
 const normalizeFieldKey = (key: string) =>
@@ -99,23 +100,56 @@ const readToggleValueByMatcher = (
   return null;
 };
 
-const isWhatsAppEnabled = (fields: Record<string, unknown>) =>
-  readToggleValueByMatcher(
+const readWhatsAppValue = (fields: Record<string, unknown>) =>
+  readContactValueByMatcher(
     fields,
     (normalized) =>
-      normalized === "whatsappenabled" ||
-      normalized === "whatsapptoggle" ||
-      normalized === "attendsbywhatsapp"
-  ) !== false;
+      normalized === "whatsapp" ||
+      normalized === "whatsappnumber" ||
+      normalized.includes("whatsapp")
+  );
 
-const isTelegramEnabled = (fields: Record<string, unknown>) =>
-  readToggleValueByMatcher(
-    fields,
-    (normalized) =>
-      normalized === "telegramenabled" ||
-      normalized === "telegramtoggle" ||
-      normalized === "attendsbytelegram"
-  ) !== false;
+const readTelegramValue = (fields: Record<string, unknown>) => {
+  for (const [key, value] of Object.entries(fields)) {
+    const normalized = normalizeFieldKey(key);
+    if (!normalized.includes("telegram")) continue;
+
+    const firstValue = readFirstStringValue(value);
+    if (firstValue) {
+      return firstValue;
+    }
+  }
+
+  return "";
+};
+
+const isWhatsAppEnabled = (fields: Record<string, unknown>) => {
+  if (readWhatsAppValue(fields)) return true;
+
+  return (
+    readToggleValueByMatcher(
+      fields,
+      (normalized) =>
+        normalized === "whatsappenabled" ||
+        normalized === "whatsapptoggle" ||
+        normalized === "attendsbywhatsapp"
+    ) !== false
+  );
+};
+
+const isTelegramEnabled = (fields: Record<string, unknown>) => {
+  if (readTelegramValue(fields)) return true;
+
+  return (
+    readToggleValueByMatcher(
+      fields,
+      (normalized) =>
+        normalized === "telegramenabled" ||
+        normalized === "telegramtoggle" ||
+        normalized === "attendsbytelegram"
+    ) !== false
+  );
+};
 
 export const extractPhoneValue = (fields: Record<string, unknown>) =>
   readContactValueByMatcher(
@@ -134,13 +168,7 @@ export const extractPhoneValue = (fields: Record<string, unknown>) =>
 export const extractWhatsAppValue = (fields: Record<string, unknown>) => {
   if (!isWhatsAppEnabled(fields)) return "";
 
-  return readContactValueByMatcher(
-    fields,
-    (normalized) =>
-      normalized === "whatsapp" ||
-      normalized === "whatsappnumber" ||
-      normalized.includes("whatsapp")
-  );
+  return readWhatsAppValue(fields);
 };
 
 export const extractContactPhone = (fields: Record<string, unknown>) => {
@@ -181,17 +209,7 @@ export const buildWhatsAppHrefFromFields = (fields: Record<string, unknown>) => 
 export const extractTelegramValue = (fields: Record<string, unknown>) => {
   if (!isTelegramEnabled(fields)) return "";
 
-  for (const [key, value] of Object.entries(fields)) {
-    const normalized = normalizeFieldKey(key);
-    if (!normalized.includes("telegram")) continue;
-
-    const firstValue = readFirstStringValue(value);
-    if (firstValue) {
-      return firstValue;
-    }
-  }
-
-  return "";
+  return readTelegramValue(fields);
 };
 
 export const buildTelegramHrefFromFields = (fields: Record<string, unknown>) => {
