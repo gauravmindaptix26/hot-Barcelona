@@ -7,7 +7,7 @@ const toggleButtonClassName =
 
 export default function DescriptionHelper() {
   const [wantsHelp, setWantsHelp] = useState<"yes" | "no">("no");
-  const [descriptionText, setDescriptionText] = useState("");
+  const [aboutText, setAboutText] = useState("");
 
   useEffect(() => {
     const handlePrefill = (event: Event) => {
@@ -24,21 +24,21 @@ export default function DescriptionHelper() {
         setWantsHelp("no");
       }
 
-      const descriptionRaw = formFields.descriptionText;
-      if (typeof descriptionRaw === "string") {
-        setDescriptionText(descriptionRaw);
+      const aboutRaw = formFields.aboutText;
+      if (typeof aboutRaw === "string") {
+        setAboutText(aboutRaw);
         return;
       }
 
-      if (Array.isArray(descriptionRaw)) {
-        const first = descriptionRaw.find(
+      if (Array.isArray(aboutRaw)) {
+        const first = aboutRaw.find(
           (item): item is string => typeof item === "string" && item.trim().length > 0
         );
-        setDescriptionText(first ?? "");
+        setAboutText(first ?? "");
         return;
       }
 
-      setDescriptionText("");
+      setAboutText("");
     };
 
     window.addEventListener("profile:prefill", handlePrefill as EventListener);
@@ -49,10 +49,10 @@ export default function DescriptionHelper() {
     <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.94)_42%)] p-6 shadow-[0_28px_70px_rgba(0,0,0,0.3)] sm:p-7">
       <div>
         <p className="text-[11px] uppercase tracking-[0.3em] text-[#f5d68c] sm:text-xs sm:tracking-[0.34em]">
-          Description Support
+          About Support
         </p>
         <h3 className="mt-3 text-2xl font-semibold text-white sm:text-[2rem]">
-          Help me write the description
+          Help me write the about section
         </h3>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/62 sm:text-lg">
           Choose if you want to write it yourself or want help.
@@ -108,17 +108,17 @@ export default function DescriptionHelper() {
       <div className="mt-5 rounded-[26px] border border-white/10 bg-black/25 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-lg font-semibold text-white">
-            {wantsHelp === "yes" ? "Notes for our writing team" : "Your public description"}
+            {wantsHelp === "yes" ? "Notes for our writing team" : "Your public about"}
           </p>
           <span className="rounded-full border border-white/10 bg-black/45 px-3.5 py-1.5 text-[11px] uppercase tracking-[0.22em] text-white/45">
-            {descriptionText.trim().length} characters
+            {aboutText.trim().length} characters
           </span>
         </div>
 
         <textarea
-          name="descriptionText"
-          value={descriptionText}
-          onChange={(event) => setDescriptionText(event.target.value)}
+          name="aboutText"
+          value={aboutText}
+          onChange={(event) => setAboutText(event.target.value)}
           rows={5}
           placeholder={
             wantsHelp === "yes"

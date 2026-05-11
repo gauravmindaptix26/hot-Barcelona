@@ -18,7 +18,7 @@ import Navbar from "../../components/Navbar";
 const steps = [
   {
     number: "1",
-    title: "Stage name, contacts, and description",
+    title: "Stage name, contacts, and about",
     note: "Select gender, add your display name, contact channels, and a short bio.",
     fields: [
       "Stage name",

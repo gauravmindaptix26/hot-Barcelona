@@ -212,7 +212,7 @@ const getCachedGirlsProfiles = unstable_cache(
     const languages = readStringArray(formFields.languages);
 
     const nationality = readFieldText(formFields, "nationality");
-    const descriptionText = readFieldText(formFields, "descriptionText");
+    const aboutText = readFieldText(formFields, "aboutText");
 
     const rates = uniqueStrings(
       [
@@ -262,7 +262,7 @@ const getCachedGirlsProfiles = unstable_cache(
       status: readString(readItemValue(item, "status")),
       image: images[0] ?? "",
       tag: premiumPlan ? "Premium" : "",
-      about: descriptionText,
+      about: aboutText,
       details: {
         height: readFieldText(formFields, "height"),
         body: readFieldText(formFields, "body") || physicalAttributes[0] || "",

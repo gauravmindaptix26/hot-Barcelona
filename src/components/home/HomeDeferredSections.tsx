@@ -853,10 +853,7 @@ export default function HomeDeferredSections() {
                           {profile.location}
                         </div>
                       )}
-                      <div className="mt-3 flex items-center justify-between gap-3">
-                        <span className="rounded-full border border-[#f5d68c]/30 bg-black/45 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-[#f5d68c]">
-                          7 days only
-                        </span>
+                      <div className="mt-3 flex justify-end">
                         <span className="rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-black opacity-100 transition duration-500 sm:translate-y-2 sm:opacity-0 sm:tracking-[0.3em] sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
                           View Profile
                         </span>

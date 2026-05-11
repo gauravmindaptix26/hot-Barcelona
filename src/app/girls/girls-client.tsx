@@ -111,6 +111,9 @@ const hiddenFormFieldKeys = new Set([
   "updatedat",
   "resetpasswordtoken",
   "descriptionhelp",
+  "description",
+  "descriptiontext",
+  "abouttext",
   "whatsappenabled",
   "telegramenabled",
   "legalacceptance",
@@ -1227,9 +1230,6 @@ export default function GirlsClient({
                     <h3 className="mt-3 text-xl font-semibold text-white sm:text-3xl">
                       {selectedProfileAddress}
                     </h3>
-                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60">
-                      Advertiser ne profile banate waqt jo address fill kiya tha, wahi address aur map yahan show ho raha hai.
-                    </p>
                   </div>
                   <div className="mt-6 overflow-hidden rounded-[24px] border border-white/10 bg-black/25">
                     {selectedProfileMapSrc ? (
@@ -1287,29 +1287,33 @@ export default function GirlsClient({
                 </section>
               )}
 
+                  {selectedProfile.about.trim() && (
+              <section
+                id="profile-about-section"
+                className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-4 sm:p-7"
+              >
+                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
+                    About
+                  </p>
+                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
+                    {selectedProfile.about}
+                  </p>
+                </section>
+              )}
+
                 <section
                   id="profile-details-section"
                   className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.15),rgba(245,179,92,0.03)_22%,rgba(10,11,13,0.96)_52%)] p-4 sm:p-7"
                 >
-                  <div className="max-w-4xl">
-                    <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
-                      Profile Details
-                    </p>
-                    <h3 className="mt-3 text-2xl font-semibold text-white sm:text-4xl">
-                      Everything shared in this profile
-                    </h3>
-                    <p className="mt-3 text-base leading-relaxed text-white/62 sm:text-lg">
-                      Identity, services, rates and schedule are now presented in a cleaner profile flow with larger text and softer separation.
-                    </p>
-                  </div>
                   {detailGroupsForDisplay.length === 0 ? (
-                    <p className="mt-6 text-base text-white/60">
+                    <p className="text-base text-white/60">
                       No additional details submitted yet.
                     </p>
                   ) : (
-                    <div className="mt-10 grid gap-10 lg:grid-cols-2">
+                    <div className="space-y-8">
+                      <div className="grid gap-8 lg:grid-cols-2">
                       {detailGroupsForDisplay.map((group) => (
-                        <section key={group.id} className="space-y-5">
+                        <section key={group.id} className="space-y-4">
                           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-4">
                             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#f5d68c]/90 sm:text-base">
                               {group.label}
@@ -1318,13 +1322,13 @@ export default function GirlsClient({
                               {group.entries.length} items
                             </span>
                           </div>
-                          <div className="space-y-5">
+                          <div className="space-y-3">
                             {group.entries.map((entry) => {
                               const tags = splitValueIntoTags(entry.value);
                               return (
                                 <article
                                   key={entry.key}
-                                  className="grid gap-2 border-b border-white/8 pb-5 last:border-b-0 last:pb-0 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-6"
+                                  className="grid gap-2 border-b border-white/8 pb-3 last:border-b-0 last:pb-0 sm:grid-cols-[170px_minmax(0,1fr)] sm:gap-5"
                                 >
                                   <p className="pt-1 text-[10px] uppercase tracking-[0.28em] text-white/42 sm:text-xs">
                                     {entry.label}
@@ -1366,23 +1370,10 @@ export default function GirlsClient({
                         </div>
                       </section>
                     ))}
+                      </div>
                   </div>
                 )}
               </section>
-
-                  {selectedProfile.about.trim() && (
-              <section
-                id="profile-about-section"
-                className="rounded-[28px] border border-[#f5d68c]/25 bg-[linear-gradient(145deg,rgba(245,214,140,0.09),rgba(10,11,13,0.78)_40%,rgba(10,11,13,0.95))] p-4 sm:p-7"
-              >
-                  <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c] sm:text-xs sm:tracking-[0.45em]">
-                    About
-                  </p>
-                  <p className="mt-4 whitespace-pre-wrap text-base leading-relaxed text-white/80 sm:text-lg">
-                    {selectedProfile.about}
-                  </p>
-                </section>
-              )}
 
               <ProfileReviews
                 profileId={toDatabaseId(selectedProfile.id)}
