@@ -5,12 +5,17 @@ import { ObjectId } from "mongodb";
 import { getAppServerSession } from "@/lib/auth";
 import { ensureUsersIndexes, getDb } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import { hashPasswordChangeCode } from "@/lib/password-change-code";
 
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Current password is required."),
     newPassword: z.string().min(8, "New password must be at least 8 characters."),
     confirmPassword: z.string().min(1, "Please confirm the new password."),
+    verificationCode: z
+      .string()
+      .trim()
+      .regex(/^\d{6}$/, "Enter the 6-digit code sent to your email."),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "New password and confirm password do not match.",
@@ -52,7 +57,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { currentPassword, newPassword } = parsed.data;
+  const { currentPassword, newPassword, verificationCode } = parsed.data;
   if (currentPassword === newPassword) {
     return NextResponse.json(
       { error: "New password must be different from current password." },
@@ -94,16 +99,44 @@ export async function POST(request: Request) {
     );
   }
 
+  const now = new Date();
+  const codeHash = hashPasswordChangeCode(verificationCode);
+  const codeDoc = await db.collection("password_change_codes").findOne({
+    userId,
+    accountType: account.collection,
+    codeHash,
+    usedAt: null,
+    expiresAt: { $gt: now },
+  });
+
+  if (!codeDoc?._id) {
+    return NextResponse.json(
+      { error: "Verification code is invalid or expired." },
+      { status: 400 }
+    );
+  }
+
   const nextHash = await bcrypt.hash(newPassword, 12);
   await db.collection(account.collection).updateOne(
     { _id: account.doc._id },
     {
       $set: {
         passwordHash: nextHash,
-        passwordUpdatedAt: new Date(),
+        passwordUpdatedAt: now,
       },
     }
   );
+
+  await db.collection("password_change_codes").updateOne(
+    { _id: codeDoc._id },
+    { $set: { usedAt: now } }
+  );
+
+  await db.collection("password_change_codes").deleteMany({
+    userId,
+    accountType: account.collection,
+    usedAt: null,
+  });
 
   return NextResponse.json({ ok: true });
 }

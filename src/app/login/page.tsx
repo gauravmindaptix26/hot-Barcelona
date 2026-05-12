@@ -70,7 +70,7 @@ export default function LoginPage() {
                   const formData = new FormData(event.currentTarget);
                   const email = String(formData.get("email") ?? "");
                   const password = String(formData.get("password") ?? "");
-                  const accountType = String(formData.get("accountType") ?? "users");
+                  const accountType = "all";
                   const requestedCallback = new URLSearchParams(
                     window.location.search
                   ).get("callbackUrl");
@@ -88,7 +88,7 @@ export default function LoginPage() {
                   });
 
                   if (!result || result.error) {
-                    setError("Invalid email or password");
+                    setError("Correo electrónico o contraseña incorrectos");
                     setIsSubmitting(false);
                     return;
                   }
@@ -119,15 +119,6 @@ export default function LoginPage() {
                   className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
                   required
                 />
-                <select
-                  name="accountType"
-                  defaultValue="users"
-                  className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-2.5 text-white focus:border-[#f5d68c]/70 focus:outline-none"
-                >
-                  <option value="users">User account</option>
-                  <option value="girls">Girl advertiser profile</option>
-                  <option value="trans">Trans advertiser profile</option>
-                </select>
                 <div className="relative">
                   <input
                     name="password"

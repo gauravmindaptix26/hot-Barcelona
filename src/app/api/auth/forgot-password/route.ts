@@ -10,7 +10,7 @@ import {
 
 const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Invalid email."),
-  accountType: z.enum(["users", "girls", "trans"]).optional(),
+  accountType: z.enum(["all", "users", "girls", "trans"]).optional(),
 });
 
 const resettableCollections = ["users", "girls", "trans"] as const;
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
   }
 
   const email = parsed.data.email.toLowerCase();
-  const collections = parsed.data.accountType
+  const collections = parsed.data.accountType && parsed.data.accountType !== "all"
     ? [parsed.data.accountType]
     : resettableCollections;
   const db = await getDb();

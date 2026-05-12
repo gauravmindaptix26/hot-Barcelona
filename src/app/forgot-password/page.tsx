@@ -37,7 +37,7 @@ export default function ForgotPasswordPage() {
 
               const formData = new FormData(event.currentTarget);
               const email = String(formData.get("email") ?? "").trim();
-              const accountType = String(formData.get("accountType") ?? "users");
+              const accountType = "all";
 
               try {
                 const response = await fetch("/api/auth/forgot-password", {
@@ -76,16 +76,6 @@ export default function ForgotPasswordPage() {
               className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
               required
             />
-            <select
-              name="accountType"
-              defaultValue="users"
-              className="w-full rounded-2xl border border-white/10 bg-black/60 px-4 py-3 text-white focus:border-[#f5d68c]/70 focus:outline-none"
-            >
-              <option value="users">User account</option>
-              <option value="girls">Girl advertiser profile</option>
-              <option value="trans">Trans advertiser profile</option>
-            </select>
-
             {error && <p className="text-sm text-red-300">{error}</p>}
             {message && <p className="text-sm text-green-300">{message}</p>}
             {debugLink && (

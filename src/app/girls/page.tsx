@@ -104,6 +104,21 @@ const readFieldText = (fields: Record<string, unknown>, key: string) => {
   return "";
 };
 
+const aboutFieldKeys = ["aboutText", "descriptionText", "description", "about", "bio"];
+
+const readProfileAbout = (fields: Record<string, unknown>, item: unknown) => {
+  for (const key of aboutFieldKeys) {
+    const fieldValue = readFieldText(fields, key);
+    if (fieldValue) return fieldValue;
+
+    const itemValue = readItemValue(item, key);
+    if (typeof itemValue === "string" && itemValue.trim()) {
+      return normalizeProfileLabel(itemValue);
+    }
+  }
+  return "";
+};
+
 const uniqueStrings = (values: string[]) =>
   Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
 
@@ -212,7 +227,7 @@ const getCachedGirlsProfiles = unstable_cache(
     const languages = readStringArray(formFields.languages);
 
     const nationality = readFieldText(formFields, "nationality");
-    const aboutText = readFieldText(formFields, "aboutText");
+    const aboutText = readProfileAbout(formFields, item);
 
     const rates = uniqueStrings(
       [

@@ -31,10 +31,10 @@ export default async function MyAdPage() {
   }
 
   const db = await getDb();
-  const userId = new ObjectId(session.user.id);
+  const userId = ObjectId.isValid(session.user.id) ? new ObjectId(session.user.id) : null;
   const advertiserType = session.user.advertiserType;
   const [girlsAd, transAd] =
-    session.user.accountType === "advertiser" && advertiserType
+    session.user.accountType === "advertiser" && advertiserType && userId
       ? await Promise.all([
           advertiserType === "girls"
             ? db.collection("girls").findOne({
@@ -50,9 +50,29 @@ export default async function MyAdPage() {
             : null,
         ])
       : await Promise.all([
-          db.collection("girls").findOne({ userId, isDeleted: { $ne: true } }),
-          db.collection("trans").findOne({ userId, isDeleted: { $ne: true } }),
+          userId
+            ? db.collection("girls").findOne({ userId, isDeleted: { $ne: true } })
+            : null,
+          userId
+            ? db.collection("trans").findOne({ userId, isDeleted: { $ne: true } })
+            : null,
         ]);
+
+  const sessionEmail =
+    typeof session.user.email === "string" ? session.user.email.trim().toLowerCase() : "";
+  const [girlsByEmail, transByEmail] =
+    !girlsAd && !transAd && sessionEmail
+      ? await Promise.all([
+          db.collection("girls").findOne({
+            email: sessionEmail,
+            isDeleted: { $ne: true },
+          }),
+          db.collection("trans").findOne({
+            email: sessionEmail,
+            isDeleted: { $ne: true },
+          }),
+        ])
+      : [null, null];
 
   const mapAd = (doc: AdDoc, type: "girls" | "trans") => ({
     _id: doc._id.toString(),
@@ -66,10 +86,10 @@ export default async function MyAdPage() {
     approvalStatus: normalizeApprovalStatus(doc.approvalStatus),
   });
 
-  const ad = girlsAd
-    ? mapAd(girlsAd, "girls")
-    : transAd
-      ? mapAd(transAd, "trans")
+  const ad = girlsAd || girlsByEmail
+    ? mapAd((girlsAd ?? girlsByEmail) as AdDoc, "girls")
+    : transAd || transByEmail
+      ? mapAd((transAd ?? transByEmail) as AdDoc, "trans")
       : null;
 
   return (

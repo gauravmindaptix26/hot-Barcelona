@@ -1232,6 +1232,46 @@ export default function TransClient({
             </div>
             <div className="px-6 py-10 sm:px-8 sm:py-10 lg:px-8 lg:py-10">
                 <div className="space-y-8">
+                  <section
+                    id="profile-gallery-section"
+                    className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
+                        Galería
+                      </p>
+                      <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
+                        {selectedProfile.gallery.length} artículos
+                      </span>
+                    </div>
+                    {selectedProfile.gallery.length === 0 ? (
+                      <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
+                        No hay fotos subidas.
+                      </div>
+                    ) : (
+                      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {selectedProfile.gallery.map((src, index) => (
+                          <div
+                            key={`${src}-${index}`}
+                            className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
+                          >
+                            <Image
+                              src={getCloudinaryImageUrl(src, {
+                                width: 640,
+                                height: 800,
+                              })}
+                              alt={`${selectedProfile.name} gallery`}
+                              fill
+                              sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
+                              className="object-cover transition duration-700 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
                   <ProfileActionBar
                 isAuthenticated={Boolean(session?.user)}
                 phoneHref={activeProfileContact?.phoneHref ?? null}
@@ -1411,46 +1451,6 @@ export default function TransClient({
                 heroImage={selectedProfile.image}
                 gallery={selectedProfile.gallery}
               />
-
-                  <section
-                id="profile-gallery-section"
-                className="rounded-[28px] border border-white/10 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),rgba(10,11,13,0.92)_45%)] p-6 sm:p-7"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-[0.45em] text-[#f5d68c]">
-                    Gallery
-                  </p>
-                  <span className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[10px] uppercase tracking-[0.26em] text-white/70">
-                    {selectedProfile.gallery.length} items
-                  </span>
-                </div>
-                {selectedProfile.gallery.length === 0 ? (
-                  <div className="mt-5 rounded-2xl border border-dashed border-white/15 bg-black/30 px-4 py-6 text-sm text-white/60">
-                    No photos uploaded.
-                  </div>
-                ) : (
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {selectedProfile.gallery.map((src, index) => (
-                      <div
-                        key={`${src}-${index}`}
-                        className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
-                      >
-                        <Image
-                          src={getCloudinaryImageUrl(src, {
-                            width: 640,
-                            height: 800,
-                          })}
-                          alt={`${selectedProfile.name} gallery`}
-                          fill
-                          sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
-                          className="object-cover transition duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                  </section>
                 </div>
             </div>
           </motion.div>
