@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import {
+  ROSE_CURRENCY_SYMBOL,
   normalizeSubscriptionDurationValue,
   normalizeSubscriptionPlanValue,
   subscriptionPlanOptions,
 } from "@/lib/subscription";
+import RoseSymbol from "@/components/RoseSymbol";
 
 type Props = {
   planName: string;
@@ -14,6 +16,11 @@ type Props = {
 
 const normalizePlanValue = (value: string) => {
   return normalizeSubscriptionPlanValue(value) ?? value.replace(/\s+/g, " ").trim().toUpperCase();
+};
+
+const formatRosePrice = (price: string) => {
+  if (!price.startsWith(ROSE_CURRENCY_SYMBOL)) return price;
+  return price.slice(ROSE_CURRENCY_SYMBOL.length);
 };
 
 export default function SubscriptionSelector({ planName, durationName }: Props) {
@@ -92,7 +99,10 @@ export default function SubscriptionSelector({ planName, durationName }: Props) 
                     {duration.label}
                   </span>
                   <span className="shrink-0 text-base font-semibold tabular-nums text-[#f5d68c] sm:text-[1.05rem]">
-                    {duration.price}
+                    <span className="inline-flex items-center gap-1.5">
+                      <RoseSymbol className="h-5 w-4" />
+                      {formatRosePrice(duration.price)}
+                    </span>
                   </span>
                 </button>
               ))}

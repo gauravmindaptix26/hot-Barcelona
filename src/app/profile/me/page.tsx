@@ -7,6 +7,7 @@ import { getDb } from "@/lib/db";
 import PageShell from "@/components/PageShell";
 import ProfileFavoritesSection from "./profile-favorites-section";
 import { normalizeSubscriptionDurationValue } from "@/lib/subscription";
+import { normalizeProfileLabel } from "@/lib/profile-labels";
 import ProfileOfferBadges, { readOfferHighlights } from "@/components/ProfileOfferBadges";
 
 type AdCollection = "girls" | "trans";
@@ -68,7 +69,9 @@ const fieldLabelMap: Record<string, string> = {
   subscriptionDuration: "Subscription Duration",
   paymentMethod: "Payment Method",
   activeOffer: "Active Offer",
+  activeOfferUntil: "Active Offer Until",
   nextOffer: "Next Offer",
+  nextOfferFrom: "Next Offer From",
   specialOffer: "Special Offer",
   featuredBanner: "Featured Banner",
 };
@@ -116,14 +119,14 @@ function normalizeFieldEntries(
   if (formFields && typeof formFields === "object" && !Array.isArray(formFields)) {
     for (const [key, raw] of Object.entries(formFields as Record<string, unknown>)) {
       if (typeof raw === "string") {
-        const value = raw.trim();
+        const value = normalizeProfileLabel(raw);
         if (value) entries.push([key, value]);
         continue;
       }
       if (Array.isArray(raw)) {
         const values = raw
           .filter((item): item is string => typeof item === "string")
-          .map((item) => item.trim())
+          .map(normalizeProfileLabel)
           .filter(Boolean);
         if (values.length > 0) entries.push([key, values]);
       }
@@ -259,7 +262,9 @@ export default async function ProfileMePage() {
       key !== "subscriptionPlan" &&
       key !== "subscriptionDuration" &&
       key !== "activeOffer" &&
-      key !== "nextOffer"
+      key !== "activeOfferUntil" &&
+      key !== "nextOffer" &&
+      key !== "nextOfferFrom"
   );
 
   const favoritesRaw = session.user.id

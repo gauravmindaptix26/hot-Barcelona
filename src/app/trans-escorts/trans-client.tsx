@@ -521,7 +521,7 @@ export default function TransClient({
     () =>
       selectedProfile
         ? readOfferHighlights(selectedProfile.formFields)
-        : { activeOffer: "", nextOffer: "" },
+        : { activeOffer: "", activeOfferUntil: "", nextOffer: "", nextOfferFrom: "" },
     [selectedProfile]
   );
   const selectedProfileMapSrc = useMemo(

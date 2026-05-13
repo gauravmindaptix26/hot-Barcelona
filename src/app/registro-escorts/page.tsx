@@ -14,6 +14,34 @@ import ContactPreferences from "./contact-preferences";
 import SubscriptionSelector from "./subscription-selector";
 import LaunchOfferPopup from "./launch-offer-popup";
 import Navbar from "../../components/Navbar";
+import { ROSE_CURRENCY_SYMBOL } from "@/lib/subscription";
+
+type InitialProfile = {
+  gender: "girl" | "trans";
+  name: string;
+  age: number | null;
+  location: string;
+  images: string[];
+  email: string;
+  formFields: Record<string, unknown>;
+};
+
+const readFormFields = (value: unknown) =>
+  value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+
+const readFieldText = (fields: Record<string, unknown>, key: string) => {
+  const raw = fields[key];
+  if (typeof raw === "string") return raw.trim();
+  if (Array.isArray(raw)) {
+    const first = raw.find(
+      (item): item is string => typeof item === "string" && item.trim().length > 0
+    );
+    return first?.trim() ?? "";
+  }
+  return "";
+};
 
 const steps = [
   {
@@ -393,49 +421,21 @@ const paymentMethodOptions = [
   "Payment by ATM or bank transfer",
 ];
 
-const rate20Options = [
-  "20 min. / €30",
-  "20 min. / €35",
-  "20 min. / €40",
-  "20 min. / €45",
-  "20 min. / €50",
-  "20 min. / €55",
-  "20 min. / €60",
-  "20 min. / €65",
-  "20 min. / €70",
-  "20 min. / €75",
-  "20 min. / €80",
-  "20 min. / €85",
-  "20 min. / €90",
-  "20 min. / €95",
-  "20 min. / €100",
-];
+const buildRateLabel = (minutes: number, amount: number) =>
+  `${minutes} min. / ${ROSE_CURRENCY_SYMBOL}${amount}`;
 
-const rate30Options = [
-  "30 min. / €30",
-  "30 min. / €40",
-  "30 min. / €50",
-  "30 min. / €60",
-  "30 min. / €70",
-  "30 min. / €80",
-  "30 min. / €90",
-  "30 min. / €100",
-  "30 min. / €110",
-  "30 min. / €120",
-  "30 min. / €130",
-  "30 min. / €140",
-  "30 min. / €150",
-  "30 min. / €160",
-  "30 min. / €170",
-  "30 min. / €180",
-  "30 min. / €190",
-  "30 min. / €200",
-];
+const rate20Options = Array.from({ length: 15 }, (_, index) =>
+  buildRateLabel(20, 30 + index * 5)
+);
+
+const rate30Options = Array.from({ length: 18 }, (_, index) =>
+  buildRateLabel(30, 30 + index * 10)
+);
 
 const buildRateOptions = (minutes: number, start: number, end: number) =>
   Array.from(
     { length: (end - start) / 10 + 1 },
-    (_, index) => `${minutes} min. / €${start + index * 10}`
+    (_, index) => buildRateLabel(minutes, start + index * 10)
   );
 
 const rate45Options = buildRateOptions(45, 30, 300);
@@ -465,6 +465,10 @@ export default async function RegistroEscortsPage() {
   let initialAge: number | null = null;
   let initialLocation = "";
   let initialImages: string[] = [];
+  let initialEmail = "";
+  let initialFormFields: Record<string, unknown> = {};
+  let initialProfile: InitialProfile | null = null;
+  let isEditingAd = false;
 
   if (session?.user?.id) {
     const db = await getDb();
@@ -499,6 +503,7 @@ export default async function RegistroEscortsPage() {
 
     const ad = girlsAd ?? transAd;
     if (ad) {
+      const formFields = readFormFields(ad.formFields);
       initialGender =
         ad.gender === "trans" || ad.gender === "girl"
           ? ad.gender
@@ -507,10 +512,28 @@ export default async function RegistroEscortsPage() {
             : "trans";
       initialName = typeof ad.name === "string" ? ad.name : "";
       initialAge = typeof ad.age === "number" ? ad.age : null;
-      initialLocation = typeof ad.location === "string" ? ad.location : "";
+      initialLocation = readFieldText(formFields, "address") ||
+        (typeof ad.location === "string" ? ad.location : "");
       initialImages = Array.isArray(ad.images)
         ? ad.images.filter((item: unknown) => typeof item === "string")
         : [];
+      initialEmail =
+        typeof ad.email === "string"
+          ? ad.email
+          : typeof session.user.email === "string"
+            ? session.user.email
+            : "";
+      initialFormFields = formFields;
+      isEditingAd = true;
+      initialProfile = {
+        gender: initialGender,
+        name: initialName,
+        age: initialAge,
+        location: initialLocation,
+        images: initialImages,
+        email: initialEmail,
+        formFields: initialFormFields,
+      };
     }
   }
   return (
@@ -589,7 +612,7 @@ export default async function RegistroEscortsPage() {
 
         <form id="registro-escorts-form">
           <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
-            <ProfileLoader />
+            <ProfileLoader initialProfile={initialProfile} />
           </section>
 
         <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 sm:pb-16">
@@ -644,17 +667,20 @@ export default async function RegistroEscortsPage() {
                     name="email"
                     type="email"
                     placeholder="Advertiser email (not public)"
+                    defaultValue={initialEmail}
                     className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="password"
                     type="password"
-                    placeholder="Password"
+                    placeholder={isEditingAd ? "Password not required while logged in" : "Password"}
+                    disabled={isEditingAd}
                     className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="phone"
                     placeholder="Phone number for your ad"
+                    defaultValue={readFieldText(initialFormFields, "phone")}
                     className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
@@ -1116,6 +1142,19 @@ export default async function RegistroEscortsPage() {
                                     placeholder="Example: Active today - 30 min special price"
                                     className="mt-4 w-full resize-none rounded-[22px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 placeholder:text-white/35 focus:border-emerald-300/60 focus:outline-none"
                                   />
+                                  <div className="mt-4">
+                                    <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-emerald-200/70">
+                                      Available until
+                                    </span>
+                                    <input
+                                      name="activeOfferUntil"
+                                      type="date"
+                                      className="mt-2 w-full rounded-[18px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 [color-scheme:dark] focus:border-emerald-300/60 focus:outline-none"
+                                    />
+                                    <span className="mt-2 block text-sm leading-relaxed text-white/45">
+                                      Public profile will show this date next to Active offer.
+                                    </span>
+                                  </div>
                                 </label>
                                 <label className="rounded-[26px] border border-red-300/20 bg-gradient-to-br from-red-500/12 via-black/35 to-black/65 p-4">
                                   <span className="flex items-center gap-3">
@@ -1137,6 +1176,19 @@ export default async function RegistroEscortsPage() {
                                     placeholder="Example: Weekend new offer starts Friday"
                                     className="mt-4 w-full resize-none rounded-[22px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 placeholder:text-white/35 focus:border-red-300/60 focus:outline-none"
                                   />
+                                  <div className="mt-4">
+                                    <span className="block text-[10px] font-semibold uppercase tracking-[0.24em] text-red-200/70">
+                                      Available from
+                                    </span>
+                                    <input
+                                      name="nextOfferFrom"
+                                      type="date"
+                                      className="mt-2 w-full rounded-[18px] border border-white/10 bg-black/45 px-4 py-3 text-base text-white/88 [color-scheme:dark] focus:border-red-300/60 focus:outline-none"
+                                    />
+                                    <span className="mt-2 block text-sm leading-relaxed text-white/45">
+                                      On this date it will move from Next offer to Active offer automatically.
+                                    </span>
+                                  </div>
                                 </label>
                               </div>
                             </div>
@@ -1251,7 +1303,7 @@ export default async function RegistroEscortsPage() {
             </div>
           </section>
 
-          <RegistroSubmit initialImages={initialImages} />
+          <RegistroSubmit initialImages={initialImages} isEditingAd={isEditingAd} />
         </form>
       </main>
     </div>

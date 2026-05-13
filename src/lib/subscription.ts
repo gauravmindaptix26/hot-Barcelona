@@ -22,41 +22,43 @@ export const SUBSCRIPTION_PLAN_ORDER: SubscriptionPlanValue[] = [
   "TOP PREMIUM STANDARD",
 ];
 
+export const ROSE_CURRENCY_SYMBOL = "🌹";
+
 export const subscriptionPlanOptions: SubscriptionPlanOption[] = [
   {
     value: "TOP PREMIUM VIP",
     label: "VIP PREMIUM SUPERIOR",
     durations: [
-      { label: "1 month", price: "\u20AC160,00" },
-      { label: "2 weeks", price: "\u20AC130,00" },
-      { label: "1 week", price: "\u20AC105,00" },
+      { label: "1 month", price: `${ROSE_CURRENCY_SYMBOL}160,00` },
+      { label: "2 weeks", price: `${ROSE_CURRENCY_SYMBOL}130,00` },
+      { label: "1 week", price: `${ROSE_CURRENCY_SYMBOL}105,00` },
     ],
   },
   {
     value: "TOP PREMIUM BANNER",
     label: "BANNER PREMIUM SUPERIOR",
     durations: [
-      { label: "1 month", price: "\u20AC115,00" },
-      { label: "2 weeks", price: "\u20AC95,00" },
-      { label: "1 week", price: "\u20AC80,00" },
+      { label: "1 month", price: `${ROSE_CURRENCY_SYMBOL}115,00` },
+      { label: "2 weeks", price: `${ROSE_CURRENCY_SYMBOL}95,00` },
+      { label: "1 week", price: `${ROSE_CURRENCY_SYMBOL}80,00` },
     ],
   },
   {
     value: "PREMIUM SUPERIOR",
     label: "PREMIUM SUPERIOR",
     durations: [
-      { label: "1 month", price: "\u20AC85,00" },
-      { label: "2 weeks", price: "\u20AC65,00" },
-      { label: "1 week", price: "\u20AC50,00" },
+      { label: "1 month", price: `${ROSE_CURRENCY_SYMBOL}85,00` },
+      { label: "2 weeks", price: `${ROSE_CURRENCY_SYMBOL}65,00` },
+      { label: "1 week", price: `${ROSE_CURRENCY_SYMBOL}50,00` },
     ],
   },
   {
     value: "TOP PREMIUM STANDARD",
     label: "TOP PREMIUM STANDARD",
     durations: [
-      { label: "1 month", price: "\u20AC70,00" },
-      { label: "2 weeks", price: "\u20AC50,00" },
-      { label: "1 week", price: "\u20AC35,00" },
+      { label: "1 month", price: `${ROSE_CURRENCY_SYMBOL}70,00` },
+      { label: "2 weeks", price: `${ROSE_CURRENCY_SYMBOL}50,00` },
+      { label: "1 week", price: `${ROSE_CURRENCY_SYMBOL}35,00` },
     ],
   },
 ];

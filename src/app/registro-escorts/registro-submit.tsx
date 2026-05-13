@@ -10,6 +10,7 @@ type UploadItem = {
 
 type Props = {
   initialImages?: string[];
+  isEditingAd?: boolean;
 };
 
 type SavedFormFields = Record<string, string | string[]>;
@@ -36,7 +37,7 @@ function serializeFormFields(formData: FormData): SavedFormFields {
   return serialized;
 }
 
-export default function RegistroSubmit({ initialImages = [] }: Props) {
+export default function RegistroSubmit({ initialImages = [], isEditingAd = false }: Props) {
   const minImages = 4;
   const maxImages = 20;
   const [uploads, setUploads] = useState<UploadItem[]>(
@@ -231,7 +232,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       subscription: "Subscription",
       paymentMethod: "Payment method",
       activeOffer: "Active offer",
+      activeOfferUntil: "Active offer date",
       nextOffer: "Next offer",
+      nextOfferFrom: "Next offer date",
       specialOffer: "Special offer",
       featuredBanner: "Featured banner",
       legalAcceptance: "Terms and privacy acceptance",
@@ -240,7 +243,6 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "gender",
       "stageName",
       "email",
-      "password",
       "phone",
       "age",
       "nationality",
@@ -254,6 +256,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
       "paymentMethod",
       "legalAcceptance",
     ];
+    if (!isEditingAd) {
+      requiredFields.splice(4, 0, "password");
+    }
 
     const missing: string[] = [];
     for (const field of requiredFields) {
@@ -336,9 +341,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
 
     setIsSaving(true);
     try {
-      const endpoint = gender === "trans" ? "/api/trans" : "/api/girls";
+      const endpoint = isEditingAd ? "/api/my-ad" : gender === "trans" ? "/api/trans" : "/api/girls";
       const response = await fetch(endpoint, {
-        method: "POST",
+        method: isEditingAd ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
@@ -392,7 +397,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           Final Step
         </p>
         <h2 className="mt-3 text-2xl font-semibold sm:mt-4 sm:text-4xl">
-          Save your ad and upload photos
+          {isEditingAd ? "Save changes for approval" : "Save your ad and upload photos"}
         </h2>
         <p className="mt-2 text-sm text-white/60 sm:mt-3">
           Answer the security question to continue.
@@ -548,8 +553,9 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
             role="status"
             className="mt-5 rounded-2xl border border-green-300/30 bg-green-300/10 px-4 py-4 text-sm leading-relaxed text-green-100 shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
           >
-            We have received your registration and the Hot Barcelona Admin Team
-            will contact you soon by WhatsApp and/or email.
+            {isEditingAd
+              ? "Your changes are now awaiting admin approval. An email confirmation has been sent."
+              : "We have received your registration and the Hot Barcelona Admin Team will contact you soon by WhatsApp and/or email."}
           </div>
         )}
 
@@ -559,7 +565,7 @@ export default function RegistroSubmit({ initialImages = [] }: Props) {
           disabled={isSaving || !legalAccepted}
           className="mt-6 rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-2.5 text-[10px] font-semibold uppercase tracking-[0.28em] text-black shadow-[0_18px_34px_rgba(245,179,92,0.35)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:grayscale disabled:opacity-45 sm:mt-8 sm:px-10 sm:py-3 sm:text-xs sm:tracking-[0.35em]"
         >
-          {isSaving ? "Saving..." : "Save ad & upload photos"}
+          {isSaving ? "Saving..." : isEditingAd ? "Save Changes" : "Save ad & upload photos"}
         </button>
       </div>
     </section>

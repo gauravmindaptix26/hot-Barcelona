@@ -520,7 +520,7 @@ export default function GirlsClient({
     () =>
       selectedProfile
         ? readOfferHighlights(selectedProfile.formFields)
-        : { activeOffer: "", nextOffer: "" },
+        : { activeOffer: "", activeOfferUntil: "", nextOffer: "", nextOfferFrom: "" },
     [selectedProfile]
   );
   const selectedProfileMapSrc = useMemo(

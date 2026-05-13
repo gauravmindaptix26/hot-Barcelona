@@ -65,24 +65,15 @@ const readCreatedAtMs = (value: unknown) => {
 
 export async function GET() {
   const db = await getDb();
-  const [girls, trans] = await Promise.all([
-    db
-      .collection("girls")
-      .find(publicVisibilityQuery, { projection: premiumSuperiorProjection })
-      .sort({ createdAt: -1 })
-      .limit(120)
-      .toArray(),
-    db
-      .collection("trans")
-      .find(publicVisibilityQuery, { projection: premiumSuperiorProjection })
-      .sort({ createdAt: -1 })
-      .limit(120)
-      .toArray(),
-  ]);
+  const girls = await db
+    .collection("girls")
+    .find(publicVisibilityQuery, { projection: premiumSuperiorProjection })
+    .sort({ createdAt: -1 })
+    .limit(120)
+    .toArray();
 
   const combined = [
     ...girls.map((item) => ({ item, profileType: "girls" as const })),
-    ...trans.map((item) => ({ item, profileType: "trans" as const })),
   ]
     .map(({ item, profileType }) => {
       const formFields = readFormFields(item.formFields);

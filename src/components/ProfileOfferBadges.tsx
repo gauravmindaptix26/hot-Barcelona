@@ -2,7 +2,9 @@ import NavIcon from "./NavIcon";
 
 export type OfferHighlights = {
   activeOffer: string;
+  activeOfferUntil: string;
   nextOffer: string;
+  nextOfferFrom: string;
 };
 
 const offerConfig = {
@@ -31,10 +33,25 @@ type ActiveOfferPhotoBadgeProps = {
 
 export const readOfferHighlights = (
   fields: Record<string, unknown>
-): OfferHighlights => ({
-  activeOffer: readFirstText(fields.activeOffer),
-  nextOffer: readFirstText(fields.nextOffer),
-});
+): OfferHighlights => {
+  const activeOfferUntil = readFirstText(fields.activeOfferUntil);
+  const nextOfferFrom = readFirstText(fields.nextOfferFrom);
+  const savedActiveOffer = readFirstText(fields.activeOffer);
+  const savedNextOffer = readFirstText(fields.nextOffer);
+  const nextOfferIsActive = isDateTodayOrPast(nextOfferFrom);
+  const activeOffer = isOfferExpired(activeOfferUntil)
+    ? ""
+    : nextOfferIsActive && savedNextOffer
+      ? savedNextOffer
+      : savedActiveOffer;
+
+  return {
+    activeOffer,
+    activeOfferUntil,
+    nextOffer: nextOfferIsActive ? "" : savedNextOffer,
+    nextOfferFrom,
+  };
+};
 
 export const hasOfferHighlights = (offers: OfferHighlights) =>
   Boolean(offers.activeOffer || offers.nextOffer);
@@ -66,6 +83,28 @@ function readFirstText(value: unknown) {
     return first?.trim() ?? "";
   }
   return "";
+}
+
+function isOfferExpired(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  return value < getTodayKey();
+}
+
+function isDateTodayOrPast(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  return value <= getTodayKey();
+}
+
+function getTodayKey() {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+}
+
+function formatDisplayDate(value: string) {
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return "";
+  return `${match[3]}.${match[2]}.${match[1]}`;
 }
 
 export default function ProfileOfferBadges({
@@ -118,6 +157,16 @@ export default function ProfileOfferBadges({
               <p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/45">
                 <NavIcon path={config.iconPath} />
                 {config.label}
+                {key === "activeOffer" && offers.activeOfferUntil ? (
+                  <span className="tracking-[0.16em] text-[#04c900]">
+                    Until {formatDisplayDate(offers.activeOfferUntil)}
+                  </span>
+                ) : null}
+                {key === "nextOffer" && offers.nextOfferFrom ? (
+                  <span className="tracking-[0.16em] text-[#ffb3b3]">
+                    From {formatDisplayDate(offers.nextOfferFrom)}
+                  </span>
+                ) : null}
               </p>
               <p className="mt-2 whitespace-pre-wrap break-words text-base leading-relaxed text-white/88">
                 {value}

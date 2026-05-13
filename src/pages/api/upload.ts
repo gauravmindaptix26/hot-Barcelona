@@ -12,6 +12,8 @@ const upload = multer({
   storage,
   limits: { files: 20, fileSize: 10 * 1024 * 1024 },
 });
+const WATERMARK_TRANSFORMATION =
+  "l_text:Arial_28_bold:Hot-Barcelona.com,co_rgb:ffffff,g_south_east,o_72,x_24,y_24";
 
 export const config = {
   api: {
@@ -60,7 +62,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const cloudinaryFolder = getCloudinaryAdsFolder();
       const timestamp = Math.floor(Date.now() / 1000);
-      const signatureBase = `folder=${cloudinaryFolder}&timestamp=${timestamp}${apiSecret}`;
+      const signatureBase = `folder=${cloudinaryFolder}&timestamp=${timestamp}&transformation=${WATERMARK_TRANSFORMATION}${apiSecret}`;
       const signature = crypto.createHash("sha1").update(signatureBase).digest("hex");
 
       const uploadUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
@@ -77,6 +79,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         formData.append("timestamp", String(timestamp));
         formData.append("signature", signature);
         formData.append("folder", cloudinaryFolder);
+        formData.append("transformation", WATERMARK_TRANSFORMATION);
 
         const response = await fetch(uploadUrl, {
           method: "POST",

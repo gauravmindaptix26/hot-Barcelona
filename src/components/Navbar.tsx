@@ -46,6 +46,7 @@ export default function Navbar({
     "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.28em] text-white/80 transition hover:text-white";
   const mobileAccountPrimaryItemClass =
     "rounded-2xl border border-[#f5d68c]/55 bg-[#f5d68c] px-4 py-3 text-sm font-semibold uppercase tracking-[0.28em] !text-[#07080b] shadow-[0_12px_28px_rgba(245,214,140,0.22)] transition hover:border-[#f7ddb1]/80 hover:bg-[#f7ddb1]";
+  const isAdvertiser = session?.user?.accountType === "advertiser";
 
   const prefetchRoute = useCallback((route: string) => {
     router.prefetch(route);
@@ -240,12 +241,21 @@ export default function Navbar({
                     >
                       <span>My Ad</span>
                     </Link>
-                    <Link
-                      href="/profile/me"
-                      className={accountItemClass}
-                    >
-                      <span>My Profile</span>
-                    </Link>
+                    {isAdvertiser ? (
+                      <Link
+                        href="/registro-escorts"
+                        className={accountPrimaryItemClass}
+                      >
+                        <span>Edit Ad</span>
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/profile/me"
+                        className={accountItemClass}
+                      >
+                        <span>My Profile</span>
+                      </Link>
+                    )}
                     <Link
                       href="/account/password"
                       className={accountItemClass}
@@ -350,13 +360,23 @@ export default function Navbar({
                   >
                     My Ad
                   </Link>
-                  <Link
-                    href="/profile/me"
-                    className={mobileAccountItemClass}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    My Profile
-                  </Link>
+                  {isAdvertiser ? (
+                    <Link
+                      href="/registro-escorts"
+                      className={mobileAccountPrimaryItemClass}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Edit Ad
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/profile/me"
+                      className={mobileAccountItemClass}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      My Profile
+                    </Link>
+                  )}
                   <Link
                     href="/account/password"
                     className={mobileAccountItemClass}
