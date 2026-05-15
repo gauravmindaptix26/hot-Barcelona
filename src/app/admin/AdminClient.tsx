@@ -42,7 +42,9 @@ type ReviewItem = {
 
 type Props = {
   girls: ProfileItem[];
+  girlsTotal: number;
   trans: ProfileItem[];
+  transTotal: number;
   reviews: ReviewItem[];
 };
 
@@ -353,16 +355,22 @@ const formSectionConfigs = [
   },
 ] as const;
 
-export default function AdminClient({ girls, trans, reviews }: Props) {
+export default function AdminClient({ girls, girlsTotal, trans, transTotal, reviews }: Props) {
   const [activeTab, setActiveTab] = useState<TabKey>("girls");
   const [items, setItems] = useState<Record<TabKey, ProfileItem[]>>({
     girls,
     trans,
   });
+  const [totalCounts, setTotalCounts] = useState<Record<TabKey, number>>({
+    girls: girlsTotal,
+    trans: transTotal,
+  });
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [reviewItems, setReviewItems] = useState<ReviewItem[]>(reviews);
   const [hasLoadedReviews, setHasLoadedReviews] = useState(reviews.length > 0);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDeletingReview, setIsDeletingReview] = useState<string | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [isUpdatingImage, setIsUpdatingImage] = useState<string | null>(null);
   const [isUpdatingReviewStatus, setIsUpdatingReviewStatus] = useState<string | null>(null);
@@ -535,6 +543,40 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       setError("Failed to delete profile.");
     } finally {
       setIsDeleting(null);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore) return;
+    setIsLoadingMore(true);
+    setError("");
+    try {
+      const skip = items[activeTab].length;
+      const response = await fetch(
+        `/api/admin/profiles?type=${activeTab}&skip=${skip}`,
+        { cache: "no-store" }
+      );
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to load more profiles.");
+        return;
+      }
+      const data = (await response.json()) as {
+        items?: ProfileItem[];
+        total?: number;
+      };
+      const newItems = Array.isArray(data.items) ? data.items : [];
+      setItems((prev) => ({
+        ...prev,
+        [activeTab]: [...prev[activeTab], ...newItems],
+      }));
+      if (typeof data.total === "number") {
+        setTotalCounts((prev) => ({ ...prev, [activeTab]: data.total as number }));
+      }
+    } catch {
+      setError("Failed to load more profiles.");
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
@@ -714,6 +756,28 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       setError("Failed to update review status.");
     } finally {
       setIsUpdatingReviewStatus(null);
+    }
+  };
+
+  const handleDeleteReview = async (id: string) => {
+    const ok = confirm("Are you sure you want to delete this review?");
+    if (!ok) return;
+    setIsDeletingReview(id);
+    setError("");
+    try {
+      const response = await fetch(`/api/admin/reviews/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const data = (await response.json()) as { error?: string };
+        setError(data.error ?? "Failed to delete review.");
+        return;
+      }
+      setReviewItems((prev) => prev.filter((item) => item._id !== id));
+    } catch {
+      setError("Failed to delete review.");
+    } finally {
+      setIsDeletingReview(null);
     }
   };
 
@@ -961,7 +1025,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
 
       {error && <p className="mt-4 text-sm text-red-300">{error}</p>}
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
+      <div className="mt-10 grid gap-4 sm:gap-6 md:grid-cols-2">
         {activeItems.map((item) => (
           <div
             key={item._id}
@@ -1027,7 +1091,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
                   </p>
                 </div>
                 {item.images.length > 0 ? (
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-4">
                     {item.images.map((imageUrl, imageIndex) => {
                       const imageStatus = normalizeImageApprovalStatus(
                         item.imageApprovals[imageUrl]
@@ -1169,6 +1233,21 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
       {activeItems.length === 0 && (
         <div className="mt-12 rounded-3xl border border-dashed border-white/15 bg-white/5 p-10 text-center text-sm text-white/60">
           No profiles found in this category.
+        </div>
+      )}
+
+      {items[activeTab].length < totalCounts[activeTab] && (
+        <div className="mt-8 flex justify-center">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore || Boolean(editingId)}
+            className="rounded-full border border-white/20 bg-white/5 px-8 py-3 text-[10px] uppercase tracking-[0.3em] text-white/70 transition hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs"
+          >
+            {isLoadingMore
+              ? "Loading..."
+              : `Load more (${items[activeTab].length} / ${totalCounts[activeTab]})`}
+          </button>
         </div>
       )}
 
@@ -1320,6 +1399,7 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
                     onClick={() => handleReviewApproval(review._id, "accept")}
                     disabled={
                       isUpdatingReviewStatus === review._id ||
+                      isDeletingReview === review._id ||
                       review.approvalStatus === "approved" ||
                       isSavingEdit
                     }
@@ -1332,12 +1412,25 @@ export default function AdminClient({ girls, trans, reviews }: Props) {
                     onClick={() => handleReviewApproval(review._id, "reject")}
                     disabled={
                       isUpdatingReviewStatus === review._id ||
+                      isDeletingReview === review._id ||
                       review.approvalStatus === "rejected" ||
                       isSavingEdit
                     }
                     className="rounded-full border border-rose-300/30 bg-rose-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-rose-200 transition hover:bg-rose-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
                   >
                     {isUpdatingReviewStatus === review._id ? "Saving..." : "Not approved"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteReview(review._id)}
+                    disabled={
+                      isDeletingReview === review._id ||
+                      isUpdatingReviewStatus === review._id ||
+                      isSavingEdit
+                    }
+                    className="rounded-full border border-red-400/40 bg-red-500/10 px-4 py-2 text-[10px] uppercase tracking-[0.22em] text-red-200 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:text-xs sm:tracking-[0.3em]"
+                  >
+                    {isDeletingReview === review._id ? "Deleting..." : "Delete"}
                   </button>
                 </div>
               </div>

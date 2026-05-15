@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 import { deriveCloudinaryPublicIds } from "@/lib/cloudinary";
 import { getPublicProfileImages } from "@/lib/profile-images";
 import { revalidatePath, revalidateTag } from "next/cache";
+import {
+  sendProfileSubmittedEmail,
+  sendProfileResubmittedEmail,
+} from "@/lib/advertiser-emails";
 
 const publicVisibilityQuery = {
   isDeleted: { $ne: true },
@@ -179,6 +183,7 @@ export async function POST(req: Request) {
     revalidateTag("girls-public-profiles", { expire: 0 });
     revalidatePath("/");
     revalidatePath("/api/latest-profiles");
+    await sendProfileResubmittedEmail({ name, email });
     return NextResponse.json({
       ok: true,
       id: existing._id.toString(),
@@ -209,6 +214,7 @@ export async function POST(req: Request) {
   revalidateTag("girls-public-profiles", { expire: 0 });
   revalidatePath("/");
   revalidatePath("/api/latest-profiles");
+  await sendProfileSubmittedEmail({ name, email });
 
   return NextResponse.json({
     ok: true,

@@ -119,7 +119,7 @@ export default async function MyAdPage() {
             You do not have an active ad yet. Click Create Ad to publish one.
           </div>
         ) : (
-          <div className="mt-10 grid gap-8 rounded-3xl border border-white/10 bg-black/40 p-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="mt-10 grid gap-4 rounded-3xl border border-white/10 bg-black/40 p-4 sm:gap-6 sm:p-6 lg:grid-cols-[1.2fr_0.8fr]">
             <div>
               <h2 className="text-sm uppercase tracking-[0.35em] text-[#f5d68c]">
                 Details
@@ -153,11 +153,11 @@ export default async function MyAdPage() {
               <h2 className="text-sm uppercase tracking-[0.35em] text-[#f5d68c]">
                 Images
               </h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
                 {(Array.isArray(ad.images) ? ad.images : []).map((url) => (
                   <div
                     key={url}
-                    className="relative h-40 overflow-hidden rounded-2xl border border-white/10"
+                    className="relative h-28 overflow-hidden rounded-2xl border border-white/10 sm:h-40"
                   >
                     <Image
                       src={url}

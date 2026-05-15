@@ -8,6 +8,7 @@ type LoadedProfile = {
   age: number | null;
   location: string;
   images: string[];
+  imageApprovals?: Record<string, string>;
   email: string;
   formFields?: Record<string, unknown>;
 };

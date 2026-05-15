@@ -5,7 +5,6 @@ import crypto from "crypto";
 import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { isAdminEmail } from "@/lib/admin";
-import { sendEmail } from "@/lib/email";
 import {
   deriveCloudinaryPublicIds,
   extractCloudinaryPublicId,
@@ -14,6 +13,11 @@ import {
   normalizeImageApprovals,
   type ImageApprovals,
 } from "@/lib/profile-images";
+import {
+  sendProfileApprovedEmail,
+  sendProfileRejectedEmail,
+  sendPhotosRejectedEmail,
+} from "@/lib/advertiser-emails";
 
 const allowedCollections = new Set(["girls", "trans"]);
 const allowedActions = new Set(["accept", "reject"]);
@@ -25,34 +29,6 @@ const readEmail = (value: unknown) =>
 
 const readName = (value: unknown) =>
   typeof value === "string" && value.trim() ? value.trim() : "Advertiser";
-
-async function sendProfileApprovalEmail(profile: unknown) {
-  if (!profile || typeof profile !== "object" || Array.isArray(profile)) return;
-
-  const record = profile as Record<string, unknown>;
-  const to = readEmail(record.email);
-  if (!to) return;
-
-  const name = readName(record.name);
-  try {
-    await sendEmail({
-      to,
-      subject: "Your Hot Barcelona profile has been approved",
-      html: `
-        <p>Hello ${name},</p>
-        <p>Your Hot Barcelona profile has been approved by the admin team.</p>
-        <p>Your profile can now appear publicly on the website according to your selected plan and visibility settings.</p>
-        <p>You can log in or use the Advertise page with the same email and password to edit your details.</p>
-      `,
-      text: `Hello ${name}, your Hot Barcelona profile has been approved by the admin team. You can log in or use the Advertise page with the same email and password to edit your details.`,
-    });
-  } catch (error) {
-    console.error(
-      "[admin profile approval] email failed:",
-      error instanceof Error ? error.message : String(error)
-    );
-  }
-}
 
 async function assertAdmin() {
   const session = await getAppServerSession();
@@ -198,7 +174,15 @@ export async function PATCH(
   revalidateProfilePages();
 
   if (approvalStatus === "approved") {
-    await sendProfileApprovalEmail(result);
+    await sendProfileApprovedEmail({
+      name: readName(result.name),
+      email: readEmail(result.email),
+    });
+  } else if (approvalStatus === "rejected") {
+    await sendProfileRejectedEmail({
+      name: readName(result.name),
+      email: readEmail(result.email),
+    });
   }
 
   return NextResponse.json({
@@ -388,6 +372,12 @@ export async function PUT(
   const db = await getDb();
   const _id = new ObjectId(id);
 
+  // Fetch current approvals before update so we can detect newly-rejected photos
+  const currentDoc = await db
+    .collection(type)
+    .findOne({ _id }, { projection: { imageApprovals: 1 } });
+  const oldApprovals = normalizeImageApprovals(currentDoc?.imageApprovals);
+
   const result = await db.collection(type).findOneAndUpdate(
     { _id },
     {
@@ -411,6 +401,24 @@ export async function PUT(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   revalidateProfilePages();
+
+  // Notify advertiser about newly-rejected photos (photo number = position in images array)
+  const newlyRejectedNumbers = images
+    .map((url, i) => ({ url, position: i + 1 }))
+    .filter(
+      ({ url }) =>
+        syncedImageApprovals[url] === "rejected" && oldApprovals[url] !== "rejected"
+    )
+    .map(({ position }) => position);
+
+  if (newlyRejectedNumbers.length > 0) {
+    await sendPhotosRejectedEmail({
+      name: readName(result.name),
+      email: readEmail(result.email),
+      rejectedPhotoNumbers: newlyRejectedNumbers,
+      totalPhotos: images.length,
+    });
+  }
 
   return NextResponse.json({
     ok: true,

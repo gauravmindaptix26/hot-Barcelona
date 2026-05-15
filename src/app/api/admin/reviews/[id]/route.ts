@@ -6,6 +6,33 @@ import { getAppServerSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await assertAdmin();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  if (!ObjectId.isValid(id)) {
+    return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const db = await getDb();
+  const deleteResult = await db
+    .collection("profile_reviews")
+    .deleteOne({ _id: new ObjectId(id) });
+
+  if (deleteResult.deletedCount === 0) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  revalidateReviewPages();
+  return NextResponse.json({ ok: true });
+}
+
 const allowedActions = new Set(["accept", "reject"]);
 
 const readEmail = (value: unknown) =>

@@ -1,20 +1,13 @@
-import { redirect } from "next/navigation";
+import { NextRequest, NextResponse } from "next/server";
 import { getAppServerSession } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin";
 import { getDb } from "@/lib/db";
-import AdminClient from "./AdminClient";
-import PageShell from "@/components/PageShell";
 import { normalizeImageApprovals, readImageArray } from "@/lib/profile-images";
 
-type ApprovalStatus = "pending" | "approved" | "rejected";
-type PersistedFormFields = Record<string, string | string[]>;
+const allowedCollections = new Set(["girls", "trans"]);
+const PAGE_SIZE = 50;
 
-const normalizeApprovalStatus = (value: unknown): ApprovalStatus => {
-  if (value === "pending" || value === "rejected") {
-    return value;
-  }
-  return "approved";
-};
+type PersistedFormFields = Record<string, string | string[]>;
 
 const parseIsoDate = (value: unknown): string | null => {
   if (
@@ -35,14 +28,12 @@ const normalizeFormFields = (value: unknown): PersistedFormFields => {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }
-
   const next: PersistedFormFields = {};
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
     if (typeof raw === "string") {
       next[key] = raw.trim();
       continue;
     }
-
     if (Array.isArray(raw)) {
       next[key] = raw
         .filter((item): item is string => typeof item === "string")
@@ -50,21 +41,33 @@ const normalizeFormFields = (value: unknown): PersistedFormFields => {
         .filter(Boolean);
     }
   }
-
   return next;
 };
 
-export default async function AdminPage() {
+const normalizeApprovalStatus = (
+  value: unknown
+): "pending" | "approved" | "rejected" => {
+  if (value === "pending" || value === "rejected") return value;
+  return "approved";
+};
+
+export async function GET(req: NextRequest) {
   const session = await getAppServerSession();
-  if (!session?.user?.email) {
-    redirect("/login");
+  if (!session?.user?.email || !isAdminEmail(session.user.email)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!isAdminEmail(session.user.email)) {
-    redirect("/unauthorized");
+  const url = new URL(req.url);
+  const type = (url.searchParams.get("type") ?? "").toLowerCase();
+  if (!allowedCollections.has(type)) {
+    return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   }
 
-  const db = await getDb();
+  const skip = Math.max(
+    0,
+    parseInt(url.searchParams.get("skip") ?? "0", 10) || 0
+  );
+
   const adminProjection = {
     projection: {
       name: 1,
@@ -79,36 +82,20 @@ export default async function AdminPage() {
       approvalStatus: 1,
     },
   } as const;
-  const [girls, girlsTotal, trans, transTotal] = await Promise.all([
+
+  const db = await getDb();
+  const [items, total] = await Promise.all([
     db
-      .collection("girls")
+      .collection(type)
       .find({}, adminProjection)
       .sort({ createdAt: -1 })
-      .limit(50)
+      .skip(skip)
+      .limit(PAGE_SIZE)
       .toArray(),
-    db.collection("girls").countDocuments(),
-    db
-      .collection("trans")
-      .find({}, adminProjection)
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .toArray(),
-    db.collection("trans").countDocuments(),
+    db.collection(type).countDocuments(),
   ]);
 
-  const mapItem = (item: {
-    _id: { toString: () => string };
-    name?: unknown;
-    age?: unknown;
-    location?: unknown;
-    email?: unknown;
-    gender?: unknown;
-    images?: unknown;
-    imageApprovals?: unknown;
-    formFields?: unknown;
-    createdAt?: unknown;
-    approvalStatus?: unknown;
-  }) => {
+  const mapped = items.map((item) => {
     const createdAtIso = parseIsoDate(item.createdAt);
     return {
       _id: item._id.toString(),
@@ -126,17 +113,7 @@ export default async function AdminPage() {
         ? `${createdAtIso.replace("T", " ").slice(0, 16)} UTC`
         : "No date",
     };
-  };
+  });
 
-  return (
-    <PageShell widthClassName="max-w-[88rem]" contentClassName="pt-2 sm:pt-3">
-      <AdminClient
-        girls={girls.map(mapItem)}
-        girlsTotal={girlsTotal}
-        trans={trans.map(mapItem)}
-        transTotal={transTotal}
-        reviews={[]}
-      />
-    </PageShell>
-  );
+  return NextResponse.json({ items: mapped, total, skip, limit: PAGE_SIZE });
 }

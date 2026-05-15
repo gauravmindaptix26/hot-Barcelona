@@ -7,6 +7,7 @@ import RegistroSubmit from "./registro-submit";
 import GenderToggle from "./gender-toggle";
 import LocationMapField from "./location-map-field";
 import ProfileLoader from "./profile-loader";
+import PasswordInput from "./password-input";
 import ServicesMultiSelect from "./services-multi-select";
 import NationalitySelect from "./nationality-select";
 import DescriptionHelper from "./description-helper";
@@ -22,6 +23,7 @@ type InitialProfile = {
   age: number | null;
   location: string;
   images: string[];
+  imageApprovals: Record<string, string>;
   email: string;
   formFields: Record<string, unknown>;
 };
@@ -525,12 +527,23 @@ export default async function RegistroEscortsPage() {
             : "";
       initialFormFields = formFields;
       isEditingAd = true;
+      const rawAdApprovals =
+        ad.imageApprovals && typeof ad.imageApprovals === "object" && !Array.isArray(ad.imageApprovals)
+          ? (ad.imageApprovals as Record<string, unknown>)
+          : {};
+      const initialImageApprovals: Record<string, string> = {};
+      for (const [url, status] of Object.entries(rawAdApprovals)) {
+        if (status === "pending" || status === "approved" || status === "rejected") {
+          initialImageApprovals[url] = status;
+        }
+      }
       initialProfile = {
         gender: initialGender,
         name: initialName,
         age: initialAge,
         location: initialLocation,
         images: initialImages,
+        imageApprovals: initialImageApprovals,
         email: initialEmail,
         formFields: initialFormFields,
       };
@@ -670,12 +683,11 @@ export default async function RegistroEscortsPage() {
                     defaultValue={initialEmail}
                     className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
-                  <input
+                  <PasswordInput
                     name="password"
-                    type="password"
                     placeholder={isEditingAd ? "Password not required while logged in" : "Password"}
                     disabled={isEditingAd}
-                    className="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                    inputClassName="w-full rounded-[22px] border border-white/10 bg-black/50 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                   />
                   <input
                     name="phone"
@@ -958,12 +970,11 @@ export default async function RegistroEscortsPage() {
 
                         if (step.number === "1" && field === "Password") {
                           return (
-                            <input
+                            <PasswordInput
                               key={field}
                               name="password"
-                              type="password"
                               placeholder={field}
-                              className="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
+                              inputClassName="w-full rounded-[22px] border border-white/10 bg-black/40 px-4 py-3 text-base text-white/88 placeholder:text-white/40 focus:border-[#f5d68c]/60 focus:outline-none"
                             />
                           );
                         }

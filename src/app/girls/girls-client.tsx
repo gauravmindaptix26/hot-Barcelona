@@ -370,6 +370,98 @@ const buildPagination = (currentPage: number, totalPages: number) => {
     });
 };
 
+function GalleryLightbox({
+  gallery,
+  index,
+  name,
+  onClose,
+  onPrev,
+  onNext,
+}: {
+  gallery: string[];
+  index: number;
+  name: string;
+  onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose, onPrev, onNext]);
+
+  const src = gallery[index] ?? "";
+  const total = gallery.length;
+
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white/70 transition hover:border-white/30 hover:text-white"
+      >
+        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+
+      <span className="absolute left-1/2 top-4 -translate-x-1/2 rounded-full border border-white/10 bg-black/60 px-4 py-1 text-xs tracking-widest text-white/60">
+        {index + 1} / {total}
+      </span>
+
+      {total > 1 && (
+        <button
+          type="button"
+          aria-label="Previous photo"
+          onClick={(e) => { e.stopPropagation(); onPrev(); }}
+          className="absolute left-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white/70 transition hover:border-[#f5d68c]/40 hover:text-[#f5d68c] sm:left-6"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+      )}
+
+      <div
+        className="relative mx-16 max-h-[90vh] max-w-[90vw] sm:mx-20"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Image
+          src={getCloudinaryImageUrl(src, { width: 1200, height: 1600 })}
+          alt={`${name} photo ${index + 1}`}
+          width={1200}
+          height={1600}
+          sizes="90vw"
+          className="max-h-[90vh] w-auto rounded-2xl object-contain shadow-2xl"
+          priority
+        />
+      </div>
+
+      {total > 1 && (
+        <button
+          type="button"
+          aria-label="Next photo"
+          onClick={(e) => { e.stopPropagation(); onNext(); }}
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white/70 transition hover:border-[#f5d68c]/40 hover:text-[#f5d68c] sm:right-6"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function GirlsClient({
   initialProfiles,
   initialFavoriteIds = [],
@@ -398,6 +490,7 @@ export default function GirlsClient({
   } | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>(initialFavoriteIds);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const didApplyQueryProfileRef = useRef(false);
@@ -928,7 +1021,7 @@ export default function GirlsClient({
                       alt={profile.name}
                       fill
                       sizes="(max-width: 1024px) 50vw, 25vw"
-                      className="object-cover transition duration-700 group-hover:scale-105"
+                      className="object-contain transition duration-700 group-hover:scale-105"
                     />
                   ) : (
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(245,214,140,0.24),rgba(10,11,13,0.96)_65%)]" />
@@ -957,16 +1050,16 @@ export default function GirlsClient({
                     <NavIcon path="M12 20.5s-6.5-4.3-9-8.2C1.4 9 3 6 6.4 6c2.1 0 3.6 1.2 4.6 2.7C12 7.2 13.5 6 15.6 6 19 6 20.6 9 21 12.3c-2.5 3.9-9 8.2-9 8.2Z" />
                   </button>
 
-                  <div className="absolute inset-x-0 bottom-0 px-5 pb-3 pt-4">
+                  <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-3 sm:px-5 sm:pt-4">
                     <div className="mb-2 flex items-center justify-end">
-                      <span className="max-w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-4 py-2 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.22em] text-black opacity-100 transition duration-500 whitespace-normal break-words">
+                      <span className="max-w-full rounded-full bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-3 py-1.5 text-center text-[10px] font-semibold uppercase leading-snug tracking-[0.22em] text-black opacity-100 transition duration-500 whitespace-normal break-words sm:px-4 sm:py-2">
                         View Profile
                       </span>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between gap-3">
                         <div>
-                        <p className="text-lg font-semibold">
+                        <p className="text-base font-semibold sm:text-lg">
                           {profile.name}, {formatAge(profile.age)}
                         </p>
                         {profile.location && (
@@ -1220,26 +1313,43 @@ export default function GirlsClient({
                         No hay fotos subidas.
                       </div>
                     ) : (
-                      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {selectedProfile.gallery.map((src, index) => (
-                          <div
-                            key={`${src}-${index}`}
-                            className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
-                          >
-                            <Image
-                              src={getCloudinaryImageUrl(src, {
-                                width: 640,
-                                height: 800,
-                              })}
-                              alt={`${selectedProfile.name} gallery`}
-                              fill
-                              sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
-                              className="object-cover transition duration-700 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-black/20 opacity-0 transition group-hover:opacity-100" />
-                          </div>
-                        ))}
-                      </div>
+                      <>
+                        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {selectedProfile.gallery.map((src, index) => (
+                            <button
+                              key={`${src}-${index}`}
+                              type="button"
+                              onClick={() => setLightboxIndex(index)}
+                              className="group relative block w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0c0d10] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f5d68c]/60"
+                            >
+                              <Image
+                                src={getCloudinaryImageUrl(src, { width: 640, height: 800 })}
+                                alt={`${selectedProfile.name} photo ${index + 1}`}
+                                width={640}
+                                height={800}
+                                sizes="(max-width: 640px) 88vw, (max-width: 1024px) 44vw, 30vw"
+                                className="h-auto w-full transition duration-700 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition duration-300 group-hover:bg-black/30">
+                                <svg viewBox="0 0 24 24" className="h-8 w-8 scale-75 text-white opacity-0 transition duration-300 group-hover:scale-100 group-hover:opacity-100" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+                                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                                </svg>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+
+                        {lightboxIndex !== null && (
+                          <GalleryLightbox
+                            gallery={selectedProfile.gallery}
+                            index={lightboxIndex}
+                            name={selectedProfile.name}
+                            onClose={() => setLightboxIndex(null)}
+                            onPrev={() => setLightboxIndex((p) => p === null ? 0 : (p - 1 + selectedProfile.gallery.length) % selectedProfile.gallery.length)}
+                            onNext={() => setLightboxIndex((p) => p === null ? 0 : (p + 1) % selectedProfile.gallery.length)}
+                          />
+                        )}
+                      </>
                     )}
                   </section>
 

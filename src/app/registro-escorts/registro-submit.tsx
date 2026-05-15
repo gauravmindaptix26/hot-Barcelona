@@ -8,6 +8,8 @@ type UploadItem = {
   url: string;
 };
 
+type ImageApprovalStatus = "pending" | "approved" | "rejected";
+
 type Props = {
   initialImages?: string[];
   isEditingAd?: boolean;
@@ -46,6 +48,7 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
       url,
     }))
   );
+  const [imageApprovals, setImageApprovals] = useState<Record<string, ImageApprovalStatus>>({});
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -64,7 +67,7 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
       try {
         const raw = localStorage.getItem("loadedAdProfile");
         if (!raw) return;
-        const data = JSON.parse(raw) as { images?: string[] };
+        const data = JSON.parse(raw) as { images?: string[]; imageApprovals?: Record<string, string> };
         if (Array.isArray(data.images)) {
           setUploads(
             data.images.map((url, index) => ({
@@ -72,6 +75,15 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
               url,
             }))
           );
+        }
+        if (data.imageApprovals && typeof data.imageApprovals === "object") {
+          const normalized: Record<string, ImageApprovalStatus> = {};
+          for (const [url, status] of Object.entries(data.imageApprovals)) {
+            if (status === "pending" || status === "approved" || status === "rejected") {
+              normalized[url] = status;
+            }
+          }
+          setImageApprovals(normalized);
         }
       } catch {
         // ignore storage errors
@@ -84,7 +96,7 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
   useEffect(() => {
     const handlePrefill = (event: Event) => {
       const profile =
-        (event as CustomEvent<{ profile?: { images?: string[] } }>).detail?.profile;
+        (event as CustomEvent<{ profile?: { images?: string[]; imageApprovals?: Record<string, string> } }>).detail?.profile;
       if (!Array.isArray(profile?.images)) return;
 
       setUploads(
@@ -95,6 +107,15 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
             url,
           }))
       );
+      if (profile.imageApprovals && typeof profile.imageApprovals === "object") {
+        const normalized: Record<string, ImageApprovalStatus> = {};
+        for (const [url, status] of Object.entries(profile.imageApprovals)) {
+          if (status === "pending" || status === "approved" || status === "rejected") {
+            normalized[url] = status;
+          }
+        }
+        setImageApprovals(normalized);
+      }
     };
 
     window.addEventListener("profile:prefill", handlePrefill as EventListener);
@@ -471,33 +492,48 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
             <p className="mt-3 text-sm text-red-300">{uploadError}</p>
           )}
 
-          <div className="mt-4 grid gap-4 sm:mt-5 sm:grid-cols-2 lg:grid-cols-4">
-            {uploads.map((item, index) => (
-              <div
-                key={item.id}
-                className="relative h-40 overflow-hidden rounded-2xl border border-white/10 bg-black/50"
-              >
-                <Image
-                  src={item.url}
-                  alt="Upload preview"
-                  fill
-                  sizes="(max-width: 640px) 88vw, (max-width: 1024px) 42vw, 18vw"
-                  className="object-cover"
-                />
-                {index === 0 && (
-                  <span className="absolute left-2 top-2 rounded-full bg-[#f5d68c] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black shadow-[0_10px_22px_rgba(0,0,0,0.35)]">
-                    Top Picture
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeUpload(item.id)}
-                  className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:mt-5 sm:gap-4 lg:grid-cols-4">
+            {uploads.map((item, index) => {
+              const approvalStatus = imageApprovals[item.url] ?? null;
+              const isRejected = approvalStatus === "rejected";
+              return (
+                <div
+                  key={item.id}
+                  className={`relative h-32 overflow-hidden rounded-2xl border bg-black/50 sm:h-40 ${isRejected ? "border-red-500/70 ring-2 ring-red-500/40" : "border-white/10"}`}
                 >
-                  Remove
-                </button>
-              </div>
-            ))}
+                  <Image
+                    src={item.url}
+                    alt="Upload preview"
+                    fill
+                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 42vw, 18vw"
+                    className={`object-cover ${isRejected ? "opacity-60" : ""}`}
+                  />
+                  {isRejected && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-950/60">
+                      <svg viewBox="0 0 24 24" className="h-6 w-6 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4m0 4h.01" />
+                      </svg>
+                      <span className="mt-1.5 rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-lg">
+                        Rejected
+                      </span>
+                    </div>
+                  )}
+                  {index === 0 && !isRejected && (
+                    <span className="absolute left-2 top-2 rounded-full bg-[#f5d68c] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black shadow-[0_10px_22px_rgba(0,0,0,0.35)]">
+                      Top Picture
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeUpload(item.id)}
+                    className="absolute right-2 top-2 rounded-full bg-black/70 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white/70 transition hover:text-white"
+                  >
+                    Remove
+                  </button>
+                </div>
+              );
+            })}
             {uploads.length === 0 && (
               <div className="rounded-2xl border border-dashed border-white/20 bg-black/30 p-6 text-sm text-white/60">
                 No images uploaded yet.

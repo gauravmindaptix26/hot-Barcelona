@@ -328,7 +328,7 @@ export default function HomeDeferredSections() {
                       fill
                       sizes="(max-width: 640px) 88vw, (max-width: 1279px) 42vw, 28vw"
                       quality={70}
-                      className="object-cover transition duration-700 group-hover:scale-105"
+                      className="object-contain transition duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,10,14,0.18)_8%,rgba(8,10,14,0.88)_100%)]" />
                     <div className="absolute inset-0 opacity-0 transition duration-700 group-hover:opacity-100">
@@ -515,16 +515,16 @@ export default function HomeDeferredSections() {
                         fill
                         sizes="(max-width: 640px) 200px, (max-width: 1024px) 280px, 320px"
                         quality={72}
-                        className="object-cover transition duration-700 group-hover:scale-105"
+                        className="object-contain transition duration-700 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,11,13,0)_10%,rgba(10,11,13,0.76)_100%)] opacity-90" />
                       <div className="absolute inset-0 ring-1 ring-white/10 transition duration-500 group-hover:ring-[#f5d68c]/40" />
                       <div className="absolute inset-x-0 bottom-0 h-28 bg-[linear-gradient(180deg,rgba(10,11,13,0)_0%,rgba(10,11,13,0.94)_100%)]" />
-                      <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-5 lg:p-6">
                         <span className="text-[10px] uppercase tracking-[0.24em] text-[#f5d68c]/80 sm:text-[11px] sm:tracking-[0.35em]">
                           Banner Premium Superior
                         </span>
-                        <p className="mt-2 text-lg font-semibold leading-tight text-white sm:text-xl">
+                        <p className="mt-1.5 text-base font-semibold leading-tight text-white sm:mt-2 sm:text-xl">
                           {profile.name}
                           {profile.age ? `, ${profile.age}` : ""}
                         </p>
@@ -590,7 +590,7 @@ export default function HomeDeferredSections() {
                     fill
                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, (max-width: 1280px) 31vw, 23vw"
                     quality={70}
-                    className="object-cover transition duration-700 group-hover:scale-105"
+                    className="object-contain transition duration-700 group-hover:scale-105"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />
@@ -810,7 +810,7 @@ export default function HomeDeferredSections() {
                         fill
                         sizes="(max-width: 640px) 230px, (max-width: 1024px) 280px, 310px"
                         quality={70}
-                        className="object-cover transition duration-700 group-hover:scale-105"
+                        className="object-contain transition duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-[linear-gradient(145deg,rgba(245,214,140,0.18),rgba(17,18,22,1)_52%,rgba(212,106,122,0.18))]" />

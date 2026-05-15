@@ -98,14 +98,14 @@ export default function Navbar({
             <Link
               href="/"
               aria-label="Go to home"
-              className={`block -ml-6 -mt-6 sm:-ml-5 sm:-mt-5 ${
+              className={`block -ml-3 -mt-4 sm:-ml-5 sm:-mt-5 ${
                 compactDesktop
                   ? "lg:ml-0 lg:mt-0"
                   : "lg:-ml-28 lg:-mt-36"
               }`}
             >
             <div
-              className={`relative h-[13.5rem] w-[13.5rem] sm:h-[14rem] sm:w-[14rem] ${
+              className={`relative h-40 w-40 sm:h-56 sm:w-56 ${
                 compactDesktop
                   ? "lg:h-28 lg:w-28"
                   : "lg:h-[580px] lg:w-[580px]"

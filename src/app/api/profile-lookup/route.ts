@@ -74,6 +74,7 @@ export async function POST(req: Request) {
             age: 1,
             location: 1,
             images: 1,
+            imageApprovals: 1,
             formFields: 1,
             passwordHash: 1,
           },
@@ -96,6 +97,17 @@ export async function POST(req: Request) {
       const fallbackLocation =
         typeof doc.location === "string" ? doc.location.trim() : "";
 
+      const rawApprovals =
+        doc.imageApprovals && typeof doc.imageApprovals === "object" && !Array.isArray(doc.imageApprovals)
+          ? (doc.imageApprovals as Record<string, unknown>)
+          : {};
+      const imageApprovals: Record<string, string> = {};
+      for (const [url, status] of Object.entries(rawApprovals)) {
+        if (status === "pending" || status === "approved" || status === "rejected") {
+          imageApprovals[url] = status;
+        }
+      }
+
       return NextResponse.json({
         ok: true,
         profile: {
@@ -104,6 +116,7 @@ export async function POST(req: Request) {
           age: doc.age ?? null,
           location: savedAddress || fallbackLocation,
           images: Array.isArray(doc.images) ? doc.images : [],
+          imageApprovals,
           email,
           formFields,
         },
