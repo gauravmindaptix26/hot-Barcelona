@@ -55,6 +55,7 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
   const [legalAccepted, setLegalAccepted] = useState(false);
   const [missingLabels, setMissingLabels] = useState<string[]>([]);
   const successTimeoutRef = useRef<number | null>(null);
+  const successRef = useRef<HTMLDivElement | null>(null);
 
   const images = useMemo(() => uploads.map((item) => item.url), [uploads]);
 
@@ -107,6 +108,12 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (saveOk) {
+      successRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [saveOk]);
 
   const removeUpload = (id: string) => {
     setUploads((prev) => prev.filter((item) => item.id !== id));
@@ -366,10 +373,6 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
       await response.json().catch(() => null);
       const target = gender === "trans" ? "trans" : "girls";
       setSaveOk(true);
-      successTimeoutRef.current = window.setTimeout(() => {
-        setSaveOk(false);
-        successTimeoutRef.current = null;
-      }, 20_000);
       try {
         const payload = {
           name,
@@ -550,12 +553,21 @@ export default function RegistroSubmit({ initialImages = [], isEditingAd = false
         )}
         {saveOk && (
           <div
+            ref={successRef}
             role="status"
-            className="mt-5 rounded-2xl border border-green-300/30 bg-green-300/10 px-4 py-4 text-sm leading-relaxed text-green-100 shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
+            className="mt-5 rounded-2xl border border-green-300/40 bg-green-300/10 px-5 py-5 text-left shadow-[0_16px_36px_rgba(0,0,0,0.24)]"
           >
-            {isEditingAd
-              ? "Your changes are now awaiting admin approval. An email confirmation has been sent."
-              : "We have received your registration and the Hot Barcelona Admin Team will contact you soon by WhatsApp and/or email."}
+            <p className="text-sm font-semibold text-green-200">
+              {isEditingAd ? "Changes submitted successfully!" : "Registration received!"}
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-green-100/90">
+              {isEditingAd
+                ? "Your changes are now pending admin review. Once your profile is approved by the Hot Barcelona Admin Team, you will receive a confirmation email to your registered address."
+                : "Thank you for registering with Hot Barcelona. Your profile is now pending admin review. Once your profile is approved, the Admin Team will send a confirmation email to your registered address."}
+            </p>
+            <p className="mt-3 text-xs text-green-100/60">
+              Please do not close this page until you have noted this confirmation.
+            </p>
           </div>
         )}
 

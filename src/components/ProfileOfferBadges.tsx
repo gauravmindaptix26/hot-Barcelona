@@ -1,4 +1,5 @@
 import NavIcon from "./NavIcon";
+import { normalizeProfileLabel } from "@/lib/profile-labels";
 
 export type OfferHighlights = {
   activeOffer: string;
@@ -36,8 +37,8 @@ export const readOfferHighlights = (
 ): OfferHighlights => {
   const activeOfferUntil = readFirstText(fields.activeOfferUntil);
   const nextOfferFrom = readFirstText(fields.nextOfferFrom);
-  const savedActiveOffer = readFirstText(fields.activeOffer);
-  const savedNextOffer = readFirstText(fields.nextOffer);
+  const savedActiveOffer = normalizeProfileLabel(readFirstText(fields.activeOffer));
+  const savedNextOffer = normalizeProfileLabel(readFirstText(fields.nextOffer));
   const nextOfferIsActive = isDateTodayOrPast(nextOfferFrom);
   const activeOffer = isOfferExpired(activeOfferUntil)
     ? ""

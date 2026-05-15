@@ -50,76 +50,78 @@ export const authOptions: NextAuthOptions = {
 
         void ensureUsersIndexes();
         const db = await getDb();
-        const user =
-          !requestedAccountType || requestedAccountType === "users"
-            ? await db.collection("users").findOne({
-                email: normalizedEmail,
-              })
-            : null;
 
-        if (user?.passwordHash) {
-          const isValid = await bcrypt.compare(
-            normalizedPassword,
-            user.passwordHash
-          );
+        // Check advertiser collections first (unless caller explicitly wants users only).
+        // This ensures advertiser credentials always resolve to the advertiser account
+        // even when the same email exists in the users collection.
+        if (requestedAccountType !== "users") {
+          const advertiserCollections =
+            requestedAccountType === "girls" || requestedAccountType === "trans"
+              ? [requestedAccountType]
+              : ["girls", "trans"];
 
-          if (isValid) {
-            return {
-              id: user._id.toString(),
-              name: user.name,
-              email: user.email,
-              gender: user.gender,
-              accountType: "user",
-            };
+          for (const collectionName of advertiserCollections) {
+            const advertisers = await db
+              .collection(collectionName)
+              .find(
+                {
+                  email: normalizedEmail,
+                  isDeleted: { $ne: true },
+                },
+                {
+                  projection: {
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    formFields: 1,
+                    passwordHash: 1,
+                  },
+                }
+              )
+              .toArray();
+
+            for (const advertiser of advertisers) {
+              if (!advertiser?.passwordHash) continue;
+
+              const isValidAdvertiser = await bcrypt.compare(
+                normalizedPassword,
+                advertiser.passwordHash
+              );
+
+              if (!isValidAdvertiser) continue;
+
+              return {
+                id: advertiser._id.toString(),
+                name: advertiser.name || advertiser.formFields?.stageName || "Advertiser",
+                email: advertiser.email,
+                accountType: "advertiser",
+                advertiserType: collectionName,
+              };
+            }
           }
         }
 
-        if (requestedAccountType === "users") {
-          return null;
-        }
+        // Fall back to regular user account.
+        if (!requestedAccountType || requestedAccountType === "users") {
+          const user = await db.collection("users").findOne({
+            email: normalizedEmail,
+          });
 
-        const advertiserCollections =
-          requestedAccountType === "girls" || requestedAccountType === "trans"
-            ? [requestedAccountType]
-            : ["girls", "trans"];
-
-        for (const collectionName of advertiserCollections) {
-          const advertisers = await db
-            .collection(collectionName)
-            .find(
-              {
-                email: normalizedEmail,
-                isDeleted: { $ne: true },
-              },
-              {
-                projection: {
-                  _id: 1,
-                  name: 1,
-                  email: 1,
-                  formFields: 1,
-                  passwordHash: 1,
-                },
-              }
-            )
-            .toArray();
-
-          for (const advertiser of advertisers) {
-            if (!advertiser?.passwordHash) continue;
-
-            const isValidAdvertiser = await bcrypt.compare(
+          if (user?.passwordHash) {
+            const isValid = await bcrypt.compare(
               normalizedPassword,
-              advertiser.passwordHash
+              user.passwordHash
             );
 
-            if (!isValidAdvertiser) continue;
-
-            return {
-              id: advertiser._id.toString(),
-              name: advertiser.name || advertiser.formFields?.stageName || "Advertiser",
-              email: advertiser.email,
-              accountType: "advertiser",
-              advertiserType: collectionName,
-            };
+            if (isValid) {
+              return {
+                id: user._id.toString(),
+                name: user.name,
+                email: user.email,
+                gender: user.gender,
+                accountType: "user",
+              };
+            }
           }
         }
 

@@ -108,7 +108,7 @@ export default async function MyAdPage() {
           </div>
           <Link
             href="/registro-escorts"
-            className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#f5d68c]/50 bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-3 text-xs font-black uppercase tracking-[0.28em] text-black shadow-[0_18px_38px_rgba(245,179,92,0.42)] ring-1 ring-white/10 transition hover:scale-[1.02] hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#f5d68c]/70"
+            className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#f5d68c]/70 bg-gradient-to-r from-[#f5d68c] via-[#f5b35c] to-[#d46a7a] px-7 py-3 text-xs font-black uppercase tracking-[0.28em] text-white shadow-[0_18px_38px_rgba(245,179,92,0.42)] transition hover:scale-[1.02] hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#f5d68c]/70"
           >
             {ad ? "Edit Ad" : "Create Ad"}
           </Link>

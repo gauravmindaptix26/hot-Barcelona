@@ -258,6 +258,11 @@ const sanitizeGender = (value: unknown) => {
   return normalized === "girl" || normalized === "trans" ? normalized : "";
 };
 
+const rateFieldKeys = new Set(["rate20", "rate30", "rate45", "rate60"]);
+const euroPattern = new RegExp(String.fromCharCode(0x20ac), "g");
+const normalizeRateValue = (key: string, value: string) =>
+  rateFieldKeys.has(key) ? value.replace(euroPattern, "🌹") : value;
+
 const sanitizeFormFields = (input: unknown): PersistedFormFields => {
   if (!input || typeof input !== "object" || Array.isArray(input)) {
     return {};
@@ -268,14 +273,14 @@ const sanitizeFormFields = (input: unknown): PersistedFormFields => {
     if (key === "password" || key.toLowerCase().includes("email")) continue;
 
     if (typeof value === "string") {
-      fields[key] = value.trim();
+      fields[key] = normalizeRateValue(key, value.trim());
       continue;
     }
 
     if (Array.isArray(value)) {
       fields[key] = value
         .filter((item): item is string => typeof item === "string")
-        .map((item) => item.trim())
+        .map((item) => normalizeRateValue(key, item.trim()))
         .filter(Boolean);
     }
   }
